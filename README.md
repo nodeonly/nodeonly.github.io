@@ -14,3 +14,6 @@
 	./deploy.sh
 ```
 
+## jekyll用法
+
+http://jekyllrb.com/docs/usage/
