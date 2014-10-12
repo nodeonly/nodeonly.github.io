@@ -1,2 +1,7 @@
 _site
 .sass-cache
+about
+css
+jekyll
+feed.xml
+deploy.sh
