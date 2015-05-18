@@ -23,7 +23,7 @@ https://medium.com/node-js-javascript/io-js-week-of-may-15th-9ada45bd8a28
 
     As a first step, we will move from iojs organization to nodejs organization and will converge joyent/node gradually. We will continue to release io.js until the convergence have done.
 
-我们会持续发布io.js，知道收编完成。
+我们会持续发布io.js，直到收编完成。
 
     We will continue to release io.js until the convergence have done.
 
