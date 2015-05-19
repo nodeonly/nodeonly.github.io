@@ -1,3 +1,12 @@
+---
+layout: post
+title: "关于学习"
+description: ""
+keywords: ""
+category: 
+tags: []
+---
+
 # 关于学习
 
 ## 关于杂与专
