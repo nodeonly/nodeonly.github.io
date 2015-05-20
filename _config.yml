@@ -10,3 +10,7 @@ github_username:  nodeonly
 
 # Build settings
 markdown: kramdown
+comments :
+provider : duoshuo
+duoshuo : 
+  short_name : nodeonly
