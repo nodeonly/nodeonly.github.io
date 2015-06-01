@@ -24,29 +24,27 @@ kp is a tool for kill process by server port. only use for mac && linux
 
 ### Usage 
 
-default server port is 3000
+default server port is 3000，直接执行kp会杀死使用3000端口的应用
 
-```
-kp
-```
+    kp
 
 根据某个端口
 
-```
-kp 3002
-```
+
+    kp 3002
+
 
 支持sudo，因为有的时候有权限的问题
 
-```
-kp 3002 -s or kp 3002 --sudo
-```
+
+    kp 3002 -s or kp 3002 --sudo
+
 
 目前centos/ubuntu和mac已经测过
 
 感谢@jysperm反馈：fuser 来自 psmisc 这个包（killall 也在这个包里），Ubuntu 默认安装，其他系统不清楚。
 
-没有使用fuser的原因是：fuser，但在mac上不能用
+没有使用fuser的原因是：fuser在mac上不能用
 
 ## mount-routes
 
@@ -59,21 +57,20 @@ mount-routes = auto mount express routes with routes_folder_path
 ### Usages
 
 
-```
-var express = require('express')
-var app = express()
+    var express = require('express')
+    var app = express()
 
-var mount = require('mount-routes');
+    var mount = require('mount-routes');
 
-// simple
-// mount(app);
+    // simple
+    // mount(app);
 
-// with path
-mount(app,'routes2');
+    // with path
+    mount(app,'routes2');
 
-// start server
-app.listen(23018)
-```
+    // start server
+    app.listen(23018)
+    
 
 ### 使用方式1  mount(app);
 
@@ -83,10 +80,13 @@ app.listen(23018)
 
 它相当于
 
-```
-var movies = require('./config/routes/movies');
-app.use('/movies',movies);
-```
+
+
+    var movies = require('./config/routes/movies');
+
+    app.use('/movies',movies);
+
+
 
 ### 使用方式2  mount(app,'routes2');
 
@@ -96,22 +96,25 @@ app.use('/movies',movies);
 
 它相当于
 
-```
-var movies = require('./config/routes2/movies');
-app.use('/movies',movies);
-```
+    var movies = require('./config/routes2/movies');
+
+    app.use('/movies',movies);
+
+
 
 ### 总结
 
 可以一次挂载多个路由目录
 
-```
-// simple
-mount(app);
 
-// with path
-mount(app,'routes2');
-```
+
+    // simple
+    mount(app);
+
+    // with path
+    mount(app,'routes2');
+
+
 
 但要小心文件名不能重复，不然会有问题，比如
 
