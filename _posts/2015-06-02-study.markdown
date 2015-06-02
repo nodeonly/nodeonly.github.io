@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "如何学习？"
+title: "如何学习之善用github篇"
 description: ""
 keywords: ""
 category: 
@@ -9,7 +9,7 @@ tags: []
 
 
 
-## 如何学习？
+## 如何学习之善用github篇
 
 从代码看人,以pana为例
 
