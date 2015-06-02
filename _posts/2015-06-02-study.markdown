@@ -1,0 +1,85 @@
+---
+layout: post
+title: "如何学习？"
+description: ""
+keywords: ""
+category: 
+tags: []
+---
+
+
+
+## 如何学习？
+
+从代码看人,以pana为例
+
+![](/css/2015-06-02/p2.png)
+
+### nrm 很不错
+
+nrm是一个node源管理器，主要是测速和快速切换源
+
+    nrm test
+    nrm use taobao
+
+虽然之前写的数据不是特别准（fengmk2），但是这个想法很好，如果没猜错，应该是借鉴`nrm`
+
+无论如何，他实现了，而且很好用
+
+里面的主要知识点是cli相关部分，一个会写cli的人，基本上*nix和shell玩的都不错，综合素质应该是不错的
+
+
+### 善于github trending
+
+https://github.com/trending
+
+有图为证
+
+![](/css/2015-06-02/pana.png)
+
+话说，知道关注trending的人不太多，一般比较geek一点的人喜欢看这个，对技术非常热爱
+
+trending里大部分是最近比较流行的，star数增长最快的项目
+
+- 有创意，想法的好项目
+- 有最佳实践
+- 有show技术
+
+总之，trending你值得拥有
+
+pana能够去关注，star，说明他比较潮，喜欢新技术
+
+### 社区贡献
+
+cnode上就不说了
+
+他得首页上，参与贡献的项目
+
+- ChinaNode/DailyNode
+- nodejs/iojs-cn 
+- ChinaNode/koajs.in
+- rajaraodv/redispubsub
+- tj/co
+
+参与翻译iojs的文档，英文应该还不错
+
+关注koa和co，并能贡献，应该是对es6也非常了解，nodejs水平应该不错
+
+贡献redispubsub，对消息队列和redis有一定研究
+
+### 总结
+
+github上基本可以看出一个程序员的水平，这其实是为啥很多公司招聘让程序员报github和stackoverflow的原因
+
+我写这篇文章的目的，是希望大家能够向pana学习，如果借助github这个平台，达到自己技术梦想的目的。
+
+## 比较supervisor和nodemon
+
+todo
+
+
+欢迎关注我的公众号【node全栈】
+
+![](/css/node全栈-公众号.png)
+
+
