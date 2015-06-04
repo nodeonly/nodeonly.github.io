@@ -55,7 +55,7 @@ http://poi.apache.org/
 
 ## 分享一个简单的工具类
 
-```
+
     package im.xbm.dlcenter.test;
 
     import java.io.File;
@@ -239,7 +239,7 @@ http://poi.apache.org/
     		return dataList;
     	}
     }
-```
+
 
 从这个可以看出poi的用法，整体还是比较简单
 
