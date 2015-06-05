@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Node Excel Practice"
+title: "Nodejs 里Excel开发实践"
 description: ""
 keywords: ""
 category: 
@@ -8,6 +8,12 @@ tags: []
 ---
 
 excel的导入导出在一般业务系统里是非常常见的，但是nodejs里并没有成熟的处理excel的库，导入问题不大，稍微复杂的导出就搞不定了
+
+- exceljs 
+- excel.js 
+- node-xlsx
+
+都太简单了...
 
 那么，只剩下曲线救国一条路了
 
