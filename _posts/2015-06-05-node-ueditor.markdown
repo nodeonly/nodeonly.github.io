@@ -26,36 +26,36 @@ http://ueditor.baidu.com/website/
 
 ## 服务器端用法
 
-```
-var bodyParser = require('body-parser')
-var ueditor = require("ueditor")
-app.use(bodyParser.urlencoded({
-  extended: true
-}))
-app.use(bodyParser.json());
 
-app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function(req, res, next) {
-  // ueditor 客户发起上传图片请求
-  if(req.query.action === 'uploadimage'){
-    var foo = req.ueditor;
-    var date = new Date();
-    var imgname = req.ueditor.filename;
+    var bodyParser = require('body-parser')
+    var ueditor = require("ueditor")
+    app.use(bodyParser.urlencoded({
+      extended: true
+    }))
+    app.use(bodyParser.json());
 
-    var img_url = '/images/ueditor/';
-    res.ue_up(img_url); //你只要输入要保存的地址 。保存操作交给ueditor来做
-  }
-  //  客户端发起图片列表请求
-  else if (req.query.action === 'listimage'){
-    var dir_url = '/images/ueditor/';
-    res.ue_list(dir_url);  // 客户端会列出 dir_url 目录下的所有图片
-  }
-  // 客户端发起其它请求
-  else {
+    app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function(req, res, next) {
+      // ueditor 客户发起上传图片请求
+      if(req.query.action === 'uploadimage'){
+        var foo = req.ueditor;
+        var date = new Date();
+        var imgname = req.ueditor.filename;
 
-    res.setHeader('Content-Type', 'application/json');
-    res.redirect('/ueditor/ueditor.config.json')
-}}));
-```
+        var img_url = '/images/ueditor/';
+        res.ue_up(img_url); //你只要输入要保存的地址 。保存操作交给ueditor来做
+      }
+      //  客户端发起图片列表请求
+      else if (req.query.action === 'listimage'){
+        var dir_url = '/images/ueditor/';
+        res.ue_list(dir_url);  // 客户端会列出 dir_url 目录下的所有图片
+      }
+      // 客户端发起其它请求
+      else {
+
+        res.setHeader('Content-Type', 'application/json');
+        res.redirect('/ueditor/ueditor.config.json')
+    }}));
+
 
 注意包得引用和配置项即可。再有就是提前创建好目录，防止报错。
 
@@ -65,15 +65,15 @@ app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function(req, res
 
 步骤2： 修改`/ueditor/ueditor.config.js`
 
-```
-    window.UEDITOR_CONFIG = {
 
-        //为编辑器实例添加一个路径，这个不能被注释
-        UEDITOR_HOME_URL: URL
+      window.UEDITOR_CONFIG = {
 
-        // 服务器统一请求接口路径
-        , serverUrl: URL + 'ue'
-```
+          //为编辑器实例添加一个路径，这个不能被注释
+          UEDITOR_HOME_URL: URL
+
+          // 服务器统一请求接口路径
+          , serverUrl: URL + 'ue'
+
 
 serverUrl必须和上面的服务器端配置的一样
 
