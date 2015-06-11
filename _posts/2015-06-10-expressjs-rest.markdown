@@ -20,20 +20,21 @@ tags: []
 
 其实只要稍微转换一下思路，放弃传统的OOP方式，以函数对象看待res.send()，我们就可以先保存原始的处理函数res.send，再用自己的处理函数替换res.send：
 
-app.use(function (req, res, next) {
-    // 记录start time:
-    var exec_start_at = Date.now();
-    // 保存原始处理函数:
-    var _send = res.send;
-    // 绑定我们自己的处理函数:
-    res.send = function () {
-        // 发送Header:
-        res.set('X-Execution-Time', String(Date.now() - exec_start_at));
-        // 调用原始处理函数:
-        return _send.apply(res, arguments);
-    };
-    next();
-});
+    app.use(function (req, res, next) {
+        // 记录start time:
+        var exec_start_at = Date.now();
+        // 保存原始处理函数:
+        var _send = res.send;
+        // 绑定我们自己的处理函数:
+        res.send = function () {
+            // 发送Header:
+            res.set('X-Execution-Time', String(Date.now() - exec_start_at));
+            // 调用原始处理函数:
+            return _send.apply(res, arguments);
+        };
+        next();
+    });
+
 只用了几行代码，就把时间戳搞定了。
 
 对于res.render()方法不需要处理，因为res.render()内部调用了res.send()。
