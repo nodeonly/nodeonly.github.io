@@ -1,0 +1,138 @@
+---
+layout: post
+title: "pm2 issue"
+description: ""
+keywords: ""
+category: 
+tags: []
+---
+
+
+## pm2
+
+好处就不说了
+
+今天遇到一个奇怪的问题，部署一台新的机器，无论怎么弄，什么版本都会报错
+ 
+```
+js-bson: Failed to load c++ bson extension, using pure JS version
+```
+
+我曾经无数次的怀疑，是mongodb的问题，于是我手动编译了bson和bson-ext，以及相关的
+
+- connect-mongo
+- mongoose
+
+可是还不好使。。。。。
+
+我觉得很奇怪，没有理由啊，我去查pm2的源码和文档，发现cluster mode必须是0.12之后才有，之前的方式都是fork模式的。
+
+最后发现 https://github.com/Unitech/PM2/issues/957
+
+
+@jorge-d commented on Mar 11
+
+
+```
+I just tested with node v0.12.0 and pm2 0.12.7 and everything seems to be working fine...
+Could you do a simple test ? run pm2 kill; pm2 start app.js -i 0 and tell me whether it starts in cluster of fork mode ?
+```
+
+然后那货的问题就解决了，然后我试了一下
+
+    pm2 kill
+    
+是杀死pm2自己的进程，然后产生新的，相当于重启。
+
+然后再跑就可以了
+
+## 反思一下，为什么会出现这样的问题？
+
+node的版本较多
+
+- nodejs（0.10 和0.12 集群模块不一样，还有就是对es6的支持）
+- iojs（目前以及2.3+）
+
+我最开始部署的时候用的是iojs最新版本，然后我启动过`pm2`,克隆完源码之后，`npm install`的时候有模块无法编译，所以我就切换0.10了
+
+哎，我没有想到pm2会一直存在，只要不kill就在，而且我不喜欢动不动就重启服务器，所以花了几个小时的时间才解决。
+
+## pm2 deploy
+
+ruby 里有 capistrano 部署
+
+- http://capistranorb.com/
+
+node世界里也有shipit
+
+- https://github.com/shipitjs/shipit
+
+说白点都是“Universal automation and deployment tool”，通用自动化部署工具而已。
+
+实际上Unitech也打算给pm2增加这样的功能，让pm2成为一个全能的货
+
+- 代码： https://github.com/Unitech/pm2-deploy
+- 文档：https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#deployment-help
+
+
+它完成了几件事儿
+
+- evn环境变量
+- ssh远程key配置
+- git代码以及分支切换
+- 各种回调钩子，比如post-deploy
+
+以上特性足矣和任何ci或者其他自动化工具集成了，目前可以当小白鼠的。
+
+## 部署相关，小弟们必看
+
+部署的基本常识
+
+- https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps
+
+NGINX+PM2组合
+
+- https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/
+
+注意配置
+
+```
+server {  
+  server_name your.domain.com;
+  listen 80;
+
+  location / {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://127.0.0.1:3000;
+    proxy_redirect off;
+  }
+}
+```
+
+如果有兴趣，也可以看一下我写的node部署
+
+http://nodeonly.com/2015/06/02/deploy.html
+
+## 这样的部署真的足够了么？
+
+一台一台机器的部署也是醉了。。。。哥是程序员啊
+
+复用和弹性伸缩才是真爱
+
+所以比较好的方式是使用docker来处理，docker是lxc，里面可以部署任意linux系统
+配置各种环境，完成任意弹性扩容
+
+目前nearfarm已经有一个不错的实现
+
+https://github.com/nearform/nscale
+
+具体原理以及相关实践，稍后整理
+
+全文完
+
+欢迎关注我的公众号【node全栈】
+
+![](/css/node全栈-公众号.png)
