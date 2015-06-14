@@ -275,6 +275,9 @@ exports.api = {
 
 想想就很美好，美好就继续美好吧~
 
+补一下
+
+- Nodejs RESTFul架构实践 http://nodeonly.com/2015/06/09/expressjs-rest.html
 
 全文完
 

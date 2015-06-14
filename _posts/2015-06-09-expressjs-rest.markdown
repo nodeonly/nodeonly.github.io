@@ -516,7 +516,9 @@ Expressjs下可以写的很规范，可以有做大应用，可以有很好的�
 
 
 
-欢迎关注我的公众号【node全栈】
+延伸阅读
+
+- Nodejs RESTFul架构实践之api篇 http://nodeonly.com/2015/06/14/node-restful-api.html
 
 
 欢迎关注我的公众号【node全栈】
