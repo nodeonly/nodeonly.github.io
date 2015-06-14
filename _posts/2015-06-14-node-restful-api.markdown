@@ -9,8 +9,13 @@ tags: []
 
 ## why token based auth?
 
-此段摘自 http://zhuanlan.zhihu.com/FrontendMagazine/19920223
-英文原文 http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
+此段摘自 
+
+- http://zhuanlan.zhihu.com/FrontendMagazine/19920223
+
+英文原文
+
+- http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
 
 
 在讨论了关于基于 token 认证的一些基础知识后，我们接下来看一个实例。看一下下面的几点，然后我们会仔细的分析它：
@@ -67,37 +72,37 @@ http://github.com/auth0/node-jsonwebtoken
 
 在app/routes/api/index.js里
 
-```
-// auth
-router.post('/auth', function(req, res, next) {
-  User.one({username: req.body.username},function(err, user){
-    if (err) throw err;
-    console.log(user);
 
-    if (!user) {
-        res.json({ success: false, message: '认证失败，用户名找不到' });
-    } else if (user) {
+    // auth
+    router.post('/auth', function(req, res, next) {
+      User.one({username: req.body.username},function(err, user){
+        if (err) throw err;
+        console.log(user);
 
-      // 检查密码
-      if (user.password != req.body.password) {
-          res.json({ success: false, message: '认证失败，密码错误' });
-      } else {
-        // 创建token
-        var token = jwt.sign(user, 'app.get(superSecret)', {
-            'expiresInMinutes': 1440 // 设置过期时间
-        });
+        if (!user) {
+            res.json({ success: false, message: '认证失败，用户名找不到' });
+        } else if (user) {
 
-        // json格式返回token
-        res.json({
-            success: true,
-            message: 'Enjoy your token!',
-            token: token
-        });
-      }
-    }
-  });
-});
-```
+          // 检查密码
+          if (user.password != req.body.password) {
+              res.json({ success: false, message: '认证失败，密码错误' });
+          } else {
+            // 创建token
+            var token = jwt.sign(user, 'app.get(superSecret)', {
+                'expiresInMinutes': 1440 // 设置过期时间
+            });
+
+            // json格式返回token
+            res.json({
+                success: true,
+                message: 'Enjoy your token!',
+                token: token
+            });
+          }
+        }
+      });
+    });
+
 
 - post请求
 - 地址http://127.0.0.1:3019/api/auth
@@ -117,23 +122,23 @@ router.post('/auth', function(req, res, next) {
 
 在`app/routes/api/groups.js`里
 
-```
-var express = require('express');
-var router = express.Router();
 
-var $ = require('../../controllers/groups_controller');
-var $middlewares = require('mount-middlewares');
+    var express = require('express');
+    var router = express.Router();
 
-router.get('/list', $middlewares.check_api_token, $.api.list);
+    var $ = require('../../controllers/groups_controller');
+    var $middlewares = require('mount-middlewares');
 
-module.exports = router;
-```
+    router.get('/list', $middlewares.check_api_token, $.api.list);
+
+    module.exports = router;
+
 
 核心代码
 
-```
-router.get('/list', $middlewares.check_api_token, $.api.list);
-```
+
+    router.get('/list', $middlewares.check_api_token, $.api.list);
+
 
 说明
 
@@ -143,41 +148,41 @@ router.get('/list', $middlewares.check_api_token, $.api.list);
 
 ### 中间件$middlewares.check_api_token
 
-```
-/*!
- * Moajs Middle
- * Copyright(c) 2015-2019 Alfred Sang <shiren1118@126.com>
- * MIT Licensed
- */
 
-var jwt = require('jsonwebtoken');//用来创建和确认用户信息摘要
-// 检查用户会话
-module.exports = function(req, res, next) {
-  console.log('检查post的信息或者url查询参数或者头信息');
-  //检查post的信息或者url查询参数或者头信息
-  var token = req.body.token || req.query.token || req.headers['x-access-token'];
-  // 解析 token
-  if (token) {
-    // 确认token
-    jwt.verify(token, 'app.get(superSecret)', function(err, decoded) {
-      if (err) {
-        return res.json({ success: false, message: 'token信息错误.' });
+    /*!
+     * Moajs Middle
+     * Copyright(c) 2015-2019 Alfred Sang <shiren1118@126.com>
+     * MIT Licensed
+     */
+
+    var jwt = require('jsonwebtoken');//用来创建和确认用户信息摘要
+    // 检查用户会话
+    module.exports = function(req, res, next) {
+      console.log('检查post的信息或者url查询参数或者头信息');
+      //检查post的信息或者url查询参数或者头信息
+      var token = req.body.token || req.query.token || req.headers['x-access-token'];
+      // 解析 token
+      if (token) {
+        // 确认token
+        jwt.verify(token, 'app.get(superSecret)', function(err, decoded) {
+          if (err) {
+            return res.json({ success: false, message: 'token信息错误.' });
+          } else {
+            // 如果没问题就把解码后的信息保存到请求中，供后面的路由使用
+            req.api_user = decoded;
+            console.dir(req.api_user);
+            next();
+          }
+        });
       } else {
-        // 如果没问题就把解码后的信息保存到请求中，供后面的路由使用
-        req.api_user = decoded;
-        console.dir(req.api_user);
-        next();
+        // 如果没有token，则返回错误
+        return res.status(403).send({
+            success: false,
+            message: '没有提供token！'
+        });
       }
-    });
-  } else {
-    // 如果没有token，则返回错误
-    return res.status(403).send({
-        success: false,
-        message: '没有提供token！'
-    });
-  }
-};
-```
+    };
+
 
 这个很容易解释，只要参数有token或者头信息里有x-access-token，我们就认定它是一个api接口，
 
@@ -187,28 +192,28 @@ module.exports = function(req, res, next) {
 
 在`app/controllers/groups_controller.js`里
 
-```
-exports.api = {
-  list: function (req, res, next) {
-    console.log(req.method + ' /groups => list, query: ' + JSON.stringify(req.query));
+
+    exports.api = {
+      list: function (req, res, next) {
+        console.log(req.method + ' /groups => list, query: ' + JSON.stringify(req.query));
   
-    var user_id = req.api_user._id;
+        var user_id = req.api_user._id;
     
-    Group.query({ower_id: user_id}, function(err, groups){
-      console.log(groups);
-      res.json({
-        data:{
-          groups : groups
-        },
-        status:{
-          code  : 0,
-          msg   : 'success'
-        }
-      })
-    });
-  }
-}
-```
+        Group.query({ower_id: user_id}, function(err, groups){
+          console.log(groups);
+          res.json({
+            data:{
+              groups : groups
+            },
+            status:{
+              code  : 0,
+              msg   : 'success'
+            }
+          })
+        });
+      }
+    }
+
 
 让scaffold生成代码和api共存，清晰明了
 
@@ -225,13 +230,13 @@ exports.api = {
 - url = http://127.0.0.1:3019/api/groups/list
 - 参数token
 
-```
-curl http://127.0.0.1:3019/api/groups/list\?token\=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NTc4MzJkZjk0ZTFjN2YyMDJmYTVlNGUiLCJ1c2VybmFtZSI6InNhbmciLCJwYXNzd29yZCI6IjAwMDAwMCIsImF2YXRhciI6IiIsInBob25lX251bWJlciI6IiIsImFkZHJlc3MiOiIiLCJfX3YiOjB9.Wv5za6GpJSMi346o625_8FxfoM4dJ1cWNuezG10zQG4
+
+    curl http://127.0.0.1:3019/api/groups/list\?token\=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NTc4MzJkZjk0ZTFjN2YyMDJmYTVlNGUiLCJ1c2VybmFtZSI6InNhbmciLCJwYXNzd29yZCI6IjAwMDAwMCIsImF2YXRhciI6IiIsInBob25lX251bWJlciI6IiIsImFkZHJlc3MiOiIiLCJfX3YiOjB9.Wv5za6GpJSMi346o625_8FxfoM4dJ1cWNuezG10zQG4
 
 
-  {"data":{"groups":[{"_id":"557d32a282f9ddcc76a540e8","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d32b082f9ddcc76a540e9","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d32f082f9ddcc76a540ea","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d33804f5905de78e1c25a","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d33984f5905de78e1c25b","name":"anan","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"2323","is_public":"232","__v":0}]},"status":{"code":0,"msg":"success"}}  
+      {"data":{"groups":[{"_id":"557d32a282f9ddcc76a540e8","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d32b082f9ddcc76a540e9","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d32f082f9ddcc76a540ea","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d33804f5905de78e1c25a","name":"sjkljkl","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"","is_public":"","__v":0},{"_id":"557d33984f5905de78e1c25b","name":"anan","desc":"2323","ower_id":"557832df94e1c7f202fa5e4e","users":"2323","is_public":"232","__v":0}]},"status":{"code":0,"msg":"success"}}  
 
-```
+
 
 ### 模型，查询以及其他
 
@@ -253,16 +258,16 @@ curl http://127.0.0.1:3019/api/groups/list\?token\=eyJ0eXAiOiJKV1QiLCJhbGciOiJIU
 
 2) 然后在对应的controller里，增加
 
-```
-exports.api = {
-  aa:function(req, res, next){
-    var user_id = req.api_user._id;
-  },
-  bb:function(req, res, next){
-    var user_id = req.api_user._id;
-  }
-}
-```
+
+    exports.api = {
+      aa:function(req, res, next){
+        var user_id = req.api_user._id;
+      },
+      bb:function(req, res, next){
+        var user_id = req.api_user._id;
+      }
+    }
+
 
 3) 简单写点模型的查询方法就可以了
 
