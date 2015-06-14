@@ -245,7 +245,6 @@ curl http://127.0.0.1:3019/api/groups/list\?token\=eyJ0eXAiOiJKV1QiLCJhbGciOiJIU
 
 如果还想玩的更high一点，可以增加一个service层，把多个model的操作放到里面。
 
-
 ## 总结
 
 以后写api，可以这样玩
@@ -269,6 +268,12 @@ exports.api = {
 
 是不是很简单？
 
+- 使用mount-routes自动挂载routes
+- 使用mongoosedao更简单的接口
+
+如果以后再提供生成器呢？
+
+想想就很美好，美好就继续美好吧~
 
 
 全文完
