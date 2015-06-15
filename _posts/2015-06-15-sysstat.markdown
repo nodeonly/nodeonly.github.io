@@ -77,6 +77,30 @@ ionic 分享到微信的例子，还不错
 - http://xingzhewujiang.org/press/add-wechat-share-to-cordova-ionic-angularjs-based-app.html
 
 
+pixi 是 Super fast HTML 5 2D rendering engine that uses webGL with canvas fallback
+
+h5游戏引擎
+
+https://github.com/GoodBoyDigital/pixi.js
+
+它比较有意思是的gulp的加载，https://github.com/GoodBoyDigital/pixi.js/tree/master/gulp/tasks
+
+它使用的是require-dir来加载的，我也写了一个
+
+- mount-tasks https://github.com/moajs/mount-tasks
+
+
+示例
+
+    var gulp        = require('gulp');
+
+    // Require all tasks in vendor/tasks, including subfolders
+    require('mount-tasks')(__dirname + '/tasks')
+
+    // default task
+    gulp.task('default', ['clean', 'build']);
+
+
 ## 好的开源项目
 
 https://github.com/chmontgomery/gulp-help
