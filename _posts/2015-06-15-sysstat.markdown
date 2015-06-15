@@ -1,0 +1,131 @@
+---
+layout: post
+title: "Sysstat"
+description: ""
+keywords: ""
+category: 
+tags: []
+---
+
+Sysstat 是一个软件包，包含监测系统性能及效率的一组工具，这些工具对于我们收集系统性能数据，比如CPU使用率、硬盘和网络吞吐数据，这些数据的收集和分析，有利于我们判断系统是否正常运行，是提高系统运行效率、安全运行服务器的得力助手；
+
+## install
+
+     wget http://pagesperso-orange.fr/sebastien.godard/sysstat-11.1.5.tar.gz
+     cd sysstat-11.1.5
+     ./configure
+     make
+     sudo make install
+
+## 可用命令
+
+
+Sysstat 软件包集成如下工具：
+
+    * iostat 工具提供CPU使用率及硬盘吞吐效率的数据；
+    * mpstat 工具提供单个处理器或多个处理器相关数据；
+    * sar 工具负责收集、报告并存储系统活跃的信息；
+    * sa1 工具负责收集并存储每天系统动态信息到一个二进制的文件中。它是通过计划任务工具cron来运行，
+        是为sadc所设计的程序前端程序；
+    * sa2 工具负责把每天的系统活跃性息写入总结性的报告中。它是为sar所设计的前端 ，要通过cron来调用
+    * sadc 是系统动态数据收集工具，收集的数据被写一个二进制的文件中，它被用作sar工具的后端；
+    * sadf 显示被sar通过多种格式收集的数据；
+
+## 用法说明
+
+- http://sebastien.godard.pagesperso-orange.fr/tutorial.html
+- http://www.eygle.com/digest/2007/07/linux_sysstat.html
+
+### sar
+
+    man sar
+
+sar - Collect, report, or save system activity information.
+
+
+    [deploy@iZ251uvtr2b ~]$ sar -u -o datafile 2 3
+    Linux 3.10.0-229.4.2.el7.x86_64 (iZ251uvtr2bZ) 	06/15/2015 	_x86_64_	(4 CPU)
+
+    11:34:42 AM     CPU     %user     %nice   %system   %iowait    %steal     %idle
+    11:34:44 AM     all      0.13      0.00      0.13      0.00      0.00     99.75
+    11:34:46 AM     all      0.13      0.00      0.00      0.00      0.00     99.87
+    11:34:48 AM     all      0.13      0.00      0.13      0.13      0.00     99.62
+    Average:        all      0.13      0.00      0.08      0.04      0.00     99.75
+
+
+
+## 关于 Sysstat 计划任务
+
+
+crontab即可，没啥特殊的
+
+## 分享一些资源
+
+- http://thenodeway.io/posts/understanding-error-first-callbacks/
+- http://thenodeway.io/posts/testing-essentials/
+
+- http://thenodeway.io/posts/designing-singletons/
+- http://thenodeway.io/posts/designing-custom-types/
+- http://thenodeway.io/posts/designing-factories/
+
+- http://thenodeway.io/posts/how-require-actually-works/
+- http://thenodeway.io/posts/dangerous-module-design-patterns/
+
+
+ionic 分享到微信的例子，还不错
+
+- http://xingzhewujiang.org/press/add-wechat-share-to-cordova-ionic-angularjs-based-app.html
+
+
+## 好的开源项目
+
+https://github.com/chmontgomery/gulp-help
+
+它很好的把cli的模式引入到gulp插件了
+
+通过
+
+    gulp help
+    
+给对应的task增加说明描述信息，使其更具有可读性
+
+https://github.com/nodeonly/Chart.js
+
+演示http://www.chartjs.org/
+
+基于canvas绘制的图表工具，天生h5，支持响应式，基本图表该有的都有
+
+最让我吃惊的是它又将近15000个star。。。。
+
+
+https://github.com/meteoric/meteor-ionic
+
+
+Ionic components for Meteor. No Angular! 
+http://meteoric.github.io
+
+整合2个怪兽，不过还是很好用的，这个栈很潮，如果你搞的定，可以试试
+
+
+## 地区问题
+
+东莞不支持子区域，比如厚街镇这样的地方是没有，需要手动添加
+
+另外像太仓市，实际上是江苏苏州的地级市，但是客户并不清楚，所以级联选择地址是有很多弊病的。
+
+还是需要更智能一点的组件。
+
+## 状态问题
+
+今天发现一些数据不对，是因为状态跳转，之前有状态0，但现在状态0和1合并为1，所以0成了孤儿。
+
+那么查询的时候，如果没有状态 in （1，2，3），那么你肯定会把0查出来，这样就会导致数据问题，非常难差
+
+所以防御式编程的时候，需要处理in这样的方式
+
+
+全文完
+
+欢迎关注我的公众号【node全栈】
+
+![](/css/node全栈-公众号.png)

@@ -112,9 +112,31 @@ NGINX+PM2组合
     }
 
 
+图片处理https://serversforhackers.com/nginx-caching
+
+  	location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+  		expires 1y;
+  		log_not_found off;
+  	}
+
+
+
 如果有兴趣，也可以看一下我写的node部署
 
 http://nodeonly.com/2015/06/02/deploy.html
+
+
+
+sudo systemctl enable nginx.service
+sudo systemctl enable redis.service
+sudo chkconfig mongod on
+
+
+nohup node /home/deploy/workspace/oschina/mxb-sms/app.js > /home/deploy/workspace/oschina/mxb-sms/sms.log 2>&1 &
+
+
+
+
 
 ## 这样的部署真的足够了么？
 
