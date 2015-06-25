@@ -192,6 +192,13 @@ iptables 开启6666端口  此步骤须先于下面步骤，否则会造成ssh�
             proxy_redirect off;
         }
 
+
+10.资源
+
+- http://wiki.mikejung.biz/CentOS_7
+- http://wiki.mikejung.biz/OS_Tuning
+- http://itgeeker.net/centos-7-minimal-optimization-10-ways-after-new-installation-by-itgeeker/
+
 全文完
 
 欢迎关注我的公众号【node全栈】
