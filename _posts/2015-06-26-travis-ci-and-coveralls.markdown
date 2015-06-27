@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "Nodejs开源项目怎么样写测试和代码测试覆盖率"
+title: "Nodejs开源项目怎么样写测试、CI和代码测试覆盖率"
 description: ""
 keywords: ""
 category: 
 tags: []
 ---
 
-https://github.com/baoshan/wx 是一个不错的微信应用框架，接口和网站做的也不错，和wechat-api是类似的项目
+wx 是一个不错的微信应用框架，接口和网站做的也不错，和wechat-api是类似的项目
 
 群里有人问哪个好
 
@@ -15,7 +15,7 @@ https://github.com/baoshan/wx 是一个不错的微信应用框架，接口和�
 
 确实wx目前还没有测试，对于一个开源项目来说，没有测试和代码覆盖率是不完善的，而且从技术选型来说，大多是不敢选的。
 
-那么Nodejs开源项目里怎么样写测试和代码测试覆盖率呢？
+那么Nodejs开源项目里怎么样写测试、CI和代码测试覆盖率呢？
 
 
 ## 测试
@@ -107,6 +107,8 @@ rspec里推荐用expect，其实看个人习惯
 - https://github.com/cucumber/cucumber-js
 
 啊，黄瓜。。。。
+
+cucumber作为BDD（行为驱动测试）的自动化测试工具，可以很好的帮助进行功能测试。它将功能拆分为一个个的场景（可以理解为小功能点），每个场景内可以独立的做数据初始，然后再对初始的数据进行测试，检测是否达到预期的效果。
 
 ### tape：像代码一样跑测试
 
