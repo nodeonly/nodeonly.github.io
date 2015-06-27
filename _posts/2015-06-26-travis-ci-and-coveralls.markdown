@@ -11,7 +11,7 @@ https://github.com/baoshan/wx 是一个不错的微信应用框架，接口和�
 
 群里有人问哪个好
 
-朴灵说：“不写测试的项目”
+朴灵说：“不写测试的项目都不是好项目”
 
 确实wx目前还没有测试，对于一个开源项目来说，没有测试和代码覆盖率是不完善的，而且从技术选型来说，大多是不敢选的。
 
@@ -44,13 +44,15 @@ https://github.com/mochajs/mocha
     })
     
 
+断言风格，这里默认是assert，推荐使用chaijs这个模块，它提供3种风格
+
 - Should
 - Expect
 - Assert
 
 rspec里推荐用expect，其实看个人习惯
 
-比较典型一个例子
+比较典型一个mocha例子
 
     var assert = require('chai').assert;
     var expect = require('chai').expect;
@@ -84,7 +86,7 @@ rspec里推荐用expect，其实看个人习惯
 
 说明
 
-- 理解测试声明周期
+- 理解测试生命周期
 - 理解bdd测试写法
 
 单元测试需要的各个模块说明
@@ -104,7 +106,9 @@ rspec里推荐用expect，其实看个人习惯
 - http://vowsjs.org/
 - https://github.com/cucumber/cucumber-js
 
-### tape
+啊，黄瓜。。。。
+
+### tape：像代码一样跑测试
 
 
 tape是substack写的测试框架
@@ -297,7 +301,7 @@ Istanbul - 官方介绍 a JS code coverage tool written in JS
 
 ## 实践
 
-我们以mongoosedao项目为例，介绍一下如何集成测试，ci和测试覆盖率
+我们以[mongoosedao](https://github.com/moajs/mongoosedao)项目为例，介绍一下如何集成测试，ci和测试覆盖率
 
 最终效果如图
 
