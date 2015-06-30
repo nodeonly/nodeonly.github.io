@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Nodejs负载均衡实践：haproxy，slb以及node-slb"
+title: "Nodejs负载均衡：haproxy，slb以及node-slb"
 description: ""
 keywords: ""
 category: 
@@ -9,6 +9,8 @@ tags: []
 
 
 我的线上环境是阿里云，既然阿里云有SLB，比自己运维一个要省事儿的多，事实上，自己做也真不一定做得比它好，本文试图以haproxy来解释一下slb的原理
+
+讲解haproxy的目的是介绍负载算法，便于理解SLB，最后给出node-slb解决方案
 
 ## 目前比较流行的
 
