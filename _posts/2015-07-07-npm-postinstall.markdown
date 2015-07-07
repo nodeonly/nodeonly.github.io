@@ -21,20 +21,20 @@ How npm handles the "scripts" field
 
 核心就是在package.json里配置
 
-  "preferGlobal": "true",
-  "bin": {
-    "mh": "index.js"
-  },
+    "preferGlobal": "true",
+    "bin": {
+      "mh": "index.js"
+    },
   
 即可
 
 它的原理很简单，就是把这些命令，丢到环境变量里,等于
 
-  mh = node /npm_install_path/index.js
+    mh = node /npm_install_path/index.js
 
 如果我没猜错的话是软连接实现
 
-  ln -s /bin/mh /npm_install_path/index.js
+    ln -s /bin/mh /npm_install_path/index.js
   
 ## npm link
 
@@ -78,12 +78,12 @@ more see https://docs.npmjs.com/cli/start
 
 但是，npm支持命令就那么多，可能不够用，比如我要测试代码覆盖率
 
-  "scripts": {
-    "start": "npm publish .",
-    "test": "./node_modules/.bin/gulp",
-    "mocha": "./node_modules/.bin/mocha -u bdd",
-    "cov":"./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
-  },
+    "scripts": {
+      "start": "npm publish .",
+      "test": "./node_modules/.bin/gulp",
+      "mocha": "./node_modules/.bin/mocha -u bdd",
+      "cov":"./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    },
   
 很明显没有`npm cov`命令的，那么怎么办呢？不要急，可以通过`npm run-script`来搞定
 
@@ -290,7 +290,7 @@ https://docs.npmjs.com/
 
 看模块可以挑一些比较好，开源贡献比较多的模块
 
-从别人的代码里学到东西，这应该是最强的学习能力，是长远的，大家共勉。
+从别人的代码里学到东西，这应该是最强的学习能力，是长远的，与各位共勉。
 
 
 全文完
