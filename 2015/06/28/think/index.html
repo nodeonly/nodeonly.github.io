@@ -27,16 +27,16 @@ mocha和t">
 推荐
 
 mocha和t">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-26/4.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-26/5.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-26/1.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-26/4.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-26/5.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-26/1.png">
 <meta property="og:image" content="https://coveralls.io/repos/moajs/mongoosedao/badge.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-26/2.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-26/3.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-26/2.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-26/3.png">
 <meta property="og:image" content="https://travis-ci.org/moajs/mongoosedao.png?branch=master">
 <meta property="og:image" content="https://coveralls.io/repos/moajs/mongoosedao/badge.png">
-<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
-<meta property="og:updated_time" content="2015-06-27T01:16:28.000Z">
+<meta property="og:image" content="http://yoursite.com/img/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-08-07T06:06:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nodejs开源项目怎么样写测试、CI和代码测试覆盖率">
 <meta name="twitter:description" content="wx 是一个不错的微信应用框架，接口和网站做的也不错，和wechat-api是类似的项目
@@ -254,7 +254,7 @@ tap.test(<span class="string">'first stuff'</span>, <span class="function"><span
 <p>一般最常的ci软件是jenkins</p>
 <p>举个大家熟悉的例子iojs开发中的持续集成就是用的jenkins</p>
 <p><a href="https://jenkins-iojs.nodesource.com/" target="_blank" rel="external">https://jenkins-iojs.nodesource.com/</a></p>
-<p><img src="/css/2015-06-26/4.png" alt=""></p>
+<p><img src="/img/2015-06-26/4.png" alt=""></p>
 <p>jenkins是自建环境下用的比较多，如果是开源项目，推荐travis-ci</p>
 <p><a href="https://travis-ci.org/" target="_blank" rel="external">https://travis-ci.org/</a></p>
 <p>对开源项目做持续集成是免费的（非开源的好贵），所以在github集成的基本是最多的。</p>
@@ -313,7 +313,7 @@ Functions    : <span class="number">60</span>% ( <span class="number">9</span>/<
 <p>那么我需要有地方能够展示出来啊</p>
 <h2 id="实践">实践</h2><p>我们以<a href="https://github.com/moajs/mongoosedao" target="_blank" rel="external">mongoosedao</a>项目为例，介绍一下如何集成测试，ci和测试覆盖率</p>
 <p>最终效果如图</p>
-<p><img src="/css/2015-06-26/5.png" alt=""></p>
+<p><img src="/img/2015-06-26/5.png" alt=""></p>
 <h3 id="npm_run">npm run</h3><p>package.json里定义自定义执行脚本</p>
 <pre><code>"scripts": {
   "<span class="operator"><span class="keyword">start</span><span class="string">": "</span>npm publish .<span class="string">",
@@ -370,7 +370,7 @@ after_script:
 <p>添加之后，就可以看到，比如</p>
 <p><a href="https://travis-ci.org/moajs/mongoosedao" target="_blank" rel="external">https://travis-ci.org/moajs/mongoosedao</a></p>
 <p>travis-ci实际上根据github的代码变动进行自动持续构建,但是有的时候它不一定更新，或者说，你需要手动选一下：</p>
-<p><img src="/css/2015-06-26/1.png" alt=""></p>
+<p><img src="/img/2015-06-26/1.png" alt=""></p>
 <p>点击<code># 10 passed</code>,这样就可以强制它手动集成了。</p>
 <p>其他都很简单，注意替换COVERALLS.IO_TOKEN即可。</p>
 <h3 id="创建_-coveralls-yml">创建 <code>.coveralls.yml</code></h3><p><a href="https://coveralls.io/是一个代码测试覆盖率的网站，" target="_blank" rel="external">https://coveralls.io/是一个代码测试覆盖率的网站，</a></p>
@@ -381,9 +381,9 @@ after_script:
 <pre><code><span class="attribute">service_name</span>: <span class="string">travis-pro</span>
 <span class="attribute">repo_token</span>: <span class="string">99UNur6O7ksBqiwgg1NG1sSFhmu78A0t7</span>
 </code></pre><p>在上，第一次添加repo，显示的是“SET UP COVERALLS”，里面有token，需要放到<code>.coveralls.yml</code>里，</p>
-<p><img src="/css/2015-06-26/2.png" alt=""></p>
+<p><img src="/img/2015-06-26/2.png" alt=""></p>
 <p>如果成功提交了，就可以看到数据了</p>
-<p><img src="/css/2015-06-26/3.png" alt=""></p>
+<p><img src="/img/2015-06-26/3.png" alt=""></p>
 <h3 id="在readme-md里增加badge">在readme.md里增加badge</h3><pre><code>[<span class="link_label">![Build Status</span>](<span class="link_url">https://travis-ci.org/moajs/mongoosedao.png?branch=master</span>)](<span class="link_url">https://travis-ci.org/moajs/mongoosedao</span>)
 [<span class="link_label">![Coverage Status</span>](<span class="link_url">https://coveralls.io/repos/moajs/mongoosedao/badge.png</span>)](<span class="link_url">https://coveralls.io/r/moajs/mongoosedao</span>)
 </code></pre><p>它就会显示如下</p>
@@ -438,12 +438,12 @@ test-<span class="symbol">all:</span> test test-coveralls
 </ul>
 <p>全文完</p>
 <p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
+<p><img src="/img/node全栈-公众号.png" alt=""></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/28/think/" data-id="cid1831kw0008nj7fu8e22arf" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/28/think/" data-id="cid185jhv0008q37fjga9zymv" class="article-share-link">Share</a>
       
       
     </footer>
@@ -493,7 +493,7 @@ test-<span class="symbol">all:</span> test test-coveralls
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
     </div>
   </div>
 
@@ -505,10 +505,6 @@ test-<span class="symbol">all:</span> test test-coveralls
       <ul>
         
           <li>
-            <a href="/2015/08/07/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
             <a href="/2015/08/07/mongoose-cli/">mongoose-cli</a>
           </li>
         
@@ -517,11 +513,15 @@ test-<span class="symbol">all:</span> test test-coveralls
           </li>
         
           <li>
+            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
             <a href="/2015/07/07/npm-postinstall/">从npm tips到express插件机制设计</a>
           </li>
         
           <li>
-            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
+            <a href="/2015/07/04/mongo-paging/">mongodb分页优化</a>
           </li>
         
       </ul>

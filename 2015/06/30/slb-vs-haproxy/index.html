@@ -15,17 +15,17 @@
 <meta property="og:description" content="我的线上环境是阿里云，既然阿里云有SLB，比自己运维一个要省事儿的多，事实上，自己做也真不一定做得比它好，本文试图以haproxy来解释一下slb的原理
 讲解haproxy的目的是介绍负载算法，便于理解SLB，最后给出node-slb解决方案
 目前比较流行的目前，在线上环境中应用较多的负载均衡器硬件有F5 BIG-IP,软件有LVS，Nginx及HAProxy,高可用软件有Heartbeat. K">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/1.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/2.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/3.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/4.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/5.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/6.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/7.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/8.png">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-30/9.png">
-<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
-<meta property="og:updated_time" content="2015-06-30T04:47:04.000Z">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/1.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/2.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/3.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/4.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/5.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/6.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/7.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/8.png">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-30/9.png">
+<meta property="og:image" content="http://yoursite.com/img/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-08-07T06:05:54.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nodejs负载均衡：haproxy，slb以及node-slb">
 <meta name="twitter:description" content="我的线上环境是阿里云，既然阿里云有SLB，比自己运维一个要省事儿的多，事实上，自己做也真不一定做得比它好，本文试图以haproxy来解释一下slb的原理
@@ -193,9 +193,9 @@ listen http-in
 <p>Tengine是由淘宝网发起的Web服务器项目。它在Nginx的基础上，针对大访问量网站的需求，添加了很多高级功能和特性。</p>
 <p>see <a href="http://tengine.taobao.org/" target="_blank" rel="external">http://tengine.taobao.org/</a> </p>
 <h2 id="SLB用法">SLB用法</h2><p>创建slb</p>
-<p><img src="/css/2015-06-30/1.png" alt=""></p>
+<p><img src="/img/2015-06-30/1.png" alt=""></p>
 <p>点击管理按钮，进入实例详情</p>
-<p><img src="/css/2015-06-30/2.png" alt=""></p>
+<p><img src="/img/2015-06-30/2.png" alt=""></p>
 <p>没啥需要改的，我们直接看服务监听功能，看看如何配置slb</p>
 <ul>
 <li>配置端口</li>
@@ -203,9 +203,9 @@ listen http-in
 <li>带宽</li>
 <li>健康检查等</li>
 </ul>
-<p><img src="/css/2015-06-30/3.png" alt=""></p>
+<p><img src="/img/2015-06-30/3.png" alt=""></p>
 <p>点击编辑按钮，此时可以看到具体配置页面</p>
-<p><img src="/css/2015-06-30/4.png" alt=""></p>
+<p><img src="/img/2015-06-30/4.png" alt=""></p>
 <p>目前slb支持2种转发规则</p>
 <ul>
 <li>轮询</li>
@@ -216,17 +216,17 @@ listen http-in
 <p>配置完了slb server，下一步要设置具体slb把请求转发给哪台机器，这实际上才是最核心的的配置。</p>
 <p>阿里云把这件事儿做的超级简单</p>
 <p>假设我现在有一个ecs服务器为已填加</p>
-<p><img src="/css/2015-06-30/5.png" alt=""></p>
+<p><img src="/img/2015-06-30/5.png" alt=""></p>
 <p>点击【未添加的服务器】，此时会列出未加入负载池的ecs服务器 </p>
-<p><img src="/css/2015-06-30/6.png" alt=""></p>
+<p><img src="/img/2015-06-30/6.png" alt=""></p>
 <p>选中一台服务器</p>
-<p><img src="/css/2015-06-30/7.png" alt=""></p>
+<p><img src="/img/2015-06-30/7.png" alt=""></p>
 <p>点击批量添加</p>
-<p><img src="/css/2015-06-30/8.png" alt=""></p>
+<p><img src="/img/2015-06-30/8.png" alt=""></p>
 <p>配置一下权重，如果机器性能一样就配置权重一样，性能越好，权重越大</p>
 <p>可选值【0 – 100】</p>
 <p>完成配置后，已添加服务器里就有了2台服务器</p>
-<p><img src="/css/2015-06-30/9.png" alt=""></p>
+<p><img src="/img/2015-06-30/9.png" alt=""></p>
 <p>保证你的服务器都启动，比如2台服务器的80端口都正常即可</p>
 <p>此时你需要做的是把你的域名解析到slb服务器的ip地址上</p>
 <h2 id="node-slb">node-slb</h2><p>an expressjs middleware for aliyun slb</p>
@@ -291,12 +291,12 @@ Connection: keep-alive
 </ul>
 <p>全文完</p>
 <p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
+<p><img src="/img/node全栈-公众号.png" alt=""></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/30/slb-vs-haproxy/" data-id="cid1831ku0007nj7f514ntu2n" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/30/slb-vs-haproxy/" data-id="cid185jht0007q37fqznphpqn" class="article-share-link">Share</a>
       
       
     </footer>
@@ -346,7 +346,7 @@ Connection: keep-alive
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
     </div>
   </div>
 
@@ -358,10 +358,6 @@ Connection: keep-alive
       <ul>
         
           <li>
-            <a href="/2015/08/07/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
             <a href="/2015/08/07/mongoose-cli/">mongoose-cli</a>
           </li>
         
@@ -370,11 +366,15 @@ Connection: keep-alive
           </li>
         
           <li>
+            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
             <a href="/2015/07/07/npm-postinstall/">从npm tips到express插件机制设计</a>
           </li>
         
           <li>
-            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
+            <a href="/2015/07/04/mongo-paging/">mongodb分页优化</a>
           </li>
         
       </ul>

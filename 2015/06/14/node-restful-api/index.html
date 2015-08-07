@@ -27,10 +27,10 @@ http://zhuanlan.zhihu.com/FrontendMagazine/19920223
 http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
 
 在讨论了关于基于 token 认证">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-14/1.jpg">
-<meta property="og:image" content="http://yoursite.com/css/2015-06-14/2.jpg">
-<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
-<meta property="og:updated_time" content="2015-06-14T09:36:25.000Z">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-14/1.jpg">
+<meta property="og:image" content="http://yoursite.com/img/2015-06-14/2.jpg">
+<meta property="og:image" content="http://yoursite.com/img/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-08-07T06:07:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nodejs RESTFul架构实践之api">
 <meta name="twitter:description" content="why token based auth?此段摘自 
@@ -118,7 +118,7 @@ http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nod
 <li><a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543" target="_blank" rel="external">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></li>
 </ul>
 <p>在讨论了关于基于 token 认证的一些基础知识后，我们接下来看一个实例。看一下下面的几点，然后我们会仔细的分析它：</p>
-<p><img src="/css/2015-06-14/1.jpg" alt=""></p>
+<p><img src="/img/2015-06-14/1.jpg" alt=""></p>
 <ol>
 <li>多个终端，比如一个 web 应用，一个移动端等向 API 发送特定的请求。</li>
 <li>类似 <a href="https://api.yourexampleapp.com" target="_blank" rel="external">https://api.yourexampleapp.com</a> 这样的请求发送到服务层。如果很多人使用了这个应用，需要多个服务器来响应这些请求操作。</li>
@@ -128,7 +128,7 @@ http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nod
 <p>基于 token 的认证在解决棘手的问题时有几个优势：</p>
 <ul>
 <li>Client Independent Services 。在基于 token 的认证，token 通过请求头传输，而不是把认证信息存储在 session 或者 cookie 中。这意味着无状态。你可以从任意一种可以发送 HTTP 请求的终端向服务器发送请求。</li>
-<li>CDN 。在绝大多数现在的应用中，view 在后端渲染，HTML 内容被返回给浏览器。前端逻辑依赖后端代码。这中依赖真的没必要。而且，带来了几个问题。比如，你和一个设计机构合作，设计师帮你完成了前端的 HTML，CSS 和 JavaScript，你需要拿到前端代码并且把它移植到你的后端代码中，目的当然是为了渲染。修改几次后，你渲染的 HTML 内容可能和设计师完成的代码有了很大的不同。在基于 token 的认证中，你可以开发完全独立于后端代码的前端项目。后端代码会返回一个 JSON 而不是渲染 HTML，并且你可以把最小化，压缩过的代码放到 CDN 上。当你访问 web 页面，HTML 内容由 CDN 提供服务，并且页面内容是通过使用认证头部的 token 的 API 服务所填充。</li>
+<li>CDN 。在绝大多数现在的应用中，view 在后端渲染，HTML 内容被返回给浏览器。前端逻辑依赖后端代码。这中依赖真的没必要。而且，带来了几个问题。比如，你和一个设计机构合作，设计师帮你完成了前端的 HTML，img 和 JavaScript，你需要拿到前端代码并且把它移植到你的后端代码中，目的当然是为了渲染。修改几次后，你渲染的 HTML 内容可能和设计师完成的代码有了很大的不同。在基于 token 的认证中，你可以开发完全独立于后端代码的前端项目。后端代码会返回一个 JSON 而不是渲染 HTML，并且你可以把最小化，压缩过的代码放到 CDN 上。当你访问 web 页面，HTML 内容由 CDN 提供服务，并且页面内容是通过使用认证头部的 token 的 API 服务所填充。</li>
 <li>No Cookie-Session (or No CSRF) 。CSRF 是当代 web 安全中一处痛点，因为它不会去检查一个请求来源是否可信。为了解决这个问题，一个 token 池被用在每次表单请求时发送相关的 token。在基于 token 的认证中，已经有一个 token 应用在认证头部，并且 CSRF 不包含那个信息。</li>
 <li>Persistent Token Store 。当在应用中进行 session 的读，写或者删除操作时，会有一个文件操作发生在操作系统的temp 文件夹下，至少在第一次时。假设有多台服务器并且 session 在第一台服务上创建。当你再次发送请求并且这个请求落在另一台服务器上，session 信息并不存在并且会获得一个“未认证”的响应。我知道，你可以通过一个粘性 session 解决这个问题。然而，在基于 token 的认证中，这个问题很自然就被解决了。没有粘性 session 的问题，因为在每个发送到服务器的请求中这个请求的 token 都会被拦截。</li>
 </ul>
@@ -137,7 +137,7 @@ http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nod
 <h2 id="jwt加密和解密">jwt加密和解密</h2><p>JWT 代表 JSON Web Token ，它是一种用于认证头部的 token 格式。这个 token 帮你实现了在两个系统之间以一种安全的方式传递信息。出于教学目的，我们暂且把 JWT 作为“不记名 token”。一个不记名 token 包含了三部分：header，payload，signature。</p>
 <p>header 是 token 的一部分，用来存放 token 的类型和编码方式，通常是使用 base-64 编码。</p>
 <p>payload 包含了信息。你可以存放任一种信息，比如用户信息，产品信息等。它们都是使用 base-64 编码方式进行存储。<br>signature 包括了 header，payload 和密钥的混合体。密钥必须安全地保存储在服务端。</p>
-<p><img src="/css/2015-06-14/2.jpg" alt=""></p>
+<p><img src="/img/2015-06-14/2.jpg" alt=""></p>
 <p>nodejs实现的jwt代码</p>
 <p><a href="http://github.com/auth0/node-jsonwebtoken" target="_blank" rel="external">http://github.com/auth0/node-jsonwebtoken</a></p>
 <p>主要3个方法</p>
@@ -310,12 +310,12 @@ module<span class="built_in">.</span>exports = router;
 </ul>
 <p>全文完</p>
 <p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
+<p><img src="/img/node全栈-公众号.png" alt=""></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/14/node-restful-api/" data-id="cid1831l9000hnj7fezjz50ua" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/14/node-restful-api/" data-id="cid185ji9000hq37fsnm2fmyf" class="article-share-link">Share</a>
       
       
     </footer>
@@ -365,7 +365,7 @@ module<span class="built_in">.</span>exports = router;
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
     </div>
   </div>
 
@@ -377,10 +377,6 @@ module<span class="built_in">.</span>exports = router;
       <ul>
         
           <li>
-            <a href="/2015/08/07/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
             <a href="/2015/08/07/mongoose-cli/">mongoose-cli</a>
           </li>
         
@@ -389,11 +385,15 @@ module<span class="built_in">.</span>exports = router;
           </li>
         
           <li>
+            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
             <a href="/2015/07/07/npm-postinstall/">从npm tips到express插件机制设计</a>
           </li>
         
           <li>
-            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
+            <a href="/2015/07/04/mongo-paging/">mongodb分页优化</a>
           </li>
         
       </ul>
