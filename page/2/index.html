@@ -61,10 +61,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2015-06-25-test" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-sails-vs-meteor-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-25-test/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/25/sails-vs-meteor-1/" class="article-date">
+  <time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished">2015-06-25</time>
 </a>
     
   </div>
@@ -75,95 +75,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-25-test/">TAP &amp; Tape, the awesome way to test JavaScript</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>TAP &amp; Tape, the awesome way to test JavaScript</p>
-<p><a href="http://www.macwright.org/2014/03/11/tape-is-cool.html" target="_blank" rel="external">原文</a>,如果有时间可以翻译一下，很不错的一篇介绍node测试相关的文章</p>
-<p><img src="/css/2015-06-25/1.jpg" alt=""></p>
-<p><a href="https://github.com/isaacs/node-tap" target="_blank" rel="external">node-tap</a> &amp; <a href="https://github.com/substack/tape" target="_blank" rel="external">tape</a> are simple, awesome testing tools for JavaScript. The JavaScript community has grown up with testing culture, and the vast majority of projects use larger tools like <a href="http://visionmedia.github.io/mocha/" target="_blank" rel="external">Mocha</a> and <a href="http://jasmine.github.io/" target="_blank" rel="external">Jasmine</a>. Recently I’ve been switching lots of projects over to tap &amp; tape, and want to share why.</p>
-<p><a href="http://substack.net/" target="_blank" rel="external">substack</a>, the creator of tape, has already written a bit about <a href="http://substack.net/how_I_write_tests_for_node_and_the_browser" target="_blank" rel="external">his process</a> and thinking - here’s just a little more, written from the perspective of a former mocha user.</p>
-<p>What it sorts down into is roughly three parts: the protocol, browserify, and magic.</p>
-<h2 id="The_Test_Anything_Protocol">The Test Anything Protocol</h2><p>TAP, or the <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol" target="_blank" rel="external">Test Anything Protocol</a> is the definition of ‘tried &amp; true’: it’s been around since 1987 and has been implemented in <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol#List_of_TAP_producers" target="_blank" rel="external">a ton of languages</a>. It’s just a dead-simple way to format test results, like</p>
-<pre><code>TAP version <span class="number">13</span>
-<span class="preprocessor"># equivalence</span>
-ok <span class="number">1</span> these two numbers are equal
-
-<span class="number">1.</span><span class="number">.1</span>
-<span class="preprocessor"># tests <span class="number">1</span></span>
-<span class="preprocessor"># pass  <span class="number">1</span></span>
-
-<span class="preprocessor"># ok</span>
-</code></pre><p>Having this format be super simple means that you can combine tools that have common expectations. For instance, <a href="https://github.com/substack/faucet" target="_blank" rel="external">faucet</a> is a node module that gives pretty, summarized results for your tests, but it doesn’t directly plug into tape or node-tap - all it cares about is the TAP protocol, so you can pipe results into it. You could even pipe a <a href="http://testanything.org/producers.html" target="_blank" rel="external">TAP producer in a different language</a> into it, and it’ll work just the same.</p>
-<h2 id="Browserify">Browserify</h2><p><a href="http://browserify.org/" target="_blank" rel="external">browserify</a> is another awesome tool written by <a href="http://substack.net/" target="_blank" rel="external">substack</a>. With it, you can use node-style require() calls in code you’re going to run in browsers, and then use the browserify command to stitch them all together and make something you can throw in a script tag.</p>
-<p>Browserify has been huge for writing cross-platform libraries, and it’s been huge for building things. <a href="http://mapbox.com/" target="_blank" rel="external">Mapbox.com</a> and <a href="https://www.mapbox.com/mapbox.js/api/v1.6.1/" target="_blank" rel="external">Mapbox.js</a> are both constructed this way - individual libraries on npm, package.json just like nodejs code, and then browserify to bring it to the web.</p>
-<p>Long story short, browserify ‘just works’ with tape. While mocha has something of an unusual browser story - it’s hard to get at the files you’d want to run tests in a browser, and then when you do, if you want to run tests in both browsers and node, it’s not straightforward to conditionally require things sometimes.</p>
-<p>So, to run browserify tests in a browser, you can just run</p>
-<pre><code>$ npm <span class="operator"><span class="keyword">install</span> -<span class="keyword">g</span> browserify testling
-$ browserify <span class="keyword">test</span>/<span class="keyword">test</span>.js | testling</span>
-</code></pre><p>Simple as that. Since tape is just a node module and browserify turns the whole thing into just JavaScript, it’s easy to run it anywhere you want - embedded in a webpage, in a browser, or wherever. tape uses console.log to write its results, which is super easy to pull out of a headless browser.</p>
-<h2 id="Concepts">Concepts</h2><p>A quick review: TAP is a standard for test output. node-tap and tape are two node modules that let you write tests that output results in the TAP protocol.</p>
-<p>So, we’ve discussed TAP a little bit, and you might notice that mocha <a href="http://visionmedia.github.io/mocha/#tap-reporter" target="_blank" rel="external">supports TAP too</a>. So why not just use mocha to write tests? Let’s talk about that.</p>
-<p>Magic</p>
-<p><img src="/css/2015-06-25/2.jpg" alt=""></p>
-<p>Mocha does a little magic. With only few exceptions, nodejs has the assumption that any variables on a page will come from obvious places:</p>
-<pre><code><span class="comment">// this comes from a module</span>
-<span class="keyword">var</span> <span class="built_in">module</span> = <span class="built_in">require</span>(<span class="string">'module'</span>);
-</code></pre><p>In the interest of simplicity, mocha doesn’t follow this rule. Your mocha test files have assumptions:</p>
-<pre><code>var <span class="built_in">assert</span> = <span class="built_in">require</span>(<span class="string">"assert"</span>)
-describe(<span class="string">'truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  it(<span class="string">'should find the truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-    <span class="built_in">assert</span>.equal(<span class="number">1</span>, <span class="number">1</span>);
-  })
-})
-</code></pre><p>Keen eyes will notice that assert entered the stage by a require() call, but describe and it didn’t - they appear magically.</p>
-<p>On the other hand, a basic tape test:</p>
-<pre><code><span class="keyword">var</span> test = <span class="built_in">require</span>(<span class="string">'tape'</span>).test;
-test(<span class="string">'equivalence'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">t</span>) </span>{
-    t.equal(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'these two numbers are equal'</span>);
-    t.end();
-});
-</code></pre><p>test comes from require(), and t comes from the closure. Simple enough. This lack of abstraction has two awesome advantages:</p>
-<p>1.It’s easier to form a mental model of what’s going on, so it’s easier to hack with it and know what’ll happen. What if I call a function with t and then call functions off of t? It’ll work.<br>2.Tests are code. So, you can run tests as modules with node, just like you’d run other code: node test/test.js, and it works. As opposed to needing a ‘test runner’ binary that contains some of the code the test really needs.</p>
-<h2 id="Testling_&amp;_Travis-CI">Testling &amp; Travis-CI</h2><p><a href="http://en.wikipedia.org/wiki/Continuous_integration" target="_blank" rel="external">Continuous Integration</a>, where every commit to <a href="https://github.com/" target="_blank" rel="external">GitHub</a> is automatically tested, has become a necessity. Setting the green ‘this works’ badge on projects means something, and we’ve found that running tests on remote hosts can give a better sanity check than just running them locally - the environment is constructed from scratch, there aren’t any stray files that make things work.</p>
-<p>tape works with testling just like mocha - the same <a href="https://github.com/mapbox/wellknown/blob/master/.travis.yml" target="_blank" rel="external">minimal .travis.yml</a> file ‘just works’ as long as npm install and npm test do their things. But on top of that, you can use <a href="https://ci.testling.com/" target="_blank" rel="external">Testling-CI</a> and <a href="https://github.com/substack/testling" target="_blank" rel="external">testling</a>, and test commits in browsers. Testling-CI works the same as Travis: set a webhook, <a href="https://ci.testling.com/guide/quick_start" target="_blank" rel="external">tweak a few package.json properties</a>, and you’ll get a <a href="https://ci.testling.com/mapbox/wellknown" target="_blank" rel="external">page of your own with results</a>. testling, on the other hand, runs headless tests locally, with your real browsers, not with <a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a> or another custom abstraction. In combination, this means that you can easily cross-browser test code. And if the abstractions break, it’s easy to just browserify the code and run the tests manually.</p>
-<p>全文完</p>
-<p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-25-test/" data-id="cid0wpbbt000dqm7f3q91znii" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2015-06-25-sails-vs-meteor-1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/08/07/2015-06-25-sails-vs-meteor-1/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-25-sails-vs-meteor-1/">sails vs meteor</a>
+      <a class="article-title" href="/2015/06/25/sails-vs-meteor-1/">sails vs meteor</a>
     </h1>
   
 
@@ -513,7 +425,7 @@ Waiting...
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-25-sails-vs-meteor-1/" data-id="cid0wpbbu000eqm7fn6mbk71v" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/25/sails-vs-meteor-1/" data-id="cid0xyho5000e2j7fc2u7cjgr" class="article-share-link">Share</a>
       
       
     </footer>
@@ -523,10 +435,10 @@ Waiting...
 
 
   
-    <article id="post-2015-06-25-centos-7" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-centos-7" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-25-centos-7/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/25/centos-7/" class="article-date">
+  <time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished">2015-06-25</time>
 </a>
     
   </div>
@@ -537,7 +449,7 @@ Waiting...
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-25-centos-7/">centos7作为web服务器优化</a>
+      <a class="article-title" href="/2015/06/25/centos-7/">centos7作为web服务器优化</a>
     </h1>
   
 
@@ -668,7 +580,7 @@ echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/ne
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-25-centos-7/" data-id="cid0wpbbv000fqm7flcgckdza" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/25/centos-7/" data-id="cid0xyho6000f2j7fmihh7t1z" class="article-share-link">Share</a>
       
       
     </footer>
@@ -678,10 +590,10 @@ echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/ne
 
 
   
-    <article id="post-2015-06-19-mongodb-ttl" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-test" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-19-mongodb-ttl/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/25/test/" class="article-date">
+  <time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished">2015-06-25</time>
 </a>
     
   </div>
@@ -692,7 +604,95 @@ echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/ne
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-19-mongodb-ttl/">mongodb的ttl</a>
+      <a class="article-title" href="/2015/06/25/test/">TAP &amp; Tape, the awesome way to test JavaScript</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>TAP &amp; Tape, the awesome way to test JavaScript</p>
+<p><a href="http://www.macwright.org/2014/03/11/tape-is-cool.html" target="_blank" rel="external">原文</a>,如果有时间可以翻译一下，很不错的一篇介绍node测试相关的文章</p>
+<p><img src="/css/2015-06-25/1.jpg" alt=""></p>
+<p><a href="https://github.com/isaacs/node-tap" target="_blank" rel="external">node-tap</a> &amp; <a href="https://github.com/substack/tape" target="_blank" rel="external">tape</a> are simple, awesome testing tools for JavaScript. The JavaScript community has grown up with testing culture, and the vast majority of projects use larger tools like <a href="http://visionmedia.github.io/mocha/" target="_blank" rel="external">Mocha</a> and <a href="http://jasmine.github.io/" target="_blank" rel="external">Jasmine</a>. Recently I’ve been switching lots of projects over to tap &amp; tape, and want to share why.</p>
+<p><a href="http://substack.net/" target="_blank" rel="external">substack</a>, the creator of tape, has already written a bit about <a href="http://substack.net/how_I_write_tests_for_node_and_the_browser" target="_blank" rel="external">his process</a> and thinking - here’s just a little more, written from the perspective of a former mocha user.</p>
+<p>What it sorts down into is roughly three parts: the protocol, browserify, and magic.</p>
+<h2 id="The_Test_Anything_Protocol">The Test Anything Protocol</h2><p>TAP, or the <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol" target="_blank" rel="external">Test Anything Protocol</a> is the definition of ‘tried &amp; true’: it’s been around since 1987 and has been implemented in <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol#List_of_TAP_producers" target="_blank" rel="external">a ton of languages</a>. It’s just a dead-simple way to format test results, like</p>
+<pre><code>TAP version <span class="number">13</span>
+<span class="preprocessor"># equivalence</span>
+ok <span class="number">1</span> these two numbers are equal
+
+<span class="number">1.</span><span class="number">.1</span>
+<span class="preprocessor"># tests <span class="number">1</span></span>
+<span class="preprocessor"># pass  <span class="number">1</span></span>
+
+<span class="preprocessor"># ok</span>
+</code></pre><p>Having this format be super simple means that you can combine tools that have common expectations. For instance, <a href="https://github.com/substack/faucet" target="_blank" rel="external">faucet</a> is a node module that gives pretty, summarized results for your tests, but it doesn’t directly plug into tape or node-tap - all it cares about is the TAP protocol, so you can pipe results into it. You could even pipe a <a href="http://testanything.org/producers.html" target="_blank" rel="external">TAP producer in a different language</a> into it, and it’ll work just the same.</p>
+<h2 id="Browserify">Browserify</h2><p><a href="http://browserify.org/" target="_blank" rel="external">browserify</a> is another awesome tool written by <a href="http://substack.net/" target="_blank" rel="external">substack</a>. With it, you can use node-style require() calls in code you’re going to run in browsers, and then use the browserify command to stitch them all together and make something you can throw in a script tag.</p>
+<p>Browserify has been huge for writing cross-platform libraries, and it’s been huge for building things. <a href="http://mapbox.com/" target="_blank" rel="external">Mapbox.com</a> and <a href="https://www.mapbox.com/mapbox.js/api/v1.6.1/" target="_blank" rel="external">Mapbox.js</a> are both constructed this way - individual libraries on npm, package.json just like nodejs code, and then browserify to bring it to the web.</p>
+<p>Long story short, browserify ‘just works’ with tape. While mocha has something of an unusual browser story - it’s hard to get at the files you’d want to run tests in a browser, and then when you do, if you want to run tests in both browsers and node, it’s not straightforward to conditionally require things sometimes.</p>
+<p>So, to run browserify tests in a browser, you can just run</p>
+<pre><code>$ npm <span class="operator"><span class="keyword">install</span> -<span class="keyword">g</span> browserify testling
+$ browserify <span class="keyword">test</span>/<span class="keyword">test</span>.js | testling</span>
+</code></pre><p>Simple as that. Since tape is just a node module and browserify turns the whole thing into just JavaScript, it’s easy to run it anywhere you want - embedded in a webpage, in a browser, or wherever. tape uses console.log to write its results, which is super easy to pull out of a headless browser.</p>
+<h2 id="Concepts">Concepts</h2><p>A quick review: TAP is a standard for test output. node-tap and tape are two node modules that let you write tests that output results in the TAP protocol.</p>
+<p>So, we’ve discussed TAP a little bit, and you might notice that mocha <a href="http://visionmedia.github.io/mocha/#tap-reporter" target="_blank" rel="external">supports TAP too</a>. So why not just use mocha to write tests? Let’s talk about that.</p>
+<p>Magic</p>
+<p><img src="/css/2015-06-25/2.jpg" alt=""></p>
+<p>Mocha does a little magic. With only few exceptions, nodejs has the assumption that any variables on a page will come from obvious places:</p>
+<pre><code><span class="comment">// this comes from a module</span>
+<span class="keyword">var</span> <span class="built_in">module</span> = <span class="built_in">require</span>(<span class="string">'module'</span>);
+</code></pre><p>In the interest of simplicity, mocha doesn’t follow this rule. Your mocha test files have assumptions:</p>
+<pre><code>var <span class="built_in">assert</span> = <span class="built_in">require</span>(<span class="string">"assert"</span>)
+describe(<span class="string">'truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  it(<span class="string">'should find the truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+    <span class="built_in">assert</span>.equal(<span class="number">1</span>, <span class="number">1</span>);
+  })
+})
+</code></pre><p>Keen eyes will notice that assert entered the stage by a require() call, but describe and it didn’t - they appear magically.</p>
+<p>On the other hand, a basic tape test:</p>
+<pre><code><span class="keyword">var</span> test = <span class="built_in">require</span>(<span class="string">'tape'</span>).test;
+test(<span class="string">'equivalence'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">t</span>) </span>{
+    t.equal(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'these two numbers are equal'</span>);
+    t.end();
+});
+</code></pre><p>test comes from require(), and t comes from the closure. Simple enough. This lack of abstraction has two awesome advantages:</p>
+<p>1.It’s easier to form a mental model of what’s going on, so it’s easier to hack with it and know what’ll happen. What if I call a function with t and then call functions off of t? It’ll work.<br>2.Tests are code. So, you can run tests as modules with node, just like you’d run other code: node test/test.js, and it works. As opposed to needing a ‘test runner’ binary that contains some of the code the test really needs.</p>
+<h2 id="Testling_&amp;_Travis-CI">Testling &amp; Travis-CI</h2><p><a href="http://en.wikipedia.org/wiki/Continuous_integration" target="_blank" rel="external">Continuous Integration</a>, where every commit to <a href="https://github.com/" target="_blank" rel="external">GitHub</a> is automatically tested, has become a necessity. Setting the green ‘this works’ badge on projects means something, and we’ve found that running tests on remote hosts can give a better sanity check than just running them locally - the environment is constructed from scratch, there aren’t any stray files that make things work.</p>
+<p>tape works with testling just like mocha - the same <a href="https://github.com/mapbox/wellknown/blob/master/.travis.yml" target="_blank" rel="external">minimal .travis.yml</a> file ‘just works’ as long as npm install and npm test do their things. But on top of that, you can use <a href="https://ci.testling.com/" target="_blank" rel="external">Testling-CI</a> and <a href="https://github.com/substack/testling" target="_blank" rel="external">testling</a>, and test commits in browsers. Testling-CI works the same as Travis: set a webhook, <a href="https://ci.testling.com/guide/quick_start" target="_blank" rel="external">tweak a few package.json properties</a>, and you’ll get a <a href="https://ci.testling.com/mapbox/wellknown" target="_blank" rel="external">page of your own with results</a>. testling, on the other hand, runs headless tests locally, with your real browsers, not with <a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a> or another custom abstraction. In combination, this means that you can easily cross-browser test code. And if the abstractions break, it’s easy to just browserify the code and run the tests manually.</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/06/25/test/" data-id="cid0xyho3000d2j7f4az3cov4" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-mongodb-ttl" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/19/mongodb-ttl/" class="article-date">
+  <time datetime="2015-06-18T16:00:00.000Z" itemprop="datePublished">2015-06-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/19/mongodb-ttl/">mongodb的ttl</a>
     </h1>
   
 
@@ -772,7 +772,7 @@ echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/ne
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-19-mongodb-ttl/" data-id="cid0wpbbx000gqm7fq35x7mif" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/19/mongodb-ttl/" data-id="cid0xyho8000g2j7f6wdc1j22" class="article-share-link">Share</a>
       
       
     </footer>
@@ -782,10 +782,10 @@ echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/ne
 
 
   
-    <article id="post-2015-06-17-koa-or-express" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-koa-or-express" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-17-koa-or-express/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/17/koa-or-express/" class="article-date">
+  <time datetime="2015-06-16T16:00:00.000Z" itemprop="datePublished">2015-06-17</time>
 </a>
     
   </div>
@@ -796,7 +796,7 @@ echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/ne
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-17-koa-or-express/">Koa 还是 Express？</a>
+      <a class="article-title" href="/2015/06/17/koa-or-express/">Koa 还是 Express？</a>
     </h1>
   
 
@@ -972,7 +972,7 @@ app.listen(<span class="number">3000</span>);
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-17-koa-or-express/" data-id="cid0wpbbz000hqm7fsetu0bp3" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/17/koa-or-express/" data-id="cid0xyho9000h2j7ft78o7on2" class="article-share-link">Share</a>
       
       
     </footer>
@@ -982,10 +982,10 @@ app.listen(<span class="number">3000</span>);
 
 
   
-    <article id="post-2015-06-15-sysstat" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-sysstat" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-15-sysstat/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/15/sysstat/" class="article-date">
+  <time datetime="2015-06-14T16:00:00.000Z" itemprop="datePublished">2015-06-15</time>
 </a>
     
   </div>
@@ -996,7 +996,7 @@ app.listen(<span class="number">3000</span>);
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-15-sysstat/">Sysstat</a>
+      <a class="article-title" href="/2015/06/15/sysstat/">Sysstat</a>
     </h1>
   
 
@@ -1092,7 +1092,7 @@ gulp.task(<span class="string">'default'</span>, [<span class="string">'clean'</
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-15-sysstat/" data-id="cid0wpbc1000iqm7fdlf4dz1y" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/15/sysstat/" data-id="cid0xyhob000i2j7fxcg4r4yl" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1102,10 +1102,10 @@ gulp.task(<span class="string">'default'</span>, [<span class="string">'clean'</
 
 
   
-    <article id="post-2015-06-14-node-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-node-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-14-node-restful-api/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/14/node-restful-api/" class="article-date">
+  <time datetime="2015-06-13T16:00:00.000Z" itemprop="datePublished">2015-06-14</time>
 </a>
     
   </div>
@@ -1116,7 +1116,7 @@ gulp.task(<span class="string">'default'</span>, [<span class="string">'clean'</
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-14-node-restful-api/">Nodejs RESTFul架构实践之api</a>
+      <a class="article-title" href="/2015/06/14/node-restful-api/">Nodejs RESTFul架构实践之api</a>
     </h1>
   
 
@@ -1330,7 +1330,7 @@ module<span class="built_in">.</span>exports = router;
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-14-node-restful-api/" data-id="cid0wpbc2000jqm7ffqfmkyxk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/14/node-restful-api/" data-id="cid0xyhoc000j2j7fypnwjqwy" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1340,10 +1340,10 @@ module<span class="built_in">.</span>exports = router;
 
 
   
-    <article id="post-2015-07-12-to-us" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-pm2-issue" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-07-12-to-us/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/13/pm2-issue/" class="article-date">
+  <time datetime="2015-06-12T16:00:00.000Z" itemprop="datePublished">2015-06-13</time>
 </a>
     
   </div>
@@ -1354,7 +1354,7 @@ module<span class="built_in">.</span>exports = router;
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-07-12-to-us/">良苦用心几人懂</a>
+      <a class="article-title" href="/2015/06/13/pm2-issue/">Nodejs部署再思考</a>
     </h1>
   
 
@@ -1362,46 +1362,89 @@ module<span class="built_in">.</span>exports = router;
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>良苦用心几人懂？</p>
-<h2 id="别太拿自己当回事儿">别太拿自己当回事儿</h2><p>创业，如果放不下架子，放不下面子，你没有机会享受高风险的回报，即使有，你也不配</p>
-<p>常常是自己的所谓“为了项目好”，最后一意孤行，闹得所有人都开心，已有的计划无法继续，所有人都失去信心，如果项目黄了，你要承担多少责任？</p>
-<p>最怕的是“一条鱼腥了一锅汤”</p>
-<p>举个例子，处理jshint配置能用多久呢？如果半天都搞不定，我真心不认为这样的人需要去口口声声的讲，“代码要规范”，连基本功都不过关，谈规范，只是让别人坑而已</p>
-<p>大师们尚且虚怀若谷，又何况我们呢？水瓶要么空要么满才不会逛荡，以一个空杯的心态面对世界，才能更好的适应社会。</p>
-<p>如果心智成熟，和你的老大好好沟通，降低开发风险，又能对项目有利，你的领导会高看你眼，放心把更重要的工作交给你。</p>
-<h2 id="知道什么该学？">知道什么该学？</h2><p>大晚上12点，马上要切换测试环境了，我说“在群里说一声，没睡的大伙测一下”</p>
-<p>那货说：“大家都睡了，群里沟通成本太高”。。。</p>
-<p>可你知道，这背后的真正用意是什么？你只要发了这个信息，老大们都会看到，都会记着你在辛苦的工作，至于结果，有人起来帮忙测试最好，如果没有，至少对自己也是好事儿</p>
-<p>有的时候我特别想笑，你以为学东西就是学技术么？</p>
-<p>我们再举个例子，别人教你东西，你愿意学或者不愿意学都要听，为啥？如果你觉得他得东西有价值你可以多听点，以后他还会给你分享</p>
-<p>如果你直接拒绝，他以后也不会给你分享了。即使你特别不想听，找个借口委婉点也好</p>
-<p>有的时候我可以给你讲12分，可你不愿意听，对不起，我讲6分就好了，为啥让自己那么累呢？关键你他妈还不给我钱。。。</p>
-<p>学东西不要太表面，技巧性的东西在这个时代已经没有难度了，反正有各种办法查到，只是积累多少的问题的，最难的是他们背后的思考，那是实践后总结出来的真知</p>
-<p>我折腾过很多东西，很累，但我习惯了如何快速了解新东西，并能用正确的方式使用他们，这是我的本事，那你呢？即使不会，我可以放下姿态跟人学，那你呢？</p>
-<h2 id="你当我是谁？">你当我是谁？</h2><p>有的时候我也在想，你当我是谁？领导？还是大哥？</p>
-<p>无论哪种都好，至少有那么一些尊重</p>
-<p>我并不想美化这个词，但我得承认，尊重是人和人友好的基础</p>
-<p>你尊重我，我教你，带你，给你做各种好的打算，我心甘情愿，即使再我最艰难的时候，我都是自己贴钱请大家</p>
-<p>如果你因为情绪不好，找我聊，或者大骂我一顿，我都可以接受，如果我做的不好，你也可以找我聊，或者大骂我一顿。</p>
-<p>即使我做的再不好，你身为我的小弟，是否要给我留够面子呢？</p>
-<p>当着那么多人，与我争执，你是我小弟么？你当我是谁？</p>
-<h2 id="你知道谁是真的对你好么？">你知道谁是真的对你好么？</h2><p>天天对你笑，恭维你的人，给你涨工资，夸你的人？</p>
-<p>还是用心品吧，这世界没有免费的午餐，不会有无端的馅饼落我头上，唯一能表明也是“我还算一个有用的人”，而已</p>
-<h2 id="关于推卸责任">关于推卸责任</h2><p>我不喜欢这个人代码，我也不喜欢那个人代码，那么你有想过为什么嘛？</p>
-<p>我再退一步讲，你觉得别人会喜欢你的代码么？</p>
-<p>如果你真的牛逼，你有代码洁癖，把所有的代码都整理的井井有条，制定规范，所有人都觉得好（不一定全用），那么你真的很牛逼，必须提职加薪，想做管理做管理，想当专家当专家，因为这种人是真的人才</p>
-<p>当松散2周，一个sprint没有完成，开发要求2天修补bug，我其实想问，你真的好意思要么？这2天修补bug的时间，会导致整个开发计划延后2天，下一个冲刺无法正常完成。。。</p>
-<p>形成惯性，以后的计划都无法正常完成。。。。。</p>
-<p>我郁闷的不是这2天，而是羞耻心和责任心的缺失</p>
-<h2 id="羞耻心和责任心才是进步的动力">羞耻心和责任心才是进步的动力</h2><p>如果你真的在这2周很努力的去做了，我觉得这个延期可以理解，但是后面要想办法补上</p>
-<p>因为你觉得自己没做好，才会努力去学习，改进，这才是成长的动力</p>
-<p>另外你真的补上了，会让别人对你很信任</p>
-<p>人和人相处到最后实际上就是尊重和信任，无它</p>
-<p>人有脸，树有皮啊，谁能想到我写这段文字的时候，内心是多么的凄凉，可事实真的是真的，有人的人是真的真的没有</p>
-<h2 id="别逼着我做决定">别逼着我做决定</h2><p>我很想：“把工资一结，然后告诉那人，你不配拿我这份尊重！”</p>
-<p>忍忍吧，至少现在我还不能这样做，但是早晚有一天，出来混是要还的。</p>
-<h2 id="抱怨">抱怨</h2><p>这世界上最蠢的事儿就是抱怨，不解决任何事情，又让自己很郁闷，我先反省一下自己的蠢</p>
-<p>tomorrow is another day</p>
+        <h2 id="pm2">pm2</h2><p>好处就不说了</p>
+<p>今天遇到一个奇怪的问题，部署一台新的机器，无论怎么弄，什么版本都会报错</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">js-bson: Failed <span class="built_in">to</span> <span class="built_in">load</span> c++ bson extension, <span class="keyword">using</span> pure JS <span class="built_in">version</span></span><br></pre></td></tr></table></figure>
+<p>我曾经无数次的怀疑，是mongodb的问题，于是我手动编译了bson和bson-ext，以及相关的</p>
+<ul>
+<li>connect-mongo</li>
+<li>mongoose</li>
+</ul>
+<p>可是还不好使。。。。。</p>
+<p>我觉得很奇怪，没有理由啊，我去查pm2的源码和文档，发现cluster mode必须是0.12之后才有，之前的方式都是fork模式的。</p>
+<p>最后发现 <a href="https://github.com/Unitech/PM2/issues/957" target="_blank" rel="external">https://github.com/Unitech/PM2/issues/957</a></p>
+<p>@jorge-d commented on Mar 11</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">I just tested <span class="operator">with</span> node v0<span class="number">.12</span><span class="number">.0</span> <span class="operator">and</span> pm2 <span class="number">0.12</span><span class="number">.7</span> <span class="operator">and</span> everything seems <span class="built_in">to</span> be working fine...</span><br><span class="line">Could you <span class="built_in">do</span> <span class="operator">a</span> simple test ? run pm2 <span class="built_in">kill</span>; pm2 <span class="built_in">start</span> app.js -i <span class="number">0</span> <span class="operator">and</span> tell me whether <span class="keyword">it</span> starts <span class="operator">in</span> cluster <span class="operator">of</span> fork mode ?</span><br></pre></td></tr></table></figure>
+<p>然后那货的问题就解决了，然后我试了一下</p>
+<pre><code>pm2 <span class="built_in">kill</span>
+</code></pre><p>是杀死pm2自己的进程，然后产生新的，相当于重启。</p>
+<p>然后再跑就可以了</p>
+<h2 id="反思一下，为什么会出现这样的问题？">反思一下，为什么会出现这样的问题？</h2><p>node的版本较多</p>
+<ul>
+<li>nodejs（0.10 和0.12 集群模块不一样，还有就是对es6的支持）</li>
+<li>iojs（目前以及2.3+）</li>
+</ul>
+<p>我最开始部署的时候用的是iojs最新版本，然后我启动过<code>pm2</code>,克隆完源码之后，<code>npm install</code>的时候有模块无法编译，所以我就切换0.10了</p>
+<p>哎，我没有想到pm2会一直存在，只要不kill就在，而且我不喜欢动不动就重启服务器，所以花了几个小时的时间才解决。</p>
+<h2 id="pm2_deploy">pm2 deploy</h2><p>ruby 里有 capistrano 部署</p>
+<ul>
+<li><a href="http://capistranorb.com/" target="_blank" rel="external">http://capistranorb.com/</a></li>
+</ul>
+<p>node世界里也有shipit</p>
+<ul>
+<li><a href="https://github.com/shipitjs/shipit" target="_blank" rel="external">https://github.com/shipitjs/shipit</a></li>
+</ul>
+<p>说白点都是“Universal automation and deployment tool”，通用自动化部署工具而已。</p>
+<p>实际上Unitech也打算给pm2增加这样的功能，让pm2成为一个全能的货</p>
+<ul>
+<li>代码： <a href="https://github.com/Unitech/pm2-deploy" target="_blank" rel="external">https://github.com/Unitech/pm2-deploy</a></li>
+<li>文档：<a href="https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#deployment-help" target="_blank" rel="external">https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#deployment-help</a></li>
+</ul>
+<p>它完成了几件事儿</p>
+<ul>
+<li>evn环境变量</li>
+<li>ssh远程key配置</li>
+<li>git代码以及分支切换</li>
+<li>各种回调钩子，比如post-deploy</li>
+</ul>
+<p>以上特性足矣和任何ci或者其他自动化工具集成了，目前可以当小白鼠的。</p>
+<h2 id="部署相关，小弟们必看">部署相关，小弟们必看</h2><p>部署的基本常识</p>
+<ul>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps" target="_blank" rel="external">https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps</a></li>
+</ul>
+<p>NGINX+PM2组合</p>
+<ul>
+<li><a href="https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/" target="_blank" rel="external">https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/</a></li>
+</ul>
+<p>注意配置</p>
+<pre><code>server {  
+  server_name your.domain.com;
+  listen <span class="number">80</span>;
+
+  location / {
+    proxy_set_header X-Real-IP <span class="variable">$remote</span>_addr;
+    proxy_set_header X-Forwarded-For <span class="variable">$proxy</span>_add_x_forwarded_for;
+    proxy_set_header Host <span class="variable">$http</span>_host;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">3000</span>;
+    proxy_redirect off;
+  }
+}
+</code></pre><p>图片处理<a href="https://serversforhackers.com/nginx-caching" target="_blank" rel="external">https://serversforhackers.com/nginx-caching</a></p>
+<pre><code>location ~<span class="keyword">*</span> \.(js|<span class="string">css</span>|<span class="string">png</span>|<span class="string">jpg</span>|<span class="string">jpeg</span>|<span class="string">gif</span>|<span class="string">ico)$ {
+    expires 1y;
+    log_not_found off;
+}</span>
+</code></pre><p>如果有兴趣，也可以看一下我写的node部署</p>
+<p><a href="http://nodeonly.com/2015/06/02/deploy.html" target="_blank" rel="external">http://nodeonly.com/2015/06/02/deploy.html</a></p>
+<p>sudo systemctl enable nginx.service<br>sudo systemctl enable redis.service<br>sudo chkconfig mongod on</p>
+<p>nohup node /home/deploy/workspace/oschina/mxb-sms/app.js &gt; /home/deploy/workspace/oschina/mxb-sms/sms.log 2&gt;&amp;1 &amp;</p>
+<h2 id="这样的部署真的足够了么？">这样的部署真的足够了么？</h2><p>一台一台机器的部署也是醉了。。。。哥是程序员啊</p>
+<p>复用和弹性伸缩才是真爱</p>
+<p>所以比较好的方式是使用docker来处理，docker是lxc，里面可以部署任意linux系统<br>配置各种环境，完成任意弹性扩容</p>
+<p>目前nearfarm已经有一个不错的实现</p>
+<p><a href="https://github.com/nearform/nscale" target="_blank" rel="external">https://github.com/nearform/nscale</a></p>
+<p>具体原理以及相关实践，稍后整理</p>
 <p>全文完</p>
 <p>欢迎关注我的公众号【node全栈】</p>
 <p><img src="/css/node全栈-公众号.png" alt=""></p>
@@ -1409,7 +1452,7 @@ module<span class="built_in">.</span>exports = router;
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-07-12-to-us/" data-id="cid0wpbb70004qm7fwq0zylfp" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/13/pm2-issue/" data-id="cid0xyhoe000k2j7f2ganm34w" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1419,10 +1462,10 @@ module<span class="built_in">.</span>exports = router;
 
 
   
-    <article id="post-2015-06-10-expressjs-rest" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-expressjs-rest" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-10-expressjs-rest/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/10/expressjs-rest/" class="article-date">
+  <time datetime="2015-06-09T16:00:00.000Z" itemprop="datePublished">2015-06-10</time>
 </a>
     
   </div>
@@ -1433,7 +1476,7 @@ module<span class="built_in">.</span>exports = router;
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-10-expressjs-rest/">监控Nodejs的页面响应时间</a>
+      <a class="article-title" href="/2015/06/10/expressjs-rest/">监控Nodejs的页面响应时间</a>
     </h1>
   
 
@@ -1646,7 +1689,7 @@ app.<span class="keyword">use</span>(request-time);
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-10-expressjs-rest/" data-id="cid0wpbc4000lqm7fz890zdks" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/10/expressjs-rest/" data-id="cid0xyhof000l2j7f4bhddly3" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1656,10 +1699,10 @@ app.<span class="keyword">use</span>(request-time);
 
 
   
-    <article id="post-2015-06-09-expressjs-rest" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-expressjs-rest" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-09-expressjs-rest/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/09/expressjs-rest/" class="article-date">
+  <time datetime="2015-06-08T16:00:00.000Z" itemprop="datePublished">2015-06-09</time>
 </a>
     
   </div>
@@ -1670,7 +1713,7 @@ app.<span class="keyword">use</span>(request-time);
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-09-expressjs-rest/">Nodejs RESTFul架构实践</a>
+      <a class="article-title" href="/2015/06/09/expressjs-rest/">Nodejs RESTFul架构实践</a>
     </h1>
   
 
@@ -2083,7 +2126,7 @@ block content
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-09-expressjs-rest/" data-id="cid0wpbc6000mqm7f2y5sig6l" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/09/expressjs-rest/" data-id="cid0xyhoj000m2j7f5mspodq6" class="article-share-link">Share</a>
       
       
     </footer>
@@ -2119,7 +2162,7 @@ block content
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">35</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
     </div>
   </div>
 
@@ -2131,23 +2174,23 @@ block content
       <ul>
         
           <li>
-            <a href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+            <a href="/2015/08/07/hello-world/">Hello World</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+            <a href="/2015/07/12/to-us/">良苦用心几人懂</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+            <a href="/2015/07/07/npm-postinstall/">从npm tips到express插件机制设计</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+            <a href="/2015/07/04/mongo-paging/">mongodb分页优化</a>
           </li>
         
       </ul>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>NODEJS部署实践 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="如何选择node版本？从目前的测试数据来看，iojs新版本性能会更好一些，如果测试写的不够多的话，老老实实的用开发时的版本吧
+推荐nvm，是node version manager，是借鉴rvm的一个开源项目
+
+nvm 支持多版本
+nvm支持多版本npm包切换，而且安装在用户目录下面，不需要使用sudo安装
+
+统一环境开发环境
+
+nvm
+nrm
+nodejs 0.10.38
+node-inspec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NODEJS部署实践">
+<meta property="og:url" content="http://yoursite.com/2015/06/02/deploy/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="如何选择node版本？从目前的测试数据来看，iojs新版本性能会更好一些，如果测试写的不够多的话，老老实实的用开发时的版本吧
+推荐nvm，是node version manager，是借鉴rvm的一个开源项目
+
+nvm 支持多版本
+nvm支持多版本npm包切换，而且安装在用户目录下面，不需要使用sudo安装
+
+统一环境开发环境
+
+nvm
+nrm
+nodejs 0.10.38
+node-inspec">
+<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-06-01T23:52:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NODEJS部署实践">
+<meta name="twitter:description" content="如何选择node版本？从目前的测试数据来看，iojs新版本性能会更好一些，如果测试写的不够多的话，老老实实的用开发时的版本吧
+推荐nvm，是node version manager，是借鉴rvm的一个开源项目
+
+nvm 支持多版本
+nvm支持多版本npm包切换，而且安装在用户目录下面，不需要使用sudo安装
+
+统一环境开发环境
+
+nvm
+nrm
+nodejs 0.10.38
+node-inspec">
+  
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-deploy" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/02/deploy/" class="article-date">
+  <time datetime="2015-06-01T16:00:00.000Z" itemprop="datePublished">2015-06-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      NODEJS部署实践
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="如何选择node版本？">如何选择node版本？</h2><p>从目前的测试数据来看，iojs新版本性能会更好一些，如果测试写的不够多的话，老老实实的用开发时的版本吧</p>
+<p>推荐nvm，是node version manager，是借鉴rvm的一个开源项目</p>
+<ul>
+<li>nvm 支持多版本</li>
+<li>nvm支持多版本npm包切换，而且安装在用户目录下面，不需要使用sudo安装</li>
+</ul>
+<h2 id="统一环境">统一环境</h2><p>开发环境</p>
+<ul>
+<li>nvm</li>
+<li>nrm</li>
+<li>nodejs 0.10.38</li>
+<li>node-inspector</li>
+</ul>
+<p>部署环境</p>
+<ul>
+<li>nvm</li>
+<li>nrm</li>
+<li>iojs 2.x</li>
+<li>pm2</li>
+<li>nginx</li>
+</ul>
+<h2 id="express_部署">express 部署</h2><p>expressjs里默认给出的是<code>node bin/www</code></p>
+<p>它有2个问题</p>
+<ol>
+<li>没有cluster，不适合产品模式</li>
+<li>代码变动不能自动reload，不适合开发模式</li>
+</ol>
+<p>所以我们需要把<code>bin/www</code>干掉，把启动服务器的代码放到app.js，这样就可以使用pm2了。安装supervisor模块，自动relaod</p>
+<p><strong>EXPRESS最新版本需要测测</strong></p>
+<p>本文主要介绍express线上部署实践</p>
+<p>先看一下3个模式</p>
+<ul>
+<li>开发模式</li>
+<li>调试模式</li>
+<li>产品模式</li>
+</ul>
+<h2 id="启动开发模式">启动开发模式</h2><p>因为我们在开发过程中总是希望修改后立即看到效果，而不是每次都要终止进程并重启。</p>
+<p>supervisor 可以帮助你实现这个功能，它会监视你对代码的改动，并自动重启 Node.js</p>
+<p>开发模式我推荐 supervisor</p>
+<p>安装</p>
+<pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save supervisor</span></span>
+</code></pre><p>启动</p>
+<pre><code>supervisor app<span class="class">.js</span> or supervisor www/bin
+</code></pre><p>我的实践是把package.json里的start</p>
+<pre><code><span class="string">"scripts"</span>: {
+  <span class="string">"d"</span>: <span class="string">"node-debug app.js"</span>,
+  <span class="string">"start"</span>: <span class="string">"./node_modules/.bin/supervisor app.js"</span>
+}
+</code></pre><p>然后</p>
+<pre><code><span class="built_in">npm</span> start
+</code></pre><p>还有一个库也不错，叫nodemon</p>
+<p>see <a href="http://nodemon.io/" target="_blank" rel="external">http://nodemon.io/</a></p>
+<h2 id="调试模式">调试模式</h2><p>推荐node-inspector</p>
+<p>安装</p>
+<pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save node-inspector</span></span>
+</code></pre><p>启动</p>
+<pre><code>node-inspector app.js <span class="keyword">or</span> node-<span class="built_in">debug</span> www/bin
+</code></pre><p>我的实践是把package.json里的d里</p>
+<pre><code><span class="string">"scripts"</span>: {
+  <span class="string">"d"</span>: <span class="string">"node-debug app.js"</span>,
+  <span class="string">"start"</span>: <span class="string">"./node_modules/.bin/supervisor app.js"</span>
+}
+</code></pre><p>然后执行</p>
+<pre><code>npm <span class="keyword">run</span> <span class="literal">d</span>
+</code></pre><p>npm run命令详解，见<a href="https://github.com/i5ting/npm-run-test" target="_blank" rel="external">https://github.com/i5ting/npm-run-test</a></p>
+<h2 id="启动产品上线模式">启动产品上线模式</h2><p>产品模式我们推荐使用pm2</p>
+<p>pm2是非常优秀工具，它提供对基于node.js的项目运行托管服务。它基于命令行界面，提供很多特性：</p>
+<ul>
+<li>内置的负载均衡器（使用nodecluster module）</li>
+<li>以守护进程运行</li>
+<li>0s(不间断)重启</li>
+<li>为ubuntu/ CentOS 提供启动脚本</li>
+<li>关闭不稳定的进程（避免无限死循环）</li>
+<li>基于控制台监控</li>
+<li>HTTP API</li>
+<li>远程控制以及实时监控接口</li>
+</ul>
+<p>pm2使用nodecluster构建一个内置的负载均衡器。部署多个app的实例来达到分流的目的以减轻单app处理的压力。</p>
+<p>安装pm2</p>
+<pre><code>sudo npm <span class="operator"><span class="keyword">install</span> -<span class="keyword">g</span> pm2</span>
+</code></pre><p>查看基本帮助文档</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Basic Examples:</span><br><span class="line"></span><br><span class="line">  <span class="operator"><span class="keyword">Start</span> an app <span class="keyword">using</span> all CPUs available + <span class="keyword">set</span> a <span class="keyword">name</span> :</span><br><span class="line">  $ pm2 <span class="keyword">start</span> app.js -<span class="keyword">i</span> <span class="number">0</span> <span class="comment">--name "api"</span></span><br><span class="line"></span><br><span class="line">  Restart the previous app launched, <span class="keyword">by</span> <span class="keyword">name</span> :</span><br><span class="line">  $ pm2 restart api</span><br><span class="line"></span><br><span class="line">  <span class="keyword">Stop</span> the app :</span><br><span class="line">  $ pm2 <span class="keyword">stop</span> api</span><br><span class="line"></span><br><span class="line">  Restart the app that <span class="keyword">is</span> stopped :</span><br><span class="line">  $ pm2 restart api</span><br><span class="line"></span><br><span class="line">  Remove the app <span class="keyword">from</span> the process <span class="keyword">list</span> :</span><br><span class="line">  $ pm2 <span class="keyword">delete</span> api</span><br><span class="line"></span><br><span class="line">  <span class="keyword">Kill</span> daemon pm2 :</span><br><span class="line">  $ pm2 <span class="keyword">kill</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">Update</span> pm2 :</span><br><span class="line">  $ npm <span class="keyword">install</span> pm2@latest -<span class="keyword">g</span> ;</span> pm2 updatePM2</span><br><span class="line"></span><br><span class="line">  More examples in https://github.com/Unitech/pm2#usagefeatures</span><br><span class="line"></span><br><span class="line">Deployment <span class="operator"><span class="keyword">help</span>:</span><br><span class="line"></span><br><span class="line">  $ pm2 deploy <span class="keyword">help</span></span></span><br></pre></td></tr></table></figure>
+<p>上面基本是我们比较常用的</p>
+<h2 id="pm2的最佳实践">pm2的最佳实践</h2><p>把启动写到json配置文件中</p>
+<pre><code>// <span class="number">20150531071243</span>
+// https://raw.githubusercontent.com/RocketChat/Rocket.Chat/master/pm2.production.json
+
+{
+  <span class="string">"apps"</span>: [
+    {
+      <span class="string">"name"</span>: <span class="string">"rocket.chat.0"</span>,
+      <span class="string">"max_memory_restart"</span>: <span class="string">"1024M"</span>,
+      <span class="string">"log_date_format"</span>: <span class="string">"YYYY-MM-DD HH:mm:ss SSS"</span>,
+      <span class="string">"script"</span>: <span class="string">"/var/www/rocket.chat/bundle/main.js"</span>,
+      <span class="string">"out_file"</span>: <span class="string">"/var/log/rocket.chat/app.log"</span>,
+      <span class="string">"error_file"</span>: <span class="string">"/var/log/rocket.chat/err.log"</span>,
+      <span class="string">"port"</span>: <span class="string">"8080"</span>,
+      <span class="string">"env"</span>: {
+        <span class="string">"CDN_PREFIX"</span>: <span class="string">"//dbde4sd21oahf.cloudfront.net"</span>,
+        <span class="string">"MONGO_URL"</span>: <span class="string">"mongodb://localhost:27017/rocketchat"</span>,
+        <span class="string">"MONGO_OPLOG_URL"</span>: <span class="string">"mongodb://localhost:27017/local"</span>,
+        <span class="string">"ROOT_URL"</span>: <span class="string">"http://rocket.chat"</span>,
+        <span class="string">"PORT"</span>: <span class="string">"8080"</span>
+      }
+    },
+    {
+      <span class="string">"name"</span>: <span class="string">"rocket.chat.1"</span>,
+      <span class="string">"max_memory_restart"</span>: <span class="string">"1024M"</span>,
+      <span class="string">"log_date_format"</span>: <span class="string">"YYYY-MM-DD HH:mm:ss SSS"</span>,
+      <span class="string">"script"</span>: <span class="string">"/var/www/rocket.chat/bundle/main.js"</span>,
+      <span class="string">"out_file"</span>: <span class="string">"/var/log/rocket.chat/app.log"</span>,
+      <span class="string">"error_file"</span>: <span class="string">"/var/log/rocket.chat/err.log"</span>,
+      <span class="string">"port"</span>: <span class="string">"8081"</span>,
+      <span class="string">"env"</span>: {
+        <span class="string">"CDN_PREFIX"</span>: <span class="string">"//dbde4sd21oahf.cloudfront.net"</span>,
+        <span class="string">"MONGO_URL"</span>: <span class="string">"mongodb://localhost:27017/rocketchat"</span>,
+        <span class="string">"MONGO_OPLOG_URL"</span>: <span class="string">"mongodb://localhost:27017/local"</span>,
+        <span class="string">"ROOT_URL"</span>: <span class="string">"http://rocket.chat"</span>,
+        <span class="string">"PORT"</span>: <span class="string">"8081"</span>
+      }
+    },
+    {
+      <span class="string">"name"</span>: <span class="string">"rocket.chat.2"</span>,
+      <span class="string">"max_memory_restart"</span>: <span class="string">"1024M"</span>,
+      <span class="string">"log_date_format"</span>: <span class="string">"YYYY-MM-DD HH:mm:ss SSS"</span>,
+      <span class="string">"script"</span>: <span class="string">"/var/www/rocket.chat/bundle/main.js"</span>,
+      <span class="string">"out_file"</span>: <span class="string">"/var/log/rocket.chat/app.log"</span>,
+      <span class="string">"error_file"</span>: <span class="string">"/var/log/rocket.chat/err.log"</span>,
+      <span class="string">"port"</span>: <span class="string">"8082"</span>,
+      <span class="string">"env"</span>: {
+        <span class="string">"CDN_PREFIX"</span>: <span class="string">"//dbde4sd21oahf.cloudfront.net"</span>,
+        <span class="string">"MONGO_URL"</span>: <span class="string">"mongodb://localhost:27017/rocketchat"</span>,
+        <span class="string">"MONGO_OPLOG_URL"</span>: <span class="string">"mongodb://localhost:27017/local"</span>,
+        <span class="string">"ROOT_URL"</span>: <span class="string">"http://rocket.chat"</span>,
+        <span class="string">"PORT"</span>: <span class="string">"8082"</span>
+      }
+    },
+    {
+      <span class="string">"name"</span>: <span class="string">"rocket.chat.3"</span>,
+      <span class="string">"max_memory_restart"</span>: <span class="string">"1024M"</span>,
+      <span class="string">"log_date_format"</span>: <span class="string">"YYYY-MM-DD HH:mm:ss SSS"</span>,
+      <span class="string">"script"</span>: <span class="string">"/var/www/rocket.chat/bundle/main.js"</span>,
+      <span class="string">"out_file"</span>: <span class="string">"/var/log/rocket.chat/app.log"</span>,
+      <span class="string">"error_file"</span>: <span class="string">"/var/log/rocket.chat/err.log"</span>,
+      <span class="string">"port"</span>: <span class="string">"8083"</span>,
+      <span class="string">"env"</span>: {
+        <span class="string">"CDN_PREFIX"</span>: <span class="string">"//dbde4sd21oahf.cloudfront.net"</span>,
+        <span class="string">"MONGO_URL"</span>: <span class="string">"mongodb://localhost:27017/rocketchat"</span>,
+        <span class="string">"MONGO_OPLOG_URL"</span>: <span class="string">"mongodb://localhost:27017/local"</span>,
+        <span class="string">"ROOT_URL"</span>: <span class="string">"http://rocket.chat"</span>,
+        <span class="string">"PORT"</span>: <span class="string">"8083"</span>
+      }
+    }
+  ]
+}
+</code></pre><p>部署</p>
+<pre><code>pm2 deploy ecosystem<span class="class">.json</span> production setup
+</code></pre><p>第一个傻瓜原则，你的机器有几核，你就几个实例</p>
+<pre><code><span class="operator"><span class="keyword">Start</span> an app <span class="keyword">using</span> all CPUs available + <span class="keyword">set</span> a <span class="keyword">name</span> :
+$ pm2 <span class="keyword">start</span> app.js -<span class="keyword">i</span> <span class="number">0</span> <span class="comment">--name "api"</span></span>
+</code></pre><p>上面的配置文件了配置了4个，你应该能自己估算出点什么</p>
+<p>第二个傻瓜原则，想机器瘫痪么？最简单的办法是内存不足，怎么样能防止内存被吃尽呢？</p>
+<p>很简单，和lru cache一样，设置最大可用内存，防止内存用爆</p>
+<p>参数里</p>
+<pre><code>--<span class="keyword">max</span>-<span class="keyword">memory</span>-restart &lt;<span class="keyword">memory</span>&gt;        specify <span class="keyword">max</span> <span class="keyword">memory</span> amount used to autorestart (<span class="keyword">in</span> megaoctets)
+</code></pre><p>配置文件了也一样</p>
+<pre><code><span class="string">"max_memory_restart"</span>: <span class="string">"1024M"</span>,
+</code></pre><p>4个实例，每个可占用内存为1G，那么你应该能自己估算出点什么</p>
+<p>第三个傻瓜原则，敏感信息咋办？有2种办法</p>
+<ol>
+<li>使用config/default.example.json。部署的时候拷贝一份，然后按需修改</li>
+<li>使用pm2的env，在环境变量里配置，pm2的json是在服务器上生成的，每个服务器都要生成一次的</li>
+</ol>
+<p>推荐pm2的env这种方式，相对更简单点</p>
+<p>第四个傻瓜原则，集群状态下的应用应该是stateless的（无状态），不能依赖代码去做一些事儿的，比如自己写队列处理cache</p>
+<p>因为每个实例都是独立的，你读写不是全局的，一定会有各种问题，尽量使用第三方独立的服务，比如配置文件（非实例下面），比如redis等缓存，db等</p>
+<h2 id="pm2高级用法">pm2高级用法</h2><h3 id="reload">reload</h3><p>启动的时候会指定一个名字，以后根据该名字，进行特定操作</p>
+<pre><code>pm2 reload <span class="keyword">some</span>-app
+</code></pre><p>它的好处是0秒延时，可以和<code>nginx -s reload</code>媲美</p>
+<h3 id="monit">monit</h3><pre><code>p<span class="title">m2</span> mo<span class="label">nit</span>
+</code></pre><p>更多内容 <a href="https://github.com/Unitech/PM2#monitoring" target="_blank" rel="external">https://github.com/Unitech/PM2#monitoring</a></p>
+<h3 id="日志">日志</h3><p>更多内容 <a href="https://github.com/Unitech/PM2#log-facilities" target="_blank" rel="external">https://github.com/Unitech/PM2#log-facilities</a></p>
+<pre><code><span class="variable">$ </span>pm2 logs
+<span class="variable">$ </span>pm2 logs big-api
+<span class="variable">$ </span>pm2 flush          <span class="comment"># Clear all the logs</span>
+</code></pre><h3 id="web">web</h3><pre><code>npm <span class="command">run</span> web
+</code></pre><p>访问 <a href="http://127.0.0.1:9615" target="_blank" rel="external">http://127.0.0.1:9615</a></p>
+<h3 id="开机启动">开机启动</h3><pre><code>p<span class="title">m2</span> startup ce<span class="label">ntos</span>
+</code></pre><p>注意：示例的package.json里给出的是centos里增加开机启动项，如果是其他操作系统，请自己更改</p>
+<p>更多内容 <a href="https://github.com/Unitech/PM2#startup-script-generation" target="_blank" rel="external">https://github.com/Unitech/PM2#startup-script-generation</a></p>
+<pre><code>$ pm2 startup &lt;ubuntu<span class="string">|centos|gentoo|systemd&gt;</span>
+</code></pre><p>开机启动，还要注意的一点是要保存一次pm2运行数据的</p>
+<pre><code>pm2 <span class="keyword">save</span>
+</code></pre><h2 id="要不要nginx_或者_haproxy_？">要不要nginx 或者 haproxy ？</h2><p>nginx</p>
+<ul>
+<li>主要做反向代理和静态资源处理（如果没有cdn，就把public下的内容放到nginx里）</li>
+<li>负载</li>
+<li>阻止了很多常见的攻击和慢客户端</li>
+</ul>
+<p>nginx负载对应多台机器，每台机器里起多个（cpu个数）实例，单机负载使用pm2管理。</p>
+<p>nginx和haproxy都是针对多台机器的负载，功能差不过，使用和插件方面，nginx稍强一点，知名度更高一点</p>
+<h2 id="另外一种部署方式">另外一种部署方式</h2><p>passenger是rails部署时常用的服务器，不过庆幸的是这帮货出了node版本，而且性能不错</p>
+<p>有兴趣的可以去研究一下 nginx + passenger</p>
+<h2 id="mongodb的部署">mongodb的部署</h2><ul>
+<li>安全 <a href="https://cnodejs.org/topic/54cdd026ef1b48510c27e07a" target="_blank" rel="external">https://cnodejs.org/topic/54cdd026ef1b48510c27e07a</a></li>
+<li>集群 <a href="http://www.linuxidc.com/Linux/2015-02/113296.htm" target="_blank" rel="external">http://www.linuxidc.com/Linux/2015-02/113296.htm</a></li>
+</ul>
+<h2 id="redis部署">redis部署</h2><p><a href="http://www.linuxidc.com/Linux/2014-07/104306.htm" target="_blank" rel="external">http://www.linuxidc.com/Linux/2014-07/104306.htm</a></p>
+<h2 id="简单压测">简单压测</h2><ul>
+<li>apache ab</li>
+<li>wrk</li>
+</ul>
+<h2 id="node_cluster和nginx负载性能比较">node cluster和nginx负载性能比较</h2><p>todo</p>
+<p>别人测试的node的性能稍高，不过我还是想自己测测</p>
+<h2 id="性能调优">性能调优</h2><p>todo</p>
+<h2 id="keeplive">keeplive</h2><ul>
+<li><a href="http://www.bubuko.com/infodetail-260176.html" target="_blank" rel="external">http://www.bubuko.com/infodetail-260176.html</a></li>
+</ul>
+<h2 id="监控">监控</h2><ul>
+<li>newrelic <a href="https://cnodejs.org/topic/53fde58d7c1e2284785cd39e" target="_blank" rel="external">https://cnodejs.org/topic/53fde58d7c1e2284785cd39e</a></li>
+</ul>
+<h2 id="资源">资源</h2><ul>
+<li><a href="http://promotion.pm2.io/" target="_blank" rel="external">http://promotion.pm2.io/</a></li>
+<li><a href="https://github.com/Unitech/PM2" target="_blank" rel="external">https://github.com/Unitech/PM2</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps" target="_blank" rel="external">https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps</a></li>
+</ul>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/06/02/deploy/" data-id="cid0xyhor000r2j7f0fpz636t" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/06/02/study/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          如何学习之善用github篇
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/01/kp-and-mount-routes/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">分享2个实用的nodejs模块</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/jekyll-update/">jekyll update</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-update/">node update</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/08/07/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2015/07/12/to-us/">良苦用心几人懂</a>
+          </li>
+        
+          <li>
+            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
+            <a href="/2015/07/07/npm-postinstall/">从npm tips到express插件机制设计</a>
+          </li>
+        
+          <li>
+            <a href="/2015/07/04/mongo-paging/">mongodb分页优化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

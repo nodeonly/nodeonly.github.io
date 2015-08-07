@@ -61,10 +61,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2015-06-13-pm2-issue" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-13-pm2-issue/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/08/07/hello-world/" class="article-date">
+  <time datetime="2015-08-07T00:20:38.000Z" itemprop="datePublished">2015-08-07</time>
 </a>
     
   </div>
@@ -75,7 +75,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+      <a class="article-title" href="/2015/08/07/hello-world/">Hello World</a>
     </h1>
   
 
@@ -83,89 +83,91 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="pm2">pm2</h2><p>好处就不说了</p>
-<p>今天遇到一个奇怪的问题，部署一台新的机器，无论怎么弄，什么版本都会报错</p>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">js-bson: Failed <span class="built_in">to</span> <span class="built_in">load</span> c++ bson extension, <span class="keyword">using</span> pure JS <span class="built_in">version</span></span><br></pre></td></tr></table></figure>
-<p>我曾经无数次的怀疑，是mongodb的问题，于是我手动编译了bson和bson-ext，以及相关的</p>
-<ul>
-<li>connect-mongo</li>
-<li>mongoose</li>
-</ul>
-<p>可是还不好使。。。。。</p>
-<p>我觉得很奇怪，没有理由啊，我去查pm2的源码和文档，发现cluster mode必须是0.12之后才有，之前的方式都是fork模式的。</p>
-<p>最后发现 <a href="https://github.com/Unitech/PM2/issues/957" target="_blank" rel="external">https://github.com/Unitech/PM2/issues/957</a></p>
-<p>@jorge-d commented on Mar 11</p>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">I just tested <span class="operator">with</span> node v0<span class="number">.12</span><span class="number">.0</span> <span class="operator">and</span> pm2 <span class="number">0.12</span><span class="number">.7</span> <span class="operator">and</span> everything seems <span class="built_in">to</span> be working fine...</span><br><span class="line">Could you <span class="built_in">do</span> <span class="operator">a</span> simple test ? run pm2 <span class="built_in">kill</span>; pm2 <span class="built_in">start</span> app.js -i <span class="number">0</span> <span class="operator">and</span> tell me whether <span class="keyword">it</span> starts <span class="operator">in</span> cluster <span class="operator">of</span> fork mode ?</span><br></pre></td></tr></table></figure>
-<p>然后那货的问题就解决了，然后我试了一下</p>
-<pre><code>pm2 <span class="built_in">kill</span>
-</code></pre><p>是杀死pm2自己的进程，然后产生新的，相当于重启。</p>
-<p>然后再跑就可以了</p>
-<h2 id="反思一下，为什么会出现这样的问题？">反思一下，为什么会出现这样的问题？</h2><p>node的版本较多</p>
-<ul>
-<li>nodejs（0.10 和0.12 集群模块不一样，还有就是对es6的支持）</li>
-<li>iojs（目前以及2.3+）</li>
-</ul>
-<p>我最开始部署的时候用的是iojs最新版本，然后我启动过<code>pm2</code>,克隆完源码之后，<code>npm install</code>的时候有模块无法编译，所以我就切换0.10了</p>
-<p>哎，我没有想到pm2会一直存在，只要不kill就在，而且我不喜欢动不动就重启服务器，所以花了几个小时的时间才解决。</p>
-<h2 id="pm2_deploy">pm2 deploy</h2><p>ruby 里有 capistrano 部署</p>
-<ul>
-<li><a href="http://capistranorb.com/" target="_blank" rel="external">http://capistranorb.com/</a></li>
-</ul>
-<p>node世界里也有shipit</p>
-<ul>
-<li><a href="https://github.com/shipitjs/shipit" target="_blank" rel="external">https://github.com/shipitjs/shipit</a></li>
-</ul>
-<p>说白点都是“Universal automation and deployment tool”，通用自动化部署工具而已。</p>
-<p>实际上Unitech也打算给pm2增加这样的功能，让pm2成为一个全能的货</p>
-<ul>
-<li>代码： <a href="https://github.com/Unitech/pm2-deploy" target="_blank" rel="external">https://github.com/Unitech/pm2-deploy</a></li>
-<li>文档：<a href="https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#deployment-help" target="_blank" rel="external">https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#deployment-help</a></li>
-</ul>
-<p>它完成了几件事儿</p>
-<ul>
-<li>evn环境变量</li>
-<li>ssh远程key配置</li>
-<li>git代码以及分支切换</li>
-<li>各种回调钩子，比如post-deploy</li>
-</ul>
-<p>以上特性足矣和任何ci或者其他自动化工具集成了，目前可以当小白鼠的。</p>
-<h2 id="部署相关，小弟们必看">部署相关，小弟们必看</h2><p>部署的基本常识</p>
-<ul>
-<li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps" target="_blank" rel="external">https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps</a></li>
-</ul>
-<p>NGINX+PM2组合</p>
-<ul>
-<li><a href="https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/" target="_blank" rel="external">https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/</a></li>
-</ul>
-<p>注意配置</p>
-<pre><code>server {  
-  server_name your.domain.com;
-  listen <span class="number">80</span>;
+        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick_Start">Quick Start</h2><h3 id="Create_a_new_post">Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run_server">Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="Generate_static_files">Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy_to_remote_sites">Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
 
-  location / {
-    proxy_set_header X-Real-IP <span class="variable">$remote</span>_addr;
-    proxy_set_header X-Forwarded-For <span class="variable">$proxy</span>_add_x_forwarded_for;
-    proxy_set_header Host <span class="variable">$http</span>_host;
-    proxy_set_header X-NginX-Proxy true;
-    proxy_pass http://<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">3000</span>;
-    proxy_redirect off;
-  }
-}
-</code></pre><p>图片处理<a href="https://serversforhackers.com/nginx-caching" target="_blank" rel="external">https://serversforhackers.com/nginx-caching</a></p>
-<pre><code>location ~<span class="keyword">*</span> \.(js|<span class="string">css</span>|<span class="string">png</span>|<span class="string">jpg</span>|<span class="string">jpeg</span>|<span class="string">gif</span>|<span class="string">ico)$ {
-    expires 1y;
-    log_not_found off;
-}</span>
-</code></pre><p>如果有兴趣，也可以看一下我写的node部署</p>
-<p><a href="http://nodeonly.com/2015/06/02/deploy.html" target="_blank" rel="external">http://nodeonly.com/2015/06/02/deploy.html</a></p>
-<p>sudo systemctl enable nginx.service<br>sudo systemctl enable redis.service<br>sudo chkconfig mongod on</p>
-<p>nohup node /home/deploy/workspace/oschina/mxb-sms/app.js &gt; /home/deploy/workspace/oschina/mxb-sms/sms.log 2&gt;&amp;1 &amp;</p>
-<h2 id="这样的部署真的足够了么？">这样的部署真的足够了么？</h2><p>一台一台机器的部署也是醉了。。。。哥是程序员啊</p>
-<p>复用和弹性伸缩才是真爱</p>
-<p>所以比较好的方式是使用docker来处理，docker是lxc，里面可以部署任意linux系统<br>配置各种环境，完成任意弹性扩容</p>
-<p>目前nearfarm已经有一个不错的实现</p>
-<p><a href="https://github.com/nearform/nscale" target="_blank" rel="external">https://github.com/nearform/nscale</a></p>
-<p>具体原理以及相关实践，稍后整理</p>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/hello-world/" data-id="cid0xyhnl00032j7fyk8fnk2e" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-to-us" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/12/to-us/" class="article-date">
+  <time datetime="2015-07-11T16:00:00.000Z" itemprop="datePublished">2015-07-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/12/to-us/">良苦用心几人懂</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>良苦用心几人懂？</p>
+<h2 id="别太拿自己当回事儿">别太拿自己当回事儿</h2><p>创业，如果放不下架子，放不下面子，你没有机会享受高风险的回报，即使有，你也不配</p>
+<p>常常是自己的所谓“为了项目好”，最后一意孤行，闹得所有人都开心，已有的计划无法继续，所有人都失去信心，如果项目黄了，你要承担多少责任？</p>
+<p>最怕的是“一条鱼腥了一锅汤”</p>
+<p>举个例子，处理jshint配置能用多久呢？如果半天都搞不定，我真心不认为这样的人需要去口口声声的讲，“代码要规范”，连基本功都不过关，谈规范，只是让别人坑而已</p>
+<p>大师们尚且虚怀若谷，又何况我们呢？水瓶要么空要么满才不会逛荡，以一个空杯的心态面对世界，才能更好的适应社会。</p>
+<p>如果心智成熟，和你的老大好好沟通，降低开发风险，又能对项目有利，你的领导会高看你眼，放心把更重要的工作交给你。</p>
+<h2 id="知道什么该学？">知道什么该学？</h2><p>大晚上12点，马上要切换测试环境了，我说“在群里说一声，没睡的大伙测一下”</p>
+<p>那货说：“大家都睡了，群里沟通成本太高”。。。</p>
+<p>可你知道，这背后的真正用意是什么？你只要发了这个信息，老大们都会看到，都会记着你在辛苦的工作，至于结果，有人起来帮忙测试最好，如果没有，至少对自己也是好事儿</p>
+<p>有的时候我特别想笑，你以为学东西就是学技术么？</p>
+<p>我们再举个例子，别人教你东西，你愿意学或者不愿意学都要听，为啥？如果你觉得他得东西有价值你可以多听点，以后他还会给你分享</p>
+<p>如果你直接拒绝，他以后也不会给你分享了。即使你特别不想听，找个借口委婉点也好</p>
+<p>有的时候我可以给你讲12分，可你不愿意听，对不起，我讲6分就好了，为啥让自己那么累呢？关键你他妈还不给我钱。。。</p>
+<p>学东西不要太表面，技巧性的东西在这个时代已经没有难度了，反正有各种办法查到，只是积累多少的问题的，最难的是他们背后的思考，那是实践后总结出来的真知</p>
+<p>我折腾过很多东西，很累，但我习惯了如何快速了解新东西，并能用正确的方式使用他们，这是我的本事，那你呢？即使不会，我可以放下姿态跟人学，那你呢？</p>
+<h2 id="你当我是谁？">你当我是谁？</h2><p>有的时候我也在想，你当我是谁？领导？还是大哥？</p>
+<p>无论哪种都好，至少有那么一些尊重</p>
+<p>我并不想美化这个词，但我得承认，尊重是人和人友好的基础</p>
+<p>你尊重我，我教你，带你，给你做各种好的打算，我心甘情愿，即使再我最艰难的时候，我都是自己贴钱请大家</p>
+<p>如果你因为情绪不好，找我聊，或者大骂我一顿，我都可以接受，如果我做的不好，你也可以找我聊，或者大骂我一顿。</p>
+<p>即使我做的再不好，你身为我的小弟，是否要给我留够面子呢？</p>
+<p>当着那么多人，与我争执，你是我小弟么？你当我是谁？</p>
+<h2 id="你知道谁是真的对你好么？">你知道谁是真的对你好么？</h2><p>天天对你笑，恭维你的人，给你涨工资，夸你的人？</p>
+<p>还是用心品吧，这世界没有免费的午餐，不会有无端的馅饼落我头上，唯一能表明也是“我还算一个有用的人”，而已</p>
+<h2 id="关于推卸责任">关于推卸责任</h2><p>我不喜欢这个人代码，我也不喜欢那个人代码，那么你有想过为什么嘛？</p>
+<p>我再退一步讲，你觉得别人会喜欢你的代码么？</p>
+<p>如果你真的牛逼，你有代码洁癖，把所有的代码都整理的井井有条，制定规范，所有人都觉得好（不一定全用），那么你真的很牛逼，必须提职加薪，想做管理做管理，想当专家当专家，因为这种人是真的人才</p>
+<p>当松散2周，一个sprint没有完成，开发要求2天修补bug，我其实想问，你真的好意思要么？这2天修补bug的时间，会导致整个开发计划延后2天，下一个冲刺无法正常完成。。。</p>
+<p>形成惯性，以后的计划都无法正常完成。。。。。</p>
+<p>我郁闷的不是这2天，而是羞耻心和责任心的缺失</p>
+<h2 id="羞耻心和责任心才是进步的动力">羞耻心和责任心才是进步的动力</h2><p>如果你真的在这2周很努力的去做了，我觉得这个延期可以理解，但是后面要想办法补上</p>
+<p>因为你觉得自己没做好，才会努力去学习，改进，这才是成长的动力</p>
+<p>另外你真的补上了，会让别人对你很信任</p>
+<p>人和人相处到最后实际上就是尊重和信任，无它</p>
+<p>人有脸，树有皮啊，谁能想到我写这段文字的时候，内心是多么的凄凉，可事实真的是真的，有人的人是真的真的没有</p>
+<h2 id="别逼着我做决定">别逼着我做决定</h2><p>我很想：“把工资一结，然后告诉那人，你不配拿我这份尊重！”</p>
+<p>忍忍吧，至少现在我还不能这样做，但是早晚有一天，出来混是要还的。</p>
+<h2 id="抱怨">抱怨</h2><p>这世界上最蠢的事儿就是抱怨，不解决任何事情，又让自己很郁闷，我先反省一下自己的蠢</p>
+<p>tomorrow is another day</p>
 <p>全文完</p>
 <p>欢迎关注我的公众号【node全栈】</p>
 <p><img src="/css/node全栈-公众号.png" alt=""></p>
@@ -173,7 +175,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-13-pm2-issue/" data-id="cid0wpbc3000kqm7f5xljyzuy" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/07/12/to-us/" data-id="cid0xyhnn00042j7fvglbqsiw" class="article-share-link">Share</a>
       
       
     </footer>
@@ -183,10 +185,10 @@
 
 
   
-    <article id="post-2014-10-13-ce-shi-yi-ge-wen-zhang" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-gulp-in-action" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/07/07/gulp-in-action/" class="article-date">
+  <time datetime="2015-07-06T16:00:00.000Z" itemprop="datePublished">2015-07-07</time>
 </a>
     
   </div>
@@ -197,7 +199,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+      <a class="article-title" href="/2015/07/07/gulp-in-action/">gulp结构化</a>
     </h1>
   
 
@@ -205,36 +207,94 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="MongoDB">MongoDB</h1><h2 id="WARNING:_soft_rlimits_too_low”_in_MongoDB_with_Mac_OS_X">WARNING: soft rlimits too low” in MongoDB with Mac OS X</h2><p><a href="http://www.cnblogs.com/wbb2109/p/3991721.html" target="_blank" rel="external">source</a></p>
-<p>If you get this warning when you connect to mongo shell in Mac OX X:</p>
-<p>** WARNING: soft rlimits too low. Number of files is 256, should be at least 1000<br>A simple way to fix this is setting the limit just before starting mongod with this:</p>
-<pre><code><span class="built_in">ulimit</span> -n <span class="number">1024</span> &amp;&amp; mongod
-</code></pre><p>Or this:</p>
-<pre><code>launchctl limit maxfiles <span class="number">1024</span> <span class="number">1024</span>
-</code></pre><p>But if you are running mongo in a development environment this shouldn’t be a problem, you can just ignore it.</p>
-<p>This is a temporary and not very pretty fix. To make this permanent you have to add this to the/etc/launchd.conf file:</p>
-<pre><code>launchctl limit maxfiles <span class="number">1024</span> <span class="number">1024</span>
-</code></pre><p>Now reboot to make changes effective.</p>
-<p>You can see the actual values of the limits running this:</p>
-<pre><code>$ launchctl limit maxfiles
-        maxfiles    <span class="number">1024</span>           <span class="number">1024</span>
-</code></pre><p>Remember to restart your mongod process every time you change any value to see if it works.</p>
-<h2 id="url">url</h2><p><a href="http://i5ting.com/2014/04/start-a-new-nodejs-the-right-way/" target="_blank" rel="external">http://i5ting.com/2014/04/start-a-new-nodejs-the-right-way/</a></p>
-<p><a href="http://mongoosejs.com/docs/index.html" target="_blank" rel="external">http://mongoosejs.com/docs/index.html</a></p>
-<h2 id="自动reload代码：supervisor">自动reload代码：supervisor</h2><p>安装</p>
-<pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save supervisor</span></span>
-</code></pre><p>修改package.js</p>
-<p>  “scripts”: {<br>    “start”: “./node_modules/.bin/supervisor ./bin/www”<br>  }</p>
-<p>然后</p>
-<pre><code><span class="built_in">npm</span> start
-</code></pre><h2 id="打印错误栈信息:_stackman">打印错误栈信息: stackman</h2><p>He is like Batman, but for Node.js stack traces</p>
-<p><a href="https://github.com/watson/stackman" target="_blank" rel="external">https://github.com/watson/stackman</a></p>
-<p><a href="http://scotch.io/tutorials/javascript/build-a-restful-api-using-node-and-express-4#route-middleware" target="_blank" rel="external">http://scotch.io/tutorials/javascript/build-a-restful-api-using-node-and-express-4#route-middleware</a></p>
+        <p>gulp结构化是一个很大的问题，如果一直在Gulpfile.js上增加，大到一定程度上问题就来了</p>
+<ul>
+<li>可读性差</li>
+<li>莫名其妙的bug</li>
+<li>测试难</li>
+</ul>
+<p>有没有比好的实践呢？</p>
+<h2 id="pixi">pixi</h2><p><a href="https://github.com/GoodBoyDigital/pixi.js" target="_blank" rel="external">https://github.com/GoodBoyDigital/pixi.js</a></p>
+<p>这个一个非常出名的 HTML 5 2D rendering engine。做游戏和一些微信超炫应用是比较好的一个技术选型。</p>
+<p>它自己吹的是“it’s fast. Really fast”。</p>
+<p>对于一个开发来说，一定要扒出点好东西才算合格。</p>
+<p>它的gulpfile.js</p>
+<pre><code><span class="keyword">var</span> gulp        = require(<span class="string">'gulp'</span>),
+    requireDir  = require(<span class="string">'require-dir'</span>);
+
+<span class="comment">// Specify game project paths for tasks.</span>
+global.paths = {
+    src: <span class="string">'./src'</span>,
+    <span class="keyword">out</span>: <span class="string">'./bin'</span>,
+
+    <span class="function"><span class="keyword">get</span> <span class="title">scripts</span>(<span class="params"></span>) </span>{ <span class="keyword">return</span> <span class="keyword">this</span>.src + <span class="string">'/**/*.js'</span>; },
+    <span class="function"><span class="keyword">get</span> <span class="title">jsEntry</span>(<span class="params"></span>) </span>{ <span class="keyword">return</span> <span class="keyword">this</span>.src + <span class="string">'/index'</span>; }
+};
+
+<span class="comment">// Require all tasks in gulp/tasks, including subfolders</span>
+requireDir(<span class="string">'./gulp/tasks'</span>, { recurse: <span class="keyword">true</span> });
+
+<span class="comment">// default task</span>
+gulp.task(<span class="string">'default'</span>, [<span class="string">'jshint'</span>, <span class="string">'build'</span>]);
+</code></pre><p>代码量很小，而且jshint和build根本没看到，它是怎么加载进来的呢？</p>
+<pre><code>requireDir  = <span class="built_in">require</span>(<span class="string">'require-dir'</span>);
+</code></pre><p>是根据目录加载的node模块，和我常用的<code>require-directory</code>是一样的功能。</p>
+<pre><code><span class="tag">requireDir</span>(<span class="string">'./gulp/tasks'</span>, { <span class="attribute">recurse</span>: true });
+</code></pre><p>这就很明显了，看一下gulp目录</p>
+<pre><code>➜  gulp git:(master) tree .
+.
+├── tasks
+│   ├── build<span class="class">.js</span>
+│   ├── clean<span class="class">.js</span>
+│   ├── dev<span class="class">.js</span>
+│   ├── jsdoc<span class="class">.js</span>
+│   ├── jshint<span class="class">.js</span>
+│   ├── scripts<span class="class">.js</span>
+│   └── watch<span class="class">.js</span>
+└── util
+    ├── bundle<span class="class">.js</span>
+    ├── handleErrors<span class="class">.js</span>
+    ├── jsdoc<span class="class">.conf</span><span class="class">.json</span>
+    └── karma<span class="class">.conf</span><span class="class">.js</span>
+
+<span class="number">2</span> directories, <span class="number">11</span> files
+</code></pre><p>可以说这是一个比较好的一个gulp实践</p>
+<h2 id="mount-tasks">mount-tasks</h2><p>我根据上面pixi的做法，使用<code>require-directory</code>改了一个版本，没几行代码，主要是实现了指定目录，把里面的js加载成gulp 可用的 task。</p>
+<h3 id="Install">Install</h3><pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save mount-tasks</span></span>
+</code></pre><h3 id="Usages">Usages</h3><p>在Gulpfile.js里</p>
+<pre><code><span class="keyword">var</span> gulp        = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
+
+<span class="comment">// Require all tasks in vendor/tasks, including subfolders</span>
+<span class="built_in">require</span>(<span class="string">'mount-tasks'</span>)(__dirname + <span class="string">'/tasks'</span>)
+
+<span class="comment">// default task</span>
+gulp.task(<span class="string">'default'</span>, [<span class="string">'clean'</span>, <span class="string">'build'</span>]);
+</code></pre><p>在tasks目录，我们放2个task，结构如下</p>
+<pre><code>➜  mount-tasks git:(master) tree tasks
+tasks
+├── build<span class="class">.js</span>
+└── clean<span class="class">.js</span>
+
+<span class="number">0</span> directories, <span class="number">2</span> files
+</code></pre><p>此时，执行gulp，就可以出发clean和build任务了。</p>
+<p>我们简单看一下任务是如何定义的，是否足够简单</p>
+<p>clean.js里代码（build.js和这个类似）</p>
+<pre><code><span class="keyword">var</span> gulp    = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
+
+gulp.task(<span class="string">'clean'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>{
+  <span class="built_in">console</span>.log(<span class="string">'clean'</span>);
+});
+</code></pre><p>是不是足够简单呢？</p>
+<p>如果你对gulp不太了解，可以看看这篇文档</p>
+<p><a href="https://github.com/streakq/js-tools-best-practice/blob/master/doc/Gulp.md" target="_blank" rel="external">https://github.com/streakq/js-tools-best-practice/blob/master/doc/Gulp.md</a></p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/" data-id="cid0wpbdb0011qm7fae1t06xq" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/07/07/gulp-in-action/" data-id="cid0xyhnr00062j7fsnn4kabn" class="article-share-link">Share</a>
       
       
     </footer>
@@ -244,10 +304,10 @@
 
 
   
-    <article id="post-2015-07-07-npm-postinstall" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-npm-postinstall" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-07-07-npm-postinstall/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/07/07/npm-postinstall/" class="article-date">
+  <time datetime="2015-07-06T16:00:00.000Z" itemprop="datePublished">2015-07-07</time>
 </a>
     
   </div>
@@ -258,7 +318,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+      <a class="article-title" href="/2015/07/07/npm-postinstall/">从npm tips到express插件机制设计</a>
     </h1>
   
 
@@ -447,7 +507,7 @@ lrwxr-xr-x  <span class="number">1</span> sang  staff  <span class="number">32</
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-07-07-npm-postinstall/" data-id="cid0wpbb90005qm7fzr8wtaww" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/07/07/npm-postinstall/" data-id="cid0xyhnp00052j7fwvmqxbod" class="article-share-link">Share</a>
       
       
     </footer>
@@ -457,10 +517,10 @@ lrwxr-xr-x  <span class="number">1</span> sang  staff  <span class="number">32</
 
 
   
-    <article id="post-2015-07-07-gulp-in-action" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-mongo-paging" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-07-07-gulp-in-action/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/07/04/mongo-paging/" class="article-date">
+  <time datetime="2015-07-03T16:00:00.000Z" itemprop="datePublished">2015-07-04</time>
 </a>
     
   </div>
@@ -471,126 +531,7 @@ lrwxr-xr-x  <span class="number">1</span> sang  staff  <span class="number">32</
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>gulp结构化是一个很大的问题，如果一直在Gulpfile.js上增加，大到一定程度上问题就来了</p>
-<ul>
-<li>可读性差</li>
-<li>莫名其妙的bug</li>
-<li>测试难</li>
-</ul>
-<p>有没有比好的实践呢？</p>
-<h2 id="pixi">pixi</h2><p><a href="https://github.com/GoodBoyDigital/pixi.js" target="_blank" rel="external">https://github.com/GoodBoyDigital/pixi.js</a></p>
-<p>这个一个非常出名的 HTML 5 2D rendering engine。做游戏和一些微信超炫应用是比较好的一个技术选型。</p>
-<p>它自己吹的是“it’s fast. Really fast”。</p>
-<p>对于一个开发来说，一定要扒出点好东西才算合格。</p>
-<p>它的gulpfile.js</p>
-<pre><code><span class="keyword">var</span> gulp        = require(<span class="string">'gulp'</span>),
-    requireDir  = require(<span class="string">'require-dir'</span>);
-
-<span class="comment">// Specify game project paths for tasks.</span>
-global.paths = {
-    src: <span class="string">'./src'</span>,
-    <span class="keyword">out</span>: <span class="string">'./bin'</span>,
-
-    <span class="function"><span class="keyword">get</span> <span class="title">scripts</span>(<span class="params"></span>) </span>{ <span class="keyword">return</span> <span class="keyword">this</span>.src + <span class="string">'/**/*.js'</span>; },
-    <span class="function"><span class="keyword">get</span> <span class="title">jsEntry</span>(<span class="params"></span>) </span>{ <span class="keyword">return</span> <span class="keyword">this</span>.src + <span class="string">'/index'</span>; }
-};
-
-<span class="comment">// Require all tasks in gulp/tasks, including subfolders</span>
-requireDir(<span class="string">'./gulp/tasks'</span>, { recurse: <span class="keyword">true</span> });
-
-<span class="comment">// default task</span>
-gulp.task(<span class="string">'default'</span>, [<span class="string">'jshint'</span>, <span class="string">'build'</span>]);
-</code></pre><p>代码量很小，而且jshint和build根本没看到，它是怎么加载进来的呢？</p>
-<pre><code>requireDir  = <span class="built_in">require</span>(<span class="string">'require-dir'</span>);
-</code></pre><p>是根据目录加载的node模块，和我常用的<code>require-directory</code>是一样的功能。</p>
-<pre><code><span class="tag">requireDir</span>(<span class="string">'./gulp/tasks'</span>, { <span class="attribute">recurse</span>: true });
-</code></pre><p>这就很明显了，看一下gulp目录</p>
-<pre><code>➜  gulp git:(master) tree .
-.
-├── tasks
-│   ├── build<span class="class">.js</span>
-│   ├── clean<span class="class">.js</span>
-│   ├── dev<span class="class">.js</span>
-│   ├── jsdoc<span class="class">.js</span>
-│   ├── jshint<span class="class">.js</span>
-│   ├── scripts<span class="class">.js</span>
-│   └── watch<span class="class">.js</span>
-└── util
-    ├── bundle<span class="class">.js</span>
-    ├── handleErrors<span class="class">.js</span>
-    ├── jsdoc<span class="class">.conf</span><span class="class">.json</span>
-    └── karma<span class="class">.conf</span><span class="class">.js</span>
-
-<span class="number">2</span> directories, <span class="number">11</span> files
-</code></pre><p>可以说这是一个比较好的一个gulp实践</p>
-<h2 id="mount-tasks">mount-tasks</h2><p>我根据上面pixi的做法，使用<code>require-directory</code>改了一个版本，没几行代码，主要是实现了指定目录，把里面的js加载成gulp 可用的 task。</p>
-<h3 id="Install">Install</h3><pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save mount-tasks</span></span>
-</code></pre><h3 id="Usages">Usages</h3><p>在Gulpfile.js里</p>
-<pre><code><span class="keyword">var</span> gulp        = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
-
-<span class="comment">// Require all tasks in vendor/tasks, including subfolders</span>
-<span class="built_in">require</span>(<span class="string">'mount-tasks'</span>)(__dirname + <span class="string">'/tasks'</span>)
-
-<span class="comment">// default task</span>
-gulp.task(<span class="string">'default'</span>, [<span class="string">'clean'</span>, <span class="string">'build'</span>]);
-</code></pre><p>在tasks目录，我们放2个task，结构如下</p>
-<pre><code>➜  mount-tasks git:(master) tree tasks
-tasks
-├── build<span class="class">.js</span>
-└── clean<span class="class">.js</span>
-
-<span class="number">0</span> directories, <span class="number">2</span> files
-</code></pre><p>此时，执行gulp，就可以出发clean和build任务了。</p>
-<p>我们简单看一下任务是如何定义的，是否足够简单</p>
-<p>clean.js里代码（build.js和这个类似）</p>
-<pre><code><span class="keyword">var</span> gulp    = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
-
-gulp.task(<span class="string">'clean'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>{
-  <span class="built_in">console</span>.log(<span class="string">'clean'</span>);
-});
-</code></pre><p>是不是足够简单呢？</p>
-<p>如果你对gulp不太了解，可以看看这篇文档</p>
-<p><a href="https://github.com/streakq/js-tools-best-practice/blob/master/doc/Gulp.md" target="_blank" rel="external">https://github.com/streakq/js-tools-best-practice/blob/master/doc/Gulp.md</a></p>
-<p>全文完</p>
-<p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-07-07-gulp-in-action/" data-id="cid0wpbba0006qm7fytd84g87" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2015-07-04-mongo-paging" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/08/07/2015-07-04-mongo-paging/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+      <a class="article-title" href="/2015/07/04/mongo-paging/">mongodb分页优化</a>
     </h1>
   
 
@@ -808,7 +749,7 @@ last_id = ...
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-07-04-mongo-paging/" data-id="cid0wpbbj0007qm7fqqsrq3uy" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/07/04/mongo-paging/" data-id="cid0xyhnt00072j7fzmqh3uze" class="article-share-link">Share</a>
       
       
     </footer>
@@ -818,10 +759,10 @@ last_id = ...
 
 
   
-    <article id="post-2015-07-01-small-is-beauty" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-small-is-beauty" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-07-01-small-is-beauty/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/07/01/small-is-beauty/" class="article-date">
+  <time datetime="2015-06-30T16:00:00.000Z" itemprop="datePublished">2015-07-01</time>
 </a>
     
   </div>
@@ -832,7 +773,7 @@ last_id = ...
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-07-01-small-is-beauty/">架构小而美的实践</a>
+      <a class="article-title" href="/2015/07/01/small-is-beauty/">架构小而美的实践</a>
     </h1>
   
 
@@ -910,7 +851,7 @@ last_id = ...
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-07-01-small-is-beauty/" data-id="cid0wpbbl0008qm7f0pq0gpif" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/07/01/small-is-beauty/" data-id="cid0xyhnv00082j7fnxvm3aqr" class="article-share-link">Share</a>
       
       
     </footer>
@@ -920,10 +861,10 @@ last_id = ...
 
 
   
-    <article id="post-2015-06-30-slb-vs-haproxy" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-slb-vs-haproxy" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-30-slb-vs-haproxy/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/30/slb-vs-haproxy/" class="article-date">
+  <time datetime="2015-06-29T16:00:00.000Z" itemprop="datePublished">2015-06-30</time>
 </a>
     
   </div>
@@ -934,7 +875,7 @@ last_id = ...
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-30-slb-vs-haproxy/">Nodejs负载均衡：haproxy，slb以及node-slb</a>
+      <a class="article-title" href="/2015/06/30/slb-vs-haproxy/">Nodejs负载均衡：haproxy，slb以及node-slb</a>
     </h1>
   
 
@@ -1140,7 +1081,7 @@ Connection: keep-alive
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-30-slb-vs-haproxy/" data-id="cid0wpbbn0009qm7f42vubrkl" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/30/slb-vs-haproxy/" data-id="cid0xyhnw00092j7f3rbx0m9b" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1150,10 +1091,10 @@ Connection: keep-alive
 
 
   
-    <article id="post-2015-06-28-think" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-think" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-28-think/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/28/think/" class="article-date">
+  <time datetime="2015-06-27T16:00:00.000Z" itemprop="datePublished">2015-06-28</time>
 </a>
     
   </div>
@@ -1164,7 +1105,7 @@ Connection: keep-alive
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-28-think/">Nodejs开源项目怎么样写测试、CI和代码测试覆盖率</a>
+      <a class="article-title" href="/2015/06/28/think/">Nodejs开源项目怎么样写测试、CI和代码测试覆盖率</a>
     </h1>
   
 
@@ -1500,7 +1441,7 @@ test-<span class="symbol">all:</span> test test-coveralls
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-28-think/" data-id="cid0wpbbp000aqm7fcoanl3r6" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/28/think/" data-id="cid0xyhny000a2j7fpexxagan" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1510,10 +1451,10 @@ test-<span class="symbol">all:</span> test test-coveralls
 
 
   
-    <article id="post-2015-06-28-mongodb-repl-sets" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-mongodb-repl-sets" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-28-mongodb-repl-sets/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/28/mongodb-repl-sets/" class="article-date">
+  <time datetime="2015-06-27T16:00:00.000Z" itemprop="datePublished">2015-06-28</time>
 </a>
     
   </div>
@@ -1524,7 +1465,7 @@ test-<span class="symbol">all:</span> test test-coveralls
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-28-mongodb-repl-sets/">mongodb运维之副本集实践</a>
+      <a class="article-title" href="/2015/06/28/mongodb-repl-sets/">mongodb运维之副本集实践</a>
     </h1>
   
 
@@ -1726,7 +1667,7 @@ mapped vsize res faults
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-28-mongodb-repl-sets/" data-id="cid0wpbbq000bqm7fitc7ipol" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/28/mongodb-repl-sets/" data-id="cid0xyho0000b2j7fukwdbcs7" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1736,10 +1677,10 @@ mapped vsize res faults
 
 
   
-    <article id="post-2015-06-26-travis-ci-and-coveralls" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-travis-ci-and-coveralls" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/2015-06-26-travis-ci-and-coveralls/" class="article-date">
-  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/06/26/travis-ci-and-coveralls/" class="article-date">
+  <time datetime="2015-06-25T16:00:00.000Z" itemprop="datePublished">2015-06-26</time>
 </a>
     
   </div>
@@ -1750,7 +1691,7 @@ mapped vsize res faults
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/2015-06-26-travis-ci-and-coveralls/">有的时候我看的不是你一时的能力，而是你面对世界的态度</a>
+      <a class="article-title" href="/2015/06/26/travis-ci-and-coveralls/">有的时候我看的不是你一时的能力，而是你面对世界的态度</a>
     </h1>
   
 
@@ -1786,7 +1727,7 @@ mapped vsize res faults
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/2015-06-26-travis-ci-and-coveralls/" data-id="cid0wpbbs000cqm7f24mum0js" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/26/travis-ci-and-coveralls/" data-id="cid0xyho1000c2j7f7f88ezqy" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1822,7 +1763,7 @@ mapped vsize res faults
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">35</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">20</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">3</span></li></ul>
     </div>
   </div>
 
@@ -1834,23 +1775,23 @@ mapped vsize res faults
       <ul>
         
           <li>
-            <a href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+            <a href="/2015/08/07/hello-world/">Hello World</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+            <a href="/2015/07/12/to-us/">良苦用心几人懂</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+            <a href="/2015/07/07/gulp-in-action/">gulp结构化</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+            <a href="/2015/07/07/npm-postinstall/">从npm tips到express插件机制设计</a>
           </li>
         
           <li>
-            <a href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+            <a href="/2015/07/04/mongo-paging/">mongodb分页优化</a>
           </li>
         
       </ul>
