@@ -61,10 +61,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-2015-06-13-pm2-issue" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/08/07/hello-world/" class="article-date">
-  <time datetime="2015-08-07T00:20:38.000Z" itemprop="datePublished">2015-08-07</time>
+    <a href="/2015/08/07/2015-06-13-pm2-issue/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
 </a>
     
   </div>
@@ -75,7 +75,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/07/hello-world/">Hello World</a>
+      <a class="article-title" href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
     </h1>
   
 
@@ -83,20 +83,1710 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick_Start">Quick Start</h2><h3 id="Create_a_new_post">Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run_server">Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate_static_files">Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy_to_remote_sites">Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <h2 id="pm2">pm2</h2><p>好处就不说了</p>
+<p>今天遇到一个奇怪的问题，部署一台新的机器，无论怎么弄，什么版本都会报错</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">js-bson: Failed <span class="built_in">to</span> <span class="built_in">load</span> c++ bson extension, <span class="keyword">using</span> pure JS <span class="built_in">version</span></span><br></pre></td></tr></table></figure>
+<p>我曾经无数次的怀疑，是mongodb的问题，于是我手动编译了bson和bson-ext，以及相关的</p>
+<ul>
+<li>connect-mongo</li>
+<li>mongoose</li>
+</ul>
+<p>可是还不好使。。。。。</p>
+<p>我觉得很奇怪，没有理由啊，我去查pm2的源码和文档，发现cluster mode必须是0.12之后才有，之前的方式都是fork模式的。</p>
+<p>最后发现 <a href="https://github.com/Unitech/PM2/issues/957" target="_blank" rel="external">https://github.com/Unitech/PM2/issues/957</a></p>
+<p>@jorge-d commented on Mar 11</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">I just tested <span class="operator">with</span> node v0<span class="number">.12</span><span class="number">.0</span> <span class="operator">and</span> pm2 <span class="number">0.12</span><span class="number">.7</span> <span class="operator">and</span> everything seems <span class="built_in">to</span> be working fine...</span><br><span class="line">Could you <span class="built_in">do</span> <span class="operator">a</span> simple test ? run pm2 <span class="built_in">kill</span>; pm2 <span class="built_in">start</span> app.js -i <span class="number">0</span> <span class="operator">and</span> tell me whether <span class="keyword">it</span> starts <span class="operator">in</span> cluster <span class="operator">of</span> fork mode ?</span><br></pre></td></tr></table></figure>
+<p>然后那货的问题就解决了，然后我试了一下</p>
+<pre><code>pm2 <span class="built_in">kill</span>
+</code></pre><p>是杀死pm2自己的进程，然后产生新的，相当于重启。</p>
+<p>然后再跑就可以了</p>
+<h2 id="反思一下，为什么会出现这样的问题？">反思一下，为什么会出现这样的问题？</h2><p>node的版本较多</p>
+<ul>
+<li>nodejs（0.10 和0.12 集群模块不一样，还有就是对es6的支持）</li>
+<li>iojs（目前以及2.3+）</li>
+</ul>
+<p>我最开始部署的时候用的是iojs最新版本，然后我启动过<code>pm2</code>,克隆完源码之后，<code>npm install</code>的时候有模块无法编译，所以我就切换0.10了</p>
+<p>哎，我没有想到pm2会一直存在，只要不kill就在，而且我不喜欢动不动就重启服务器，所以花了几个小时的时间才解决。</p>
+<h2 id="pm2_deploy">pm2 deploy</h2><p>ruby 里有 capistrano 部署</p>
+<ul>
+<li><a href="http://capistranorb.com/" target="_blank" rel="external">http://capistranorb.com/</a></li>
+</ul>
+<p>node世界里也有shipit</p>
+<ul>
+<li><a href="https://github.com/shipitjs/shipit" target="_blank" rel="external">https://github.com/shipitjs/shipit</a></li>
+</ul>
+<p>说白点都是“Universal automation and deployment tool”，通用自动化部署工具而已。</p>
+<p>实际上Unitech也打算给pm2增加这样的功能，让pm2成为一个全能的货</p>
+<ul>
+<li>代码： <a href="https://github.com/Unitech/pm2-deploy" target="_blank" rel="external">https://github.com/Unitech/pm2-deploy</a></li>
+<li>文档：<a href="https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#deployment-help" target="_blank" rel="external">https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#deployment-help</a></li>
+</ul>
+<p>它完成了几件事儿</p>
+<ul>
+<li>evn环境变量</li>
+<li>ssh远程key配置</li>
+<li>git代码以及分支切换</li>
+<li>各种回调钩子，比如post-deploy</li>
+</ul>
+<p>以上特性足矣和任何ci或者其他自动化工具集成了，目前可以当小白鼠的。</p>
+<h2 id="部署相关，小弟们必看">部署相关，小弟们必看</h2><p>部署的基本常识</p>
+<ul>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps" target="_blank" rel="external">https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps</a></li>
+</ul>
+<p>NGINX+PM2组合</p>
+<ul>
+<li><a href="https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/" target="_blank" rel="external">https://doesnotscale.com/deploying-node-js-with-pm2-and-nginx/</a></li>
+</ul>
+<p>注意配置</p>
+<pre><code>server {  
+  server_name your.domain.com;
+  listen <span class="number">80</span>;
+
+  location / {
+    proxy_set_header X-Real-IP <span class="variable">$remote</span>_addr;
+    proxy_set_header X-Forwarded-For <span class="variable">$proxy</span>_add_x_forwarded_for;
+    proxy_set_header Host <span class="variable">$http</span>_host;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">3000</span>;
+    proxy_redirect off;
+  }
+}
+</code></pre><p>图片处理<a href="https://serversforhackers.com/nginx-caching" target="_blank" rel="external">https://serversforhackers.com/nginx-caching</a></p>
+<pre><code>location ~<span class="keyword">*</span> \.(js|<span class="string">css</span>|<span class="string">png</span>|<span class="string">jpg</span>|<span class="string">jpeg</span>|<span class="string">gif</span>|<span class="string">ico)$ {
+    expires 1y;
+    log_not_found off;
+}</span>
+</code></pre><p>如果有兴趣，也可以看一下我写的node部署</p>
+<p><a href="http://nodeonly.com/2015/06/02/deploy.html" target="_blank" rel="external">http://nodeonly.com/2015/06/02/deploy.html</a></p>
+<p>sudo systemctl enable nginx.service<br>sudo systemctl enable redis.service<br>sudo chkconfig mongod on</p>
+<p>nohup node /home/deploy/workspace/oschina/mxb-sms/app.js &gt; /home/deploy/workspace/oschina/mxb-sms/sms.log 2&gt;&amp;1 &amp;</p>
+<h2 id="这样的部署真的足够了么？">这样的部署真的足够了么？</h2><p>一台一台机器的部署也是醉了。。。。哥是程序员啊</p>
+<p>复用和弹性伸缩才是真爱</p>
+<p>所以比较好的方式是使用docker来处理，docker是lxc，里面可以部署任意linux系统<br>配置各种环境，完成任意弹性扩容</p>
+<p>目前nearfarm已经有一个不错的实现</p>
+<p><a href="https://github.com/nearform/nscale" target="_blank" rel="external">https://github.com/nearform/nscale</a></p>
+<p>具体原理以及相关实践，稍后整理</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/08/07/hello-world/" data-id="cid0wlsgc0000lz7f30ubj3fj" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/08/07/2015-06-13-pm2-issue/" data-id="cid0wpbc3000kqm7f5xljyzuy" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2014-10-13-ce-shi-yi-ge-wen-zhang" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="MongoDB">MongoDB</h1><h2 id="WARNING:_soft_rlimits_too_low”_in_MongoDB_with_Mac_OS_X">WARNING: soft rlimits too low” in MongoDB with Mac OS X</h2><p><a href="http://www.cnblogs.com/wbb2109/p/3991721.html" target="_blank" rel="external">source</a></p>
+<p>If you get this warning when you connect to mongo shell in Mac OX X:</p>
+<p>** WARNING: soft rlimits too low. Number of files is 256, should be at least 1000<br>A simple way to fix this is setting the limit just before starting mongod with this:</p>
+<pre><code><span class="built_in">ulimit</span> -n <span class="number">1024</span> &amp;&amp; mongod
+</code></pre><p>Or this:</p>
+<pre><code>launchctl limit maxfiles <span class="number">1024</span> <span class="number">1024</span>
+</code></pre><p>But if you are running mongo in a development environment this shouldn’t be a problem, you can just ignore it.</p>
+<p>This is a temporary and not very pretty fix. To make this permanent you have to add this to the/etc/launchd.conf file:</p>
+<pre><code>launchctl limit maxfiles <span class="number">1024</span> <span class="number">1024</span>
+</code></pre><p>Now reboot to make changes effective.</p>
+<p>You can see the actual values of the limits running this:</p>
+<pre><code>$ launchctl limit maxfiles
+        maxfiles    <span class="number">1024</span>           <span class="number">1024</span>
+</code></pre><p>Remember to restart your mongod process every time you change any value to see if it works.</p>
+<h2 id="url">url</h2><p><a href="http://i5ting.com/2014/04/start-a-new-nodejs-the-right-way/" target="_blank" rel="external">http://i5ting.com/2014/04/start-a-new-nodejs-the-right-way/</a></p>
+<p><a href="http://mongoosejs.com/docs/index.html" target="_blank" rel="external">http://mongoosejs.com/docs/index.html</a></p>
+<h2 id="自动reload代码：supervisor">自动reload代码：supervisor</h2><p>安装</p>
+<pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save supervisor</span></span>
+</code></pre><p>修改package.js</p>
+<p>  “scripts”: {<br>    “start”: “./node_modules/.bin/supervisor ./bin/www”<br>  }</p>
+<p>然后</p>
+<pre><code><span class="built_in">npm</span> start
+</code></pre><h2 id="打印错误栈信息:_stackman">打印错误栈信息: stackman</h2><p>He is like Batman, but for Node.js stack traces</p>
+<p><a href="https://github.com/watson/stackman" target="_blank" rel="external">https://github.com/watson/stackman</a></p>
+<p><a href="http://scotch.io/tutorials/javascript/build-a-restful-api-using-node-and-express-4#route-middleware" target="_blank" rel="external">http://scotch.io/tutorials/javascript/build-a-restful-api-using-node-and-express-4#route-middleware</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/" data-id="cid0wpbdb0011qm7fae1t06xq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-07-07-npm-postinstall" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-07-07-npm-postinstall/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>大部分时间，我们只用到npm的install，init，publish等功能，但它设计的非常好，有很多是我们不了解的</p>
+<p>How npm handles the “scripts” field</p>
+<h2 id="全局命令">全局命令</h2><p>用nodejs来写cli工具是非常爽的，我干了不少这样的事儿</p>
+<ul>
+<li>kp = kill by port</li>
+<li>je = json editor</li>
+<li>mh = start mongo here</li>
+</ul>
+<p>核心就是在package.json里配置</p>
+<pre><code><span class="string">"preferGlobal"</span>: <span class="string">"true"</span>,
+<span class="string">"bin"</span>: {
+  <span class="string">"mh"</span>: <span class="string">"index.js"</span>
+},
+</code></pre><p>即可</p>
+<p>它的原理很简单，就是把这些命令，丢到环境变量里,等于</p>
+<pre><code>mh = node /npm_install_path/<span class="keyword">index</span>.js
+</code></pre><p>如果我没猜错的话是软连接实现</p>
+<pre><code>ln -s <span class="regexp">/bin/m</span>h <span class="regexp">/npm_install_path/i</span>ndex.js
+</code></pre><h2 id="npm_link">npm link</h2><p>为什么会知道它的原理呢？因为每次写cli都要发布到npmjs，然后安装，然后测试是否正确，太麻烦，如果使用测试，路径等也比较麻烦</p>
+<p>后来发现</p>
+<pre><code><span class="built_in">npm</span> link
+</code></pre><p>会把开发代码直接在本地完成上面的事儿，爽死了</p>
+<p>link之后，会有提示</p>
+<p>   /Users/sang/.nvm/v0.10.38/bin/nmm -&gt; /Users/sang/.nvm/v0.10.38/lib/node_modules/nmm/index.js<br>   /Users/sang/.nvm/v0.10.38/lib/node_modules/nmm -&gt; /Users/sang/workspace/moa/nmm</p>
+<p>如何确认它是软连接呢？</p>
+<pre><code>➜  nmm git:(master) ls -alt /Users/sang/.nvm/v0<span class="number">.10</span><span class="number">.38</span>/bin/nmm
+lrwxr-xr-x  <span class="number">1</span> sang  staff  <span class="number">32</span> Jul  <span class="number">7</span> <span class="number">15</span>:<span class="number">38</span> /Users/sang/.nvm/v0<span class="number">.10</span><span class="number">.38</span>/bin/nmm -&gt; ../lib/node_modules/nmm/index.js
+</code></pre><h2 id="常见的start，test">常见的start，test</h2><p>一般我喜欢重写start和test命令，比如</p>
+<pre><code>"scripts": {
+  "<span class="operator"><span class="keyword">start</span><span class="string">": "</span>nodemon ./<span class="keyword">bin</span>/www<span class="string">",
+  "</span><span class="keyword">test</span><span class="string">": "</span>mocha -u bdd<span class="string">"
+},</span></span>
+</code></pre><p>通过<code>npm start</code>使用nodemon来启动express服务。</p>
+<p>通过<code>npm test</code>来跑mocha测试。</p>
+<p>无论从语义还是便利性上，都是不错的。</p>
+<p>more see <a href="https://docs.npmjs.com/cli/start" target="_blank" rel="external">https://docs.npmjs.com/cli/start</a></p>
+<h2 id="npm_run">npm run</h2><p>但是，npm支持命令就那么多，可能不够用，比如我要测试代码覆盖率</p>
+<pre><code>"scripts": {
+  "<span class="operator"><span class="keyword">start</span><span class="string">": "</span>npm publish .<span class="string">",
+  "</span><span class="keyword">test</span><span class="string">": "</span>./node_modules/.<span class="keyword">bin</span>/gulp<span class="string">",
+  "</span>mocha<span class="string">": "</span>./node_modules/.<span class="keyword">bin</span>/mocha -u bdd<span class="string">",
+  "</span>cov<span class="string">":"</span>./node_modules/.<span class="keyword">bin</span>/istanbul cover ./node_modules/mocha/<span class="keyword">bin</span>/_mocha <span class="comment">--report lcovonly -- -R spec &amp;&amp; cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js &amp;&amp; rm -rf ./coverage"</span>
+},</span>
+</code></pre><p>很明显没有<code>npm cov</code>命令的，那么怎么办呢？不要急，可以通过<code>npm run-script</code>来搞定</p>
+<p>上面的scripts定义，可以这样执行</p>
+<pre><code>npm <span class="command">run</span> cov
+</code></pre><p>对于自定义脚本，这样就可以解决这个问题，它的实现原理很简单，但却非常实用。</p>
+<h2 id="pre-commit">pre-commit</h2><p>有的时候我们有这样的需求，在提交代码之前，做一下测试，如果</p>
+<pre><code>npm <span class="keyword">test</span> &amp;&amp; git <span class="keyword">push</span>
+</code></pre><p>这样就太麻烦了，程序员还是应该更懒一点</p>
+<p>有没有更简单的办法呢？<a href="https://github.com/observing/pre-commit" target="_blank" rel="external">pre-commit</a></p>
+<pre><code>npm install --<span class="built_in">save</span>-<span class="built_in">dev</span> pre-commit
+</code></pre><p>用法是在package.json里增加<code>pre-commit</code>字段，它一个数组</p>
+<pre><code>{
+  "<span class="attribute">name</span>": <span class="value"><span class="string">"437464d0899504fb6b7b"</span></span>,
+  "<span class="attribute">version</span>": <span class="value"><span class="string">"0.0.0"</span></span>,
+  "<span class="attribute">description</span>": <span class="value"><span class="string">"ERROR: No README.md file found!"</span></span>,
+  "<span class="attribute">main</span>": <span class="value"><span class="string">"index.js"</span></span>,
+  "<span class="attribute">scripts</span>": <span class="value">{
+    "<span class="attribute">test</span>": <span class="value"><span class="string">"echo \"Error: I SHOULD FAIL LOLOLOLOLOL \" &amp;&amp; exit 1"</span></span>,
+    "<span class="attribute">foo</span>": <span class="value"><span class="string">"echo \"fooo\" &amp;&amp; exit 0"</span></span>,
+    "<span class="attribute">bar</span>": <span class="value"><span class="string">"echo \"bar\" &amp;&amp; exit 0"</span>
+  </span>}</span>,
+  "<span class="attribute">pre-commit</span>": <span class="value">[
+    <span class="string">"foo"</span>,
+    <span class="string">"bar"</span>,
+    <span class="string">"test"</span>
+  ]
+</span>}
+</code></pre><p>像上面的定义是在 <code>git push</code>之前按顺序执行foo,bar和test，也就是相当于</p>
+<p>  npm run foo<br>  npm run bar<br>  npm test<br>  git push</p>
+<h2 id="install">install</h2><p>我们最常用的npm install是把node模块里文件下载安装到node_modules里面，这个很好理解，那么如果我想要自定义安装呢？</p>
+<p>以我们上面讲的<a href="https://github.com/observing/pre-commit，它是需要先安装pre-commit脚本，这个时候该怎么办呢？" target="_blank" rel="external">https://github.com/observing/pre-commit，它是需要先安装pre-commit脚本，这个时候该怎么办呢？</a></p>
+<p>实际上我们可以在scripts自定义install命令的</p>
+<pre><code>"<span class="operator"><span class="keyword">install</span><span class="string">": "</span>node <span class="keyword">install</span>.js<span class="string">",</span></span>
+</code></pre><p>在<code>npm install pre-commit</code>的时候，它会下载代码，然后他会执行install脚本里的内容。也就是说在install.js里，它可以把想做的事儿做了，脚本也好，编译c扩展也好，都非常简单</p>
+<h2 id="再论install">再论install</h2><p>我们一般写模块的时候，首先都是<code>npm init</code>的，然后加大量代码，比如你要加test，你可能还有examples，甚至放大量doc，这些东西，难道让装你这个npm的人都下载么？</p>
+<p>想想就是件恐怖的事儿</p>
+<p>npm的解决方案和git的方案一下，git是创建<code>.gitignore</code>，npm也照做</p>
+<pre><code><span class="tag">touch</span> <span class="class">.npmignore</span>
+</code></pre><p>然后在里面放上想过滤的，不想用户安装时候下载的就好了</p>
+<p>比较讨厌的是<a href="https://github.com/github/gitignore竟然没有" target="_blank" rel="external">https://github.com/github/gitignore竟然没有</a></p>
+<h2 id="循环引用">循环引用</h2><p>循环引用在ios开发非常常见，即互相引用，导致无法引用计数归零，就没法清理内存，再扯就远了</p>
+<p>看npm里，比如a模块依赖b模块，</p>
+<pre><code>{
+  "<span class="attribute">name</span>": <span class="value"><span class="string">"A"</span>
+  <span class="string">"version"</span>: <span class="string">"0.1.2"</span></span>,
+  "<span class="attribute">dependencies</span>": <span class="value">{
+    "<span class="attribute">B</span>": <span class="value"><span class="string">"0.1.2"</span>
+  </span>}
+</span>}
+</code></pre><p>安装完后</p>
+<pre><code>├── <span class="tag">node_modules</span>
+│   └── <span class="tag">B</span>
+├── <span class="tag">package</span><span class="class">.json</span>
+└── <span class="tag">README</span><span class="class">.md</span>
+</code></pre><p>如果a和b都依赖c呢？</p>
+<p>安装后</p>
+<pre><code>├── node_modules
+│   ├── B
+│   │   ├── node_modules
+│   │   └── package<span class="class">.json</span>
+│   └── C   
+├── package<span class="class">.json</span>
+└── README.md
+</code></pre><p>这样b能引用c，c就不用安装了</p>
+<p>这个问题是node_modules/B/package.json里</p>
+<pre><code>{
+  "<span class="attribute">name</span>": <span class="value"><span class="string">"B"</span>
+  <span class="string">"version"</span>: <span class="string">"0.1.2"</span></span>,
+  "<span class="attribute">dependencies</span>": <span class="value">{
+    "<span class="attribute">C</span>": <span class="value"><span class="string">"0.0.1"</span>
+  </span>}</span>,
+  "<span class="attribute">scripts</span>": <span class="value">{
+    "<span class="attribute">postinstall</span>": <span class="value"><span class="string">"node ./node_modules/C make"</span>
+  </span>}
+</span>}
+</code></pre><p>在安装b之后，不会执行c的安装了，主要是路径变量，做法很简单，判断路径即可</p>
+<pre><code><span class="comment">// node_modules/B/runMe.js</span>
+<span class="keyword">var</span> deps = [<span class="string">'C'</span>], index = <span class="number">0</span>;
+(<span class="function"><span class="keyword">function</span> <span class="title">doWeHaveAllDeps</span>(<span class="params"></span>) </span>{
+  <span class="keyword">if</span>(index === deps.length) {
+    <span class="keyword">var</span> C = <span class="built_in">require</span>(<span class="string">'C'</span>);
+    C.make();
+    <span class="keyword">return</span>;
+  } <span class="keyword">else</span> <span class="keyword">if</span>(isModuleExists(deps[index])) {
+    index += <span class="number">1</span>;
+    doWeHaveAllDeps();
+  } <span class="keyword">else</span> {
+    setTimeout(doWeHaveAllDeps, <span class="number">500</span>);
+  }
+})();
+
+<span class="function"><span class="keyword">function</span> <span class="title">isModuleExists</span>(<span class="params"> name </span>) </span>{
+  <span class="keyword">try</span> { <span class="keyword">return</span> !!<span class="built_in">require</span>.resolve(name); }
+  <span class="keyword">catch</span>(e) { <span class="keyword">return</span> <span class="literal">false</span> }
+}
+</code></pre><p>如果想试试，参考<a href="http://krasimirtsonev.com/blog/article/Fun-playing-with-npm-dependencies-and-postinstall-script" target="_blank" rel="external">http://krasimirtsonev.com/blog/article/Fun-playing-with-npm-dependencies-and-postinstall-script</a></p>
+<p>这个问题并不常见，比较少，但是<code>postinstall</code>确实让人脑洞打开的一个东西</p>
+<h2 id="postinstall">postinstall</h2><p>如果各位熟悉mongoose的hook，一定会知道pre和post是啥意思，一般来说pre是previos之前的意思，post是之后的意思。</p>
+<p>那么postinstall从字面上解，即安装之后要执行的回调。</p>
+<p>看一下文档</p>
+<p><a href="https://docs.npmjs.com/misc/scripts" target="_blank" rel="external">https://docs.npmjs.com/misc/scripts</a></p>
+<p>它确确实实是安装后的回调，这意味着我们可以借助npm做的更多</p>
+<p>先看一下npm还提供了那些回调</p>
+<ul>
+<li>prepublish: Run BEFORE the package is published. (Also run on local npm install without any arguments.)</li>
+<li>publish, postpublish: Run AFTER the package is published.</li>
+<li>preinstall: Run BEFORE the package is installed</li>
+<li>install, postinstall: Run AFTER the package is installed.</li>
+<li>preuninstall, uninstall: Run BEFORE the package is uninstalled.</li>
+<li>postuninstall: Run AFTER the package is uninstalled.</li>
+<li>preversion, version: Run BEFORE bump the package version.</li>
+<li>postversion: Run AFTER bump the package version.</li>
+<li>pretest, test, posttest: Run by the npm test command.</li>
+<li>prestop, stop, poststop: Run by the npm stop command.</li>
+<li>prestart, start, poststart: Run by the npm start command.</li>
+<li>prerestart, restart, postrestart: Run by the npm restart command. Note: npm restart will run the stop and start scripts if no restart script is provided.</li>
+</ul>
+<p>擦，太牛逼了，这货考虑的真的太全了，那么下面我们就看看如何利用npm的回调干坏事吧</p>
+<h2 id="express插件机制设计">express插件机制设计</h2><p>大家都知道express基于connect，有middleware中间件的概念，它本身遵循小而美的设计哲学，导致它非常精简</p>
+<p>从express@generator来看，它就只能做点小打小闹的东西，如果要设计一个复杂的大系统，就免不了和代码结构，模块，组件等战斗</p>
+<p>从我的角度讲，这些东西都可以理解成是业务插件，比如对于一个框架来说，用户管理就应该像ruby里的devise一样，以一个gem的形式存在，如果代码里引用，调用就好了。</p>
+<p>gem + rails plugin机制可以做，那么express + npm也是可以的，但是我们缺少的plugin机制，本文先不讲plugin机制，先说利用npm的回调实现它的可能性</p>
+<p>比如在一个boilerplate项目里，我们安装插件</p>
+<pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save moa-plugin-user</span></span>
+</code></pre><p>安装完成之后，我们需要对项目里的文件或配置也好做一个插件登记，这些东西是否可以放到postinstall里呢？</p>
+<p>剩下的就都是nodejs代码了，大家写就好了。</p>
+<h2 id="如何学习">如何学习</h2><p><a href="https://docs.npmjs.com/" target="_blank" rel="external">https://docs.npmjs.com/</a></p>
+<p>文档虽好，可是不好理解啊，而且有的时候用到了才会看</p>
+<p>对于开发而言，代码在手，天下我有，尤其nodejs的模块都是完全开放得，您看不看它都在你的项目目录里，一丝不挂。</p>
+<p>编码之外，看看node_modules目录，打开package.json看看，如果发现有不懂的就去查一下文档，这样效果是最好的。</p>
+<p>看模块可以挑一些比较好，开源贡献比较多的模块</p>
+<p>从别人的代码里学到东西，这应该是最强的学习能力，是长远的，与各位共勉。</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-07-07-npm-postinstall/" data-id="cid0wpbb90005qm7fzr8wtaww" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-07-07-gulp-in-action" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-07-07-gulp-in-action/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>gulp结构化是一个很大的问题，如果一直在Gulpfile.js上增加，大到一定程度上问题就来了</p>
+<ul>
+<li>可读性差</li>
+<li>莫名其妙的bug</li>
+<li>测试难</li>
+</ul>
+<p>有没有比好的实践呢？</p>
+<h2 id="pixi">pixi</h2><p><a href="https://github.com/GoodBoyDigital/pixi.js" target="_blank" rel="external">https://github.com/GoodBoyDigital/pixi.js</a></p>
+<p>这个一个非常出名的 HTML 5 2D rendering engine。做游戏和一些微信超炫应用是比较好的一个技术选型。</p>
+<p>它自己吹的是“it’s fast. Really fast”。</p>
+<p>对于一个开发来说，一定要扒出点好东西才算合格。</p>
+<p>它的gulpfile.js</p>
+<pre><code><span class="keyword">var</span> gulp        = require(<span class="string">'gulp'</span>),
+    requireDir  = require(<span class="string">'require-dir'</span>);
+
+<span class="comment">// Specify game project paths for tasks.</span>
+global.paths = {
+    src: <span class="string">'./src'</span>,
+    <span class="keyword">out</span>: <span class="string">'./bin'</span>,
+
+    <span class="function"><span class="keyword">get</span> <span class="title">scripts</span>(<span class="params"></span>) </span>{ <span class="keyword">return</span> <span class="keyword">this</span>.src + <span class="string">'/**/*.js'</span>; },
+    <span class="function"><span class="keyword">get</span> <span class="title">jsEntry</span>(<span class="params"></span>) </span>{ <span class="keyword">return</span> <span class="keyword">this</span>.src + <span class="string">'/index'</span>; }
+};
+
+<span class="comment">// Require all tasks in gulp/tasks, including subfolders</span>
+requireDir(<span class="string">'./gulp/tasks'</span>, { recurse: <span class="keyword">true</span> });
+
+<span class="comment">// default task</span>
+gulp.task(<span class="string">'default'</span>, [<span class="string">'jshint'</span>, <span class="string">'build'</span>]);
+</code></pre><p>代码量很小，而且jshint和build根本没看到，它是怎么加载进来的呢？</p>
+<pre><code>requireDir  = <span class="built_in">require</span>(<span class="string">'require-dir'</span>);
+</code></pre><p>是根据目录加载的node模块，和我常用的<code>require-directory</code>是一样的功能。</p>
+<pre><code><span class="tag">requireDir</span>(<span class="string">'./gulp/tasks'</span>, { <span class="attribute">recurse</span>: true });
+</code></pre><p>这就很明显了，看一下gulp目录</p>
+<pre><code>➜  gulp git:(master) tree .
+.
+├── tasks
+│   ├── build<span class="class">.js</span>
+│   ├── clean<span class="class">.js</span>
+│   ├── dev<span class="class">.js</span>
+│   ├── jsdoc<span class="class">.js</span>
+│   ├── jshint<span class="class">.js</span>
+│   ├── scripts<span class="class">.js</span>
+│   └── watch<span class="class">.js</span>
+└── util
+    ├── bundle<span class="class">.js</span>
+    ├── handleErrors<span class="class">.js</span>
+    ├── jsdoc<span class="class">.conf</span><span class="class">.json</span>
+    └── karma<span class="class">.conf</span><span class="class">.js</span>
+
+<span class="number">2</span> directories, <span class="number">11</span> files
+</code></pre><p>可以说这是一个比较好的一个gulp实践</p>
+<h2 id="mount-tasks">mount-tasks</h2><p>我根据上面pixi的做法，使用<code>require-directory</code>改了一个版本，没几行代码，主要是实现了指定目录，把里面的js加载成gulp 可用的 task。</p>
+<h3 id="Install">Install</h3><pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save mount-tasks</span></span>
+</code></pre><h3 id="Usages">Usages</h3><p>在Gulpfile.js里</p>
+<pre><code><span class="keyword">var</span> gulp        = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
+
+<span class="comment">// Require all tasks in vendor/tasks, including subfolders</span>
+<span class="built_in">require</span>(<span class="string">'mount-tasks'</span>)(__dirname + <span class="string">'/tasks'</span>)
+
+<span class="comment">// default task</span>
+gulp.task(<span class="string">'default'</span>, [<span class="string">'clean'</span>, <span class="string">'build'</span>]);
+</code></pre><p>在tasks目录，我们放2个task，结构如下</p>
+<pre><code>➜  mount-tasks git:(master) tree tasks
+tasks
+├── build<span class="class">.js</span>
+└── clean<span class="class">.js</span>
+
+<span class="number">0</span> directories, <span class="number">2</span> files
+</code></pre><p>此时，执行gulp，就可以出发clean和build任务了。</p>
+<p>我们简单看一下任务是如何定义的，是否足够简单</p>
+<p>clean.js里代码（build.js和这个类似）</p>
+<pre><code><span class="keyword">var</span> gulp    = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
+
+gulp.task(<span class="string">'clean'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>{
+  <span class="built_in">console</span>.log(<span class="string">'clean'</span>);
+});
+</code></pre><p>是不是足够简单呢？</p>
+<p>如果你对gulp不太了解，可以看看这篇文档</p>
+<p><a href="https://github.com/streakq/js-tools-best-practice/blob/master/doc/Gulp.md" target="_blank" rel="external">https://github.com/streakq/js-tools-best-practice/blob/master/doc/Gulp.md</a></p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-07-07-gulp-in-action/" data-id="cid0wpbba0006qm7fytd84g87" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-07-04-mongo-paging" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-07-04-mongo-paging/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>mongodb分页很简单，本文主要讲分页可能遇到的问题，以及优化方案</p>
+<p>从传统web到移动端api，我们都面临一样的问题，比如ajax get有大小显示等，都会强迫你不得不分页</p>
+<p>比如我的项目使用ratchet做h5框架，它的push.js里就是ajax get加载其他页面，页面太大就会报错。</p>
+<h2 id="分页说明">分页说明</h2><p>以典型的列表api来说：下拉刷新是获取最新信息，然后上拉加载下一页</p>
+<p>常见api要写的2个接口</p>
+<ul>
+<li>get_latest(model,count)</li>
+<li>get_with_page(number,size)</li>
+</ul>
+<p>get_latest一般是取最新的数据，比如我们常见的下拉刷新，一般都是这样的接口的。由于2次下拉之间，可能非常长的时间间隔，所以取到的数据会把当前列表的数据冲掉。</p>
+<p>通常做法</p>
+<ul>
+<li>如果n（比如n=30s）分钟内有连续请求，提示最近已更新，没必要再刷，或者直接返回当前数据</li>
+<li>如果取到新数据，将当前列表的数据冲掉，保证数据一致性</li>
+</ul>
+<p>如果判断我到最后一页了</p>
+<p>常见的办法是取出总数，除以pagesize，然后判断当前页是否和总页数-1</p>
+<pre><code>n = all_count - <span class="number">1</span>
+</code></pre><p>量少的时候，毫无感觉，如果量大了，你去查一下count(*)是啥后果呢？</p>
+<p>所以比较好的做法是按照id去查，前端根据每次返回的数据条数，如果条数等于pagesize，你就可以取下一页数据，相反，如果取到的数据小于pagesize，你就知道没有那么多数据可以取了，即到了尾页。此时只要disable获取下一页的按钮即可。</p>
+<h2 id="使用_skip()_和_limit()_实现">使用 skip() 和 limit() 实现</h2><pre><code><span class="comment">//Page 1</span>
+db<span class="class">.users</span><span class="class">.find</span>()<span class="class">.limit</span> (<span class="number">10</span>)
+<span class="comment">//Page 2</span>
+db<span class="class">.users</span><span class="class">.find</span>().<span class="function"><span class="title">skip</span><span class="params">(<span class="number">10</span>)</span></span>.<span class="function"><span class="title">limit</span><span class="params">(<span class="number">10</span>)</span></span>
+<span class="comment">//Page 3</span>
+db<span class="class">.users</span><span class="class">.find</span>().<span class="function"><span class="title">skip</span><span class="params">(<span class="number">20</span>)</span></span>.<span class="function"><span class="title">limit</span><span class="params">(<span class="number">10</span>)</span></span>
+........
+</code></pre><p>抽象一下就是：检索第n页的代码应该是这样的</p>
+<pre><code>db<span class="class">.users</span><span class="class">.find</span>().<span class="function"><span class="title">skip</span><span class="params">(pagesize*(n-<span class="number">1</span>)</span></span>).<span class="function"><span class="title">limit</span><span class="params">(pagesize)</span></span>
+</code></pre><p>当然，这是假定在你在2次查询之间没有任何数据插入或删除操作，你的系统能么？</p>
+<p>当然大部分oltp系统无法确定不更新，所以skip只是个玩具，没太大用</p>
+<p>而且skip+limit只适合小量数据，数据一多就卡死，哪怕你再怎么加索引，优化，它的缺陷都那么明显。</p>
+<p>如果你要处理大量数据集，你需要考虑别的方案的。</p>
+<h2 id="使用_find()_和_limit()_实现">使用 find() 和 limit() 实现</h2><p>之前用skip()方法没办法更好的处理大规模数据，所以我们得找一个skip的替代方案。</p>
+<p>为此我们想平衡查询，就考虑根据文档里有的时间戳或者id</p>
+<p>在这个例子中，我们会通过‘_id’来处理（用时间戳也一样，看你设计的时候有没有类似created_at这样的字段）。</p>
+<p>‘_id’是mongodb ObjectID类型的，ObjectID 使用12 字节的存储空间，每个字节两位十六进制数字，是一个24 位的字符串，包括timestamp, machined, processid, counter 等。下面会有一节单独讲它是怎么构成的，为啥它是唯一的。</p>
+<p>使用_id实现分页的大致思路如下</p>
+<ol>
+<li>在当前页内查出最后1条记录的_id，记为last_id</li>
+<li>把记下来的last_id，作为查询条件，查出大于last_id的记录作为下一页的内容</li>
+</ol>
+<p>这样来说，是不是很简单？</p>
+<p>代码如下</p>
+<pre><code><span class="comment">//Page 1</span>
+db.users.find<span class="params">()</span>.limit<span class="params">(pageSize)</span>;
+<span class="comment">//Find the id of the last document in this page</span>
+last_id = ...
+
+<span class="comment">//Page 2</span>
+users = db.users.find<span class="params">({'_id'&gt; last_id})</span>. limit<span class="params">(<span class="number">10</span>)</span>;
+<span class="comment">//Update the last id with the id of the last document in this page</span>
+last_id = ...
+</code></pre><p>这只是示范代码，我们来看一下在Robomongo 0.8.4客户端里如何写</p>
+<pre><code>db.usermodels.find({<span class="string">'_id'</span> :{ <span class="string">"$gt"</span> :ObjectId(<span class="string">"55940ae59c39572851075bfd"</span>)} }).limit(20).sort({_id:-1})
+</code></pre><p>根据上面接口说明，我们仍然要实现2个接口</p>
+<ul>
+<li>get_latest(model,count)</li>
+<li>get_next_page_with_last_id(last_id, size)</li>
+</ul>
+<p>为了让大家更好的了解根据‘_id’分页原理，我们有必要去了解ObjectID的组成。</p>
+<h2 id="关于_ObjectID组成">关于 ObjectID组成</h2><p>前面说了：‘_id’是mongodb ObjectID类型的，它由12位结构组成，包括timestamp, machined, processid, counter 等。</p>
+<p><img src="http://images.blogjava.net/blogjava_net/dongbule/46046/o_111.PNG" alt=""></p>
+<h3 id="TimeStamp">TimeStamp</h3><p>前 4位是一个unix的时间戳，是一个int类别，我们将上面的例子中的objectid的前4位进行提取“4df2dcec”，然后再将他们安装十六进制 专为十进制：“1307761900”，这个数字就是一个时间戳，为了让效果更佳明显，我们将这个时间戳转换成我们习惯的时间格式</p>
+<p>$ date -d ‘1970-01-01 UTC 1307761900  sec’  -u<br>2011年 06月 11日 星期六 03:11:40 UTC</p>
+<p>前 4个字节其实隐藏了文档创建的时间，并且时间戳处在于字符的最前面，这就意味着ObjectId大致会按照插入进行排序，这对于某些方面起到很大作用，如 作为索引提高搜索效率等等。使用时间戳还有一个好处是，某些客户端驱动可以通过ObjectId解析出该记录是何时插入的，这也解答了我们平时快速连续创 建多个Objectid时，会发现前几位数字很少发现变化的现实，因为使用的是当前时间，很多用户担心要对服务器进行时间同步，其实这个时间戳的真实值并 不重要，只要其总不停增加就好。</p>
+<h3 id="Machine">Machine</h3><p>接下来的三个字节，就是 2cdcd2 ,这三个字节是所在主机的唯一标识符，一般是机器主机名的散列值，这样就确保了不同主机生成不同的机器hash值，确保在分布式中不造成冲突，这也就是在同一台机器生成的objectid中间的字符串都是一模一样的原因。</p>
+<h3 id="pid">pid</h3><p>上面的Machine是为了确保在不同机器产生的objectid不冲突，而pid就是为了在同一台机器不同的mongodb进程产生了objectid不冲突，接下来的0936两位就是产生objectid的进程标识符。</p>
+<h3 id="increment">increment</h3><p>前面的九个字节是保证了一秒内不同机器不同进程生成objectid不冲突，这后面的三个字节a8b817，是一个自动增加的计数器，用来确保在同一秒内产生的objectid也不会发现冲突，允许256的3次方等于16777216条记录的唯一性。</p>
+<h3 id="客户端生成">客户端生成</h3><p>mongodb产生objectid还有一个更大的优势，就是mongodb可以通过自身的服务来产生objectid，也可以通过客户端的驱动程序来产生，如果你仔细看文档你会感叹，mongodb的设计无处不在的使</p>
+<p>用空间换时间的思想，比较objectid是轻量级，但服务端产生也必须开销时间，所以能从服务器转移到客户端驱动程序完成的就尽量的转移，必须将事务扔给客户端来完成，减低服务端的开销，另还有一点原因就是扩展应用层比扩展数据库层要变量得多。</p>
+<h3 id="总结">总结</h3><p>mongodb的ObejctId生产思想在很多方面挺值得我们借鉴的，特别是在大型分布式的开发，如何构建轻量级的生产，如何将生产的负载进行转移，如何以空间换取时间提高生产的最大优化等等。</p>
+<p>说这么多的目的就是告诉你：mongodb的_id为啥是唯一的，单机如何唯一，集群中如何唯一，理解了这个就可以了。</p>
+<h2 id="性能优化">性能优化</h2><h3 id="索引">索引</h3><p>按照自己的业务需求即可，参见官方文档 <a href="http://docs.mongodb.org/manual/core/indexes/" target="_blank" rel="external">http://docs.mongodb.org/manual/core/indexes/</a></p>
+<h3 id="关于explain">关于explain</h3><p>rdbms里的执行计划，如果你不了解，那么mongo的explain估计你也不太熟，简单说几句</p>
+<p>explain是mongodb提供的一个命令，用来查看查询的过程，以便进行性能优化。</p>
+<p><a href="http://docs.mongodb.org/manual/reference/method/cursor.explain/" target="_blank" rel="external">http://docs.mongodb.org/manual/reference/method/cursor.explain/</a></p>
+<pre><code>db.usermodels.find({<span class="string">'_id'</span> :{ <span class="string">"$gt"</span> :ObjectId(<span class="string">"55940ae59c39572851075bfd"</span>)} }).explain()
+
+
+/* <span class="number">0</span> */
+{
+    <span class="string">"queryPlanner"</span> : {
+        <span class="string">"plannerVersion"</span> : <span class="number">1</span>,
+        <span class="string">"namespace"</span> : <span class="string">"xbm-wechat-api.usermodels"</span>,
+        <span class="string">"indexFilterSet"</span> : false,
+        <span class="string">"parsedQuery"</span> : {
+            <span class="string">"_id"</span> : {
+                <span class="string">"$gt"</span> : ObjectId(<span class="string">"55940ae59c39572851075bfd"</span>)
+            }
+        },
+        <span class="string">"winningPlan"</span> : {
+            <span class="string">"stage"</span> : <span class="string">"FETCH"</span>,
+            <span class="string">"inputStage"</span> : {
+                <span class="string">"stage"</span> : <span class="string">"IXSCAN"</span>,
+                <span class="string">"keyPattern"</span> : {
+                    <span class="string">"_id"</span> : <span class="number">1</span>
+                },
+                <span class="string">"indexName"</span> : <span class="string">"_id_"</span>,
+                <span class="string">"isMultiKey"</span> : false,
+                <span class="string">"direction"</span> : <span class="string">"forward"</span>,
+                <span class="string">"indexBounds"</span> : {
+                    <span class="string">"_id"</span> : [ 
+                        <span class="string">"(ObjectId('55940ae59c39572851075bfd'), ObjectId('ffffffffffffffffffffffff')]"</span>
+                    ]
+                }
+            }
+        },
+        <span class="string">"rejectedPlans"</span> : []
+    },
+    <span class="string">"executionStats"</span> : {
+        <span class="string">"executionSuccess"</span> : true,
+        <span class="string">"nReturned"</span> : <span class="number">5</span>,
+        <span class="string">"executionTimeMillis"</span> : <span class="number">0</span>,
+        <span class="string">"totalKeysExamined"</span> : <span class="number">5</span>,
+        <span class="string">"totalDocsExamined"</span> : <span class="number">5</span>,
+        <span class="string">"executionStages"</span> : {
+            <span class="string">"stage"</span> : <span class="string">"FETCH"</span>,
+            <span class="string">"nReturned"</span> : <span class="number">5</span>,
+            <span class="string">"executionTimeMillisEstimate"</span> : <span class="number">0</span>,
+            <span class="string">"works"</span> : <span class="number">6</span>,
+            <span class="string">"advanced"</span> : <span class="number">5</span>,
+            <span class="string">"needTime"</span> : <span class="number">0</span>,
+            <span class="string">"needFetch"</span> : <span class="number">0</span>,
+            <span class="string">"saveState"</span> : <span class="number">0</span>,
+            <span class="string">"restoreState"</span> : <span class="number">0</span>,
+            <span class="string">"isEOF"</span> : <span class="number">1</span>,
+            <span class="string">"invalidates"</span> : <span class="number">0</span>,
+            <span class="string">"docsExamined"</span> : <span class="number">5</span>,
+            <span class="string">"alreadyHasObj"</span> : <span class="number">0</span>,
+            <span class="string">"inputStage"</span> : {
+                <span class="string">"stage"</span> : <span class="string">"IXSCAN"</span>,
+                <span class="string">"nReturned"</span> : <span class="number">5</span>,
+                <span class="string">"executionTimeMillisEstimate"</span> : <span class="number">0</span>,
+                <span class="string">"works"</span> : <span class="number">5</span>,
+                <span class="string">"advanced"</span> : <span class="number">5</span>,
+                <span class="string">"needTime"</span> : <span class="number">0</span>,
+                <span class="string">"needFetch"</span> : <span class="number">0</span>,
+                <span class="string">"saveState"</span> : <span class="number">0</span>,
+                <span class="string">"restoreState"</span> : <span class="number">0</span>,
+                <span class="string">"isEOF"</span> : <span class="number">1</span>,
+                <span class="string">"invalidates"</span> : <span class="number">0</span>,
+                <span class="string">"keyPattern"</span> : {
+                    <span class="string">"_id"</span> : <span class="number">1</span>
+                },
+                <span class="string">"indexName"</span> : <span class="string">"_id_"</span>,
+                <span class="string">"isMultiKey"</span> : false,
+                <span class="string">"direction"</span> : <span class="string">"forward"</span>,
+                <span class="string">"indexBounds"</span> : {
+                    <span class="string">"_id"</span> : [ 
+                        <span class="string">"(ObjectId('55940ae59c39572851075bfd'), ObjectId('ffffffffffffffffffffffff')]"</span>
+                    ]
+                },
+                <span class="string">"keysExamined"</span> : <span class="number">5</span>,
+                <span class="string">"dupsTested"</span> : <span class="number">0</span>,
+                <span class="string">"dupsDropped"</span> : <span class="number">0</span>,
+                <span class="string">"seenInvalidated"</span> : <span class="number">0</span>,
+                <span class="string">"matchTested"</span> : <span class="number">0</span>
+            }
+        },
+        <span class="string">"allPlansExecution"</span> : []
+    },
+    <span class="string">"serverInfo"</span> : {
+        <span class="string">"host"</span> : <span class="string">"iZ251uvtr2b"</span>,
+        <span class="string">"port"</span> : <span class="number">27017</span>,
+        <span class="string">"version"</span> : <span class="string">"3.0.3"</span>,
+        <span class="string">"gitVersion"</span> : <span class="string">"b40106b36eecd1b4407eb1ad1af6bc60593c6105"</span>
+    }
+}
+</code></pre><p>字段说明：</p>
+<p>queryPlanner.winningPlan.inputStage.stage列显示查询策略</p>
+<ul>
+<li>IXSCAN表示使用Index 查询</li>
+<li>COLLSCAN表示使用列查询，也就是一个一个对比过去</li>
+</ul>
+<p>cursor中的索引名称移动到了queryPlanner.winningPlan.inputStage.indexName</p>
+<p>3.0中使用executionStats.totalDocsExamined来显示总共需要检查的文档数，用以取而代之2.6里的nscanned，即扫描document的行数。</p>
+<ul>
+<li>nReturned：返回的文档行数</li>
+<li>needTime：耗时（毫秒）</li>
+<li>indexBounds：所用的索引</li>
+</ul>
+<h3 id="Profiling">Profiling</h3><p>另外还有一个<a href="http://docs.mongodb.org/manual/reference/method/db.setProfilingLevel/" target="_blank" rel="external">Profiling</a>功能</p>
+<pre><code>db.<span class="function"><span class="title">setProfilingLevel</span><span class="params">(<span class="number">2</span>, <span class="number">20</span>)</span></span>
+</code></pre><p>profile级别有三种：</p>
+<ul>
+<li>0：不开启</li>
+<li>1：记录慢命令，默认为大于100ms</li>
+<li>2：记录所有命令</li>
+<li>3、查询profiling记录</li>
+</ul>
+<p>默认记录在system.profile中</p>
+<pre><code>db[<span class="string">'system.profile'</span>].<span class="function"><span class="title">find</span><span class="params">()</span></span>
+</code></pre><h3 id="总结一下">总结一下</h3><ul>
+<li>explain在写代码阶段就可以做性能分析，开发阶段用</li>
+<li>profile检测性能慢的语句，便于线上产品问题定位</li>
+</ul>
+<p>无论哪种你定位出来问题，解决办法</p>
+<ul>
+<li>根据业务，调整schema结构</li>
+<li>优化索引</li>
+</ul>
+<p>有了上面这些知识，相信大家能够自己去给分页语句测试性能了。</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-07-04-mongo-paging/" data-id="cid0wpbbj0007qm7fqqsrq3uy" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-07-01-small-is-beauty" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-07-01-small-is-beauty/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-07-01-small-is-beauty/">架构小而美的实践</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>架构小而美的实践</p>
+<h2 id="架构演进">架构演进</h2><ol>
+<li>原始阶段，狂狂堆代码，后来有人骂娘了</li>
+<li>于是开始分层，mvc，甚至dao，service，还有rails里比较比较好的Concerns等</li>
+<li>然后模块化，按功能拆分</li>
+<li>服务化，当功能太多的时候，大家开始探索SOA，把服务挂到ESB上以期一统江湖</li>
+<li>提高资源利用率，虚拟化，云计算的特点之一</li>
+<li>到目前后端基本已经很成熟了，于是开始前端分层，mvc，mvvm等…</li>
+</ol>
+<p>我们来审视一下这个演进过程，从刚开始到一个复杂的系统，是每个团队都有经历，甚至复杂到一定程度，连开发都不是知道改怎样去改，太庞大，太复杂了。所以大伙又开始拆分，模块也好，服务也好，都是让它变小，可控，当然这样得益于云计算（后面会讲为什么）。</p>
+<p>这里面最重要的变动是从模块化到多个应用并行。避免大而全，而是小而美，如果需要可以建ESB,然后一个门户就可以很好整合这些服务了。</p>
+<p>小而美的架构是当下的主流</p>
+<ul>
+<li>拆分成多个应用，可以组装，也可以横向扩展</li>
+<li>选择简单的技术，将一件事儿做到极致，开发，测试，运维都非常简单，相对而言增加了运维的复杂程度，但有了docker，让我们轻松了许多</li>
+<li>避免单点以及其他运维故障，比如数据库锁升级致使瘫痪的解决方法是尽可能分库，降低锁风险，如果每个应用使用自己的库就非常简单了</li>
+<li>集成容易</li>
+<li>数据方面，分应用，分库，会导致数据分散，难处理。现在以后有比较成熟的技术，比如使用ETL或消息队列MQ延时同步到hadoop平台，数据仓库或者搜索引擎库，利用SQL、MR或者其他技术进行数据处理，如果是实时业务，也问题不大，共享hbase等都可以解决</li>
+</ul>
+<p>我们为什么要选择这样的架构？</p>
+<ul>
+<li>招聘难</li>
+</ul>
+<p>目前为止所有人的反馈都是招聘难，bat无耻的把握了大部分精英资源，中小公司又想以低成本招人，另外还有一点是现在的程序员素质良莠不齐，好像谁找不着工作，去培训3个月就能干了一样。</p>
+<p>既然现实已经这样了，那么我们能做啥呢？</p>
+<ol>
+<li>降低开发难度，【哲学：一次只做一件事儿】，会比较简单，也比较容易做好，而且集成、维护成本等都比较低</li>
+<li>增加团队技术的多样性，【哲学：做一件事儿不只有一种方法】，不管是java也好，php也好，ror，node，python，go都好，只要稳定，易于上手的都可以考虑用。比如ruby的sinatra，比如scala的scalatra，比如node的express和koa，比如go的Martini，都非常简单，性能都不错的</li>
+</ol>
+<p>我们的最终目标是快速交付，快速上线，以期在商业博弈中占点先手优势，而已。</p>
+<ul>
+<li>运维难</li>
+</ul>
+<p>既然拆了这么多应用，实际上部署运维的难度是增大的，但是好处也是很明显</p>
+<ol>
+<li>云服务越来越多，降低我们很多的运维成本，比如mysql，cdn，redis等都有现成可用的服务</li>
+<li>利用docker，可以快速部署上万台服务器，甚至更多，另外docker还有一个好处是预置了某种开发环境，只要准备一次配置文件，以后只管创建镜像即可。比如我的scalatra和express运行环境不一样，我只要建2个配置，根据我的业务需求，哪个服务需要加到支持，我就多建一些镜像即可。如果是传统的服务器，想想就想去天台</li>
+</ol>
+<ul>
+<li>小步快跑难</li>
+</ul>
+<p>技术部门很难的2点：</p>
+<ul>
+<li>开发速度</li>
+<li>执行速度</li>
+</ul>
+<p>假定我们认可agile，无论什么样sprint迭代，我们都要快速交付</p>
+<h2 id="核心业务">核心业务</h2><p>其实对于多个系统而言，model是最业务核心</p>
+<h2 id="多模块">多模块</h2><p>express的好处是可以把app当成子模块，路由可以挂载到当前app上</p>
+<h2 id="拆与合">拆与合</h2><p>拆的好处</p>
+<ul>
+<li>模块化和复用</li>
+</ul>
+<p>言必称复用，就好像不谈oo和dp都不好意思说是开发一样。</p>
+<ul>
+<li>更多利好</li>
+</ul>
+<p>比如</p>
+<h2 id="面向服务">面向服务</h2><h2 id="语言的意义">语言的意义</h2><p>这让我想到2个编程语言的哲学</p>
+<ul>
+<li>There’s More Than One Way To Do It 做一件事儿不只有一种方法</li>
+<li>Do one thing at a time, and do it well 一次只做一件事，并做到最好！</li>
+</ul>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-07-01-small-is-beauty/" data-id="cid0wpbbl0008qm7f0pq0gpif" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-06-30-slb-vs-haproxy" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-06-30-slb-vs-haproxy/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-06-30-slb-vs-haproxy/">Nodejs负载均衡：haproxy，slb以及node-slb</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>我的线上环境是阿里云，既然阿里云有SLB，比自己运维一个要省事儿的多，事实上，自己做也真不一定做得比它好，本文试图以haproxy来解释一下slb的原理</p>
+<p>讲解haproxy的目的是介绍负载算法，便于理解SLB，最后给出node-slb解决方案</p>
+<h2 id="目前比较流行的">目前比较流行的</h2><p>目前，在线上环境中应用较多的负载均衡器硬件有F5 BIG-IP,软件有LVS，Nginx及HAProxy,高可用软件有Heartbeat. Keepalived</p>
+<p>成熟的架构有</p>
+<ul>
+<li>LVS+Keepalived</li>
+<li>Nginx+Keepalived</li>
+<li>HAProxy+keepalived</li>
+<li>DRBD+Heartbeat</li>
+</ul>
+<h2 id="HAProxy">HAProxy</h2><p>优点</p>
+<ol>
+<li>HAProxy是支持虚拟主机的，可以工作在4. 7层(支持多网段)；</li>
+<li>能够补充Nginx的一些缺点比如Session的保持，Cookie的引导等工作；</li>
+<li>支持url检测后端的服务器；</li>
+<li>它跟LVS一样，本身仅仅就只是一款负载均衡软件；单纯从效率上来讲HAProxy更会比Nginx有更出色的负载均衡速度，在并发处理上也是优于Nginx的；</li>
+<li>HAProxy可以对Mysql读进行负载均衡，对后端的MySQL节点进行检测和负载均衡，不过在后端的MySQL slaves数量超过10台时性能不如LVS；</li>
+<li>HAProxy的算法较多，达到8种；</li>
+</ol>
+<p>官网 <a href="http://www.haproxy.org/" target="_blank" rel="external">http://www.haproxy.org/</a> (自备梯子)</p>
+<ul>
+<li><a href="http://cbonte.github.io/haproxy-dconv/configuration-1.5.html" target="_blank" rel="external">http://cbonte.github.io/haproxy-dconv/configuration-1.5.html</a></li>
+<li><a href="http://demo.haproxy.org/" target="_blank" rel="external">http://demo.haproxy.org/</a></li>
+</ul>
+<p>我觉得它是所有负载软件里最简单最好用的。配置文件比nginx还简单，而且还有监控页面。</p>
+<p>下载最新版软件 <a href="http://www.haproxy.org/download/1.5/src/haproxy-1.5.12.tar.gz" target="_blank" rel="external">http://www.haproxy.org/download/1.5/src/haproxy-1.5.12.tar.gz</a></p>
+<p>解压</p>
+<pre><code><span class="tag">tar</span> <span class="tag">-zxvf</span> <span class="tag">haproxy-1</span><span class="class">.5</span><span class="class">.12</span><span class="class">.tar</span><span class="class">.gz</span>
+</code></pre><p>切换到目录</p>
+<pre><code>cd haproxy-<span class="number">1.5</span><span class="number">.12</span> 
+</code></pre><p>打开readme看一下，如何安装</p>
+<pre><code><span class="built_in">make</span> TARGET=linux26
+sudo <span class="built_in">make</span> install
+</code></pre><h2 id="创建一个配置文件">创建一个配置文件</h2><pre><code><span class="preprocessor"># Simple configuration for an HTTP proxy listening on port <span class="number">80</span> on all</span>
+<span class="preprocessor"># interfaces and forwarding requests to a single backend <span class="string">"servers"</span> with a</span>
+<span class="preprocessor"># single server <span class="string">"server1"</span> listening on <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8000</span></span>
+global
+    daemon
+    maxconn <span class="number">256</span>
+
+defaults
+    mode http
+    timeout connect <span class="number">5000</span>ms
+    timeout client <span class="number">50000</span>ms
+    timeout server <span class="number">50000</span>ms
+
+frontend http-in
+    bind *:<span class="number">80</span>
+    default_backend servers
+
+backend servers
+    server server1 <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8000</span> maxconn <span class="number">32</span>
+
+
+<span class="preprocessor"># The same configuration defined with a single listen block. Shorter but</span>
+<span class="preprocessor"># less expressive, especially in HTTP mode.</span>
+global
+    daemon
+    maxconn <span class="number">256</span>
+
+defaults
+    mode http
+    timeout connect <span class="number">5000</span>ms
+    timeout client <span class="number">50000</span>ms
+    timeout server <span class="number">50000</span>ms
+
+listen http-in
+    bind *:<span class="number">80</span>
+    server server1 <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8000</span> maxconn <span class="number">32</span>
+</code></pre><h2 id="启动">启动</h2><pre><code>haproxy <span class="operator">-f</span> test.cfg
+</code></pre><h2 id="查看状态">查看状态</h2><p>记得在配置文件里加上</p>
+<pre><code>listen admin_stats
+    bind <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">8888</span>
+    stats refresh <span class="number">30</span>s
+    stats uri /stats
+    stats realm Haproxy Manager
+    stats auth admin:admin
+    <span class="preprocessor">#stats hide-version</span>
+</code></pre><p><a href="http://ip:8888/stats" target="_blank" rel="external">http://ip:8888/stats</a></p>
+<h2 id="负载均衡–调度算法">负载均衡–调度算法</h2><p>HAProxy的算法有如下8种：</p>
+<ul>
+<li>roundrobin，表示简单的轮询，这个不多说，这个是 负载均衡 基本都具备的；</li>
+<li>static-rr，表示根据权重，建议关注；</li>
+<li>leastconn，表示最少连接者先处理，建议关注；</li>
+<li>source，表示根据请求源IP，建议关注；</li>
+<li>uri，表示根据请求的URI；</li>
+<li>url_param，表示根据请求的URl参数’balance url_param’ requires an URL parameter name</li>
+<li>hdr(name)，表示根据HTTP请求头来锁定每一次HTTP请求；</li>
+<li>rdp-cookie(name)，表示根据据cookie(name)来锁定并哈希每一次TCP请求。</li>
+</ul>
+<h2 id="SLB是神马">SLB是神马</h2><p>负载均衡（Server Load Balancer，简称SLB）是对多台云服务器进行流量分发的负载均衡服务。SLB可以通过流量分发扩展应用系统对外的服务能力，通过消除单点故障提升应用系统的可用性</p>
+<h2 id="SLB是如何实现的">SLB是如何实现的</h2><p>使用tengine实现的。</p>
+<p>Tengine是由淘宝网发起的Web服务器项目。它在Nginx的基础上，针对大访问量网站的需求，添加了很多高级功能和特性。</p>
+<p>see <a href="http://tengine.taobao.org/" target="_blank" rel="external">http://tengine.taobao.org/</a> </p>
+<h2 id="SLB用法">SLB用法</h2><p>创建slb</p>
+<p><img src="/css/2015-06-30/1.png" alt=""></p>
+<p>点击管理按钮，进入实例详情</p>
+<p><img src="/css/2015-06-30/2.png" alt=""></p>
+<p>没啥需要改的，我们直接看服务监听功能，看看如何配置slb</p>
+<ul>
+<li>配置端口</li>
+<li>转发规则 </li>
+<li>带宽</li>
+<li>健康检查等</li>
+</ul>
+<p><img src="/css/2015-06-30/3.png" alt=""></p>
+<p>点击编辑按钮，此时可以看到具体配置页面</p>
+<p><img src="/css/2015-06-30/4.png" alt=""></p>
+<p>目前slb支持2种转发规则</p>
+<ul>
+<li>轮询</li>
+<li>最小连接数</li>
+</ul>
+<p>轮询应该是和haproxy的roundrobin调度算法一样，表示简单的轮询</p>
+<p>最小连接数SLB会自动判断 当前ECS 的established 来判断是否转发</p>
+<p>配置完了slb server，下一步要设置具体slb把请求转发给哪台机器，这实际上才是最核心的的配置。</p>
+<p>阿里云把这件事儿做的超级简单</p>
+<p>假设我现在有一个ecs服务器为已填加</p>
+<p><img src="/css/2015-06-30/5.png" alt=""></p>
+<p>点击【未添加的服务器】，此时会列出未加入负载池的ecs服务器 </p>
+<p><img src="/css/2015-06-30/6.png" alt=""></p>
+<p>选中一台服务器</p>
+<p><img src="/css/2015-06-30/7.png" alt=""></p>
+<p>点击批量添加</p>
+<p><img src="/css/2015-06-30/8.png" alt=""></p>
+<p>配置一下权重，如果机器性能一样就配置权重一样，性能越好，权重越大</p>
+<p>可选值【0 – 100】</p>
+<p>完成配置后，已添加服务器里就有了2台服务器</p>
+<p><img src="/css/2015-06-30/9.png" alt=""></p>
+<p>保证你的服务器都启动，比如2台服务器的80端口都正常即可</p>
+<p>此时你需要做的是把你的域名解析到slb服务器的ip地址上</p>
+<h2 id="node-slb">node-slb</h2><p>an expressjs middleware for aliyun slb</p>
+<h3 id="缘起">缘起</h3><p><a href="http://bbs.aliyun.com/read/188736.html?page=1" target="_blank" rel="external">http://bbs.aliyun.com/read/188736.html?page=1</a></p>
+<p>2）请问健康检查发的什么请求？ head 还是 get？<br>head请求。 </p>
+<p>如果express路由没有处理head请求的话，会触发其他路由，可能会出现请求重定向死循环</p>
+<h2 id="原理">原理</h2><pre><code>var <span class="built_in">debug</span> = <span class="built_in">require</span>(<span class="string">'debug'</span>)(<span class="string">'slb'</span>);
+
+<span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> <span class="params">(req, res, next)</span></span> {
+  <span class="keyword">if</span>(req.method.toLowerCase() == <span class="string">'head'</span>){    
+    <span class="built_in">debug</span>(<span class="string">'[ALIYUN.COM LOG]: SLB health checking....OK...'</span>);
+    <span class="keyword">return</span> res.sendStatus(<span class="number">200</span>);
+  }
+
+  <span class="built_in">next</span>();
+};
+</code></pre><p>原理非常简单：以中间件的形式，处理一下req.method为head的适合，终止此请求即可</p>
+<h3 id="安装">安装</h3><pre><code>npm <span class="operator"><span class="keyword">install</span> <span class="comment">--save node-slb</span></span>
+</code></pre><h3 id="用法">用法</h3><pre><code><span class="keyword">var</span> slb = <span class="built_in">require</span>(<span class="string">'node-slb'</span>);
+
+<span class="keyword">var</span> app = express();
+app.user(slb);
+</code></pre><h3 id="测试">测试</h3><p>首先启动demo的服务</p>
+<pre><code>➜  node-slb git:(master) ✗ npm <span class="operator"><span class="keyword">start</span>
+
+&gt; node-slb@<span class="number">1.0</span><span class="number">.0</span> <span class="keyword">start</span> /<span class="keyword">Users</span>/sang/workspace/github/node-slb
+&gt; cd demo &amp;&amp; npm <span class="keyword">install</span> &amp;&amp; npm <span class="keyword">start</span>
+
+
+&gt; <span class="keyword">url</span>@<span class="number">0.0</span><span class="number">.0</span> <span class="keyword">start</span> /<span class="keyword">Users</span>/sang/workspace/github/node-slb/demo
+&gt; node ./<span class="keyword">bin</span>/www</span>
+</code></pre><p>执行test命令，测试请求</p>
+<pre><code>➜  node-slb git:(master) ✗ npm test
+
+&gt; node-slb@<span class="number">1.0</span><span class="number">.0</span> test /Users/sang/workspace/github/node-slb
+&gt; curl -i -X HEAD http:<span class="comment">//127.0.0.1:3000</span>
+
+HTTP/<span class="number">1.1</span> <span class="number">200</span> OK
+X-Powered-By: Express
+Content-Type: text/plain; charset=utf-<span class="number">8</span>
+Content-Length: <span class="number">2</span>
+ETag: W/<span class="string">"2-d736d92d"</span>
+Date: Mon, <span class="number">29</span> Jun <span class="number">2015</span> <span class="number">03</span>:<span class="number">46</span>:<span class="number">49</span> GMT
+Connection: keep-alive
+</code></pre><p>此时，观察服务器日志</p>
+<pre><code>➜  node-slb git:(master) ✗ npm <span class="operator"><span class="keyword">start</span>
+
+&gt; node-slb@<span class="number">1.0</span><span class="number">.0</span> <span class="keyword">start</span> /<span class="keyword">Users</span>/sang/workspace/github/node-slb
+&gt; cd demo &amp;&amp; npm <span class="keyword">install</span> &amp;&amp; npm <span class="keyword">start</span>
+
+
+&gt; <span class="keyword">url</span>@<span class="number">0.0</span><span class="number">.0</span> <span class="keyword">start</span> /<span class="keyword">Users</span>/sang/workspace/github/node-slb/demo
+&gt; DEBUG=slb node ./<span class="keyword">bin</span>/www
+
+[ALIYUN.COM <span class="keyword">LOG</span>]: SLB health checking....OK...</span>
+</code></pre><p>如果出现<code>[ALIYUN.COM LOG]: SLB health checking....OK...</code>说明正常。</p>
+<p>如果想打印日志，可以DEBUG=slb，如果不想打印日志，默认即无。</p>
+<h2 id="总结">总结</h2><ul>
+<li>首先介绍了haproxy和负载均衡算法</li>
+<li>介绍了阿里云slb用法</li>
+<li>给出node-slb，一个express中间件</li>
+</ul>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-06-30-slb-vs-haproxy/" data-id="cid0wpbbn0009qm7f42vubrkl" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-06-28-think" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-06-28-think/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-06-28-think/">Nodejs开源项目怎么样写测试、CI和代码测试覆盖率</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>wx 是一个不错的微信应用框架，接口和网站做的也不错，和wechat-api是类似的项目</p>
+<p>群里有人问哪个好</p>
+<p>朴灵说：“不写测试的项目都不是好项目”</p>
+<p>确实wx目前还没有测试，对于一个开源项目来说，没有测试和代码覆盖率是不完善的，而且从技术选型来说，大多是不敢选的。</p>
+<p>那么Nodejs开源项目里怎么样写测试、CI和代码测试覆盖率呢？</p>
+<h2 id="测试">测试</h2><p>目前主流的就bdd和tdd，自己查一下差异</p>
+<p>推荐</p>
+<ul>
+<li>mocha和tape</li>
+</ul>
+<p>另外Jasmine也挺有名，angularjs用它，不过挺麻烦的，还有一个选择是qunit，最初是为jquery测试写的，在nodejs里用还是觉得怪怪的。</p>
+<p>如果想简单可以tap，它和tape很像，下文会有详细说明</p>
+<h3 id="mocha">mocha</h3><p>mocha是tj写的</p>
+<p><a href="https://github.com/mochajs/mocha" target="_blank" rel="external">https://github.com/mochajs/mocha</a></p>
+<pre><code>var <span class="built_in">assert</span> = <span class="built_in">require</span>(<span class="string">"assert"</span>)
+describe(<span class="string">'truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  it(<span class="string">'should find the truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+    <span class="built_in">assert</span>.equal(<span class="number">1</span>, <span class="number">1</span>);
+  })
+})
+</code></pre><p>断言风格，这里默认是assert，推荐使用chaijs这个模块，它提供3种风格</p>
+<ul>
+<li>Should</li>
+<li>Expect</li>
+<li>Assert</li>
+</ul>
+<p>rspec里推荐用expect，其实看个人习惯</p>
+<p>比较典型一个mocha例子</p>
+<pre><code><span class="keyword">var</span> assert = <span class="built_in">require</span>(<span class="string">'chai'</span>).assert;
+<span class="keyword">var</span> expect = <span class="built_in">require</span>(<span class="string">'chai'</span>).expect;
+<span class="built_in">require</span>(<span class="string">'chai'</span>).should();
+
+
+describe(<span class="string">'Test'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
+    before(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+    <span class="comment">// runs before all tests in this block</span>
+
+  })
+  after(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
+    <span class="comment">// runs after all tests in this block</span>
+  })
+  beforeEach(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
+    <span class="comment">// runs before each test in this block</span>
+  })
+  afterEach(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
+    <span class="comment">// runs after each test in this block</span>
+  })
+
+  describe(<span class="string">'#test()'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
+    it(<span class="string">'should return ok when test finished'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">done</span>)</span>{
+      assert.equal(<span class="string">'sang_test2'</span>, <span class="string">'sang_test2'</span>);
+      <span class="keyword">var</span> foo = <span class="string">'bar'</span>;
+      expect(foo).to.equal(<span class="string">'bar'</span>);
+      done()
+    })
+  })
+})
+</code></pre><p>说明</p>
+<ul>
+<li>理解测试生命周期</li>
+<li>理解bdd测试写法</li>
+</ul>
+<p>单元测试需要的各个模块说明</p>
+<ul>
+<li>mocha（Mocha is a feature-rich JavaScript test framework running on node.js and the browser, making asynchronous testing simple and fun.）</li>
+<li>chai（Chai is a BDD / TDD assertion library for node and the browser that can be delightfully paired with any javascript testing framework.）</li>
+<li>sinon（Standalone test spies, stubs and mocks for JavaScript.）</li>
+<li>zombie (页面事件模拟Zombie.js is a lightweight framework for testing client-side JavaScript code in a simulated environment. No browser required.)</li>
+<li>supertest(接口测试 Super-agent driven library for testing node.js HTTP servers using a fluent API)</li>
+</ul>
+<p>更多的看<a href="http://nodeonly.com/2014/11/24/mongoose-test.html" target="_blank" rel="external">http://nodeonly.com/2014/11/24/mongoose-test.html</a></p>
+<p>如果你想真正的玩敏捷，从用户故事开始，那么下面这2个库非常必要</p>
+<ul>
+<li><a href="http://vowsjs.org/" target="_blank" rel="external">http://vowsjs.org/</a></li>
+<li><a href="https://github.com/cucumber/cucumber-js" target="_blank" rel="external">https://github.com/cucumber/cucumber-js</a></li>
+</ul>
+<p>啊，黄瓜。。。。</p>
+<p>cucumber作为BDD（行为驱动测试）的自动化测试工具，可以很好的帮助进行功能测试。它将功能拆分为一个个的场景（可以理解为小功能点），每个场景内可以独立的做数据初始，然后再对初始的数据进行测试，检测是否达到预期的效果。</p>
+<h3 id="tape：像代码一样跑测试">tape：像代码一样跑测试</h3><p>tape是substack写的测试框架</p>
+<p><a href="https://github.com/substack/tape" target="_blank" rel="external">https://github.com/substack/tape</a></p>
+<pre><code><span class="keyword">var</span> test = <span class="built_in">require</span>(<span class="string">'tape'</span>).test;
+test(<span class="string">'equivalence'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">t</span>) </span>{
+    t.equal(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'these two numbers are equal'</span>);
+    t.end();
+});
+</code></pre><p>tape是非常简单的测试框架，核心价值观是”Tests are code”，所以你可以像代码一样跑测试，</p>
+<p>比如</p>
+<pre><code>node <span class="keyword">test</span>/<span class="keyword">test</span>.js
+</code></pre><p>写个脚本就无比简单了。当然如果你想加’test runner’ 库也有现成的。</p>
+<h3 id="The_Test_Anything_Protocol">The Test Anything Protocol</h3><p>TAP全称是<a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol" target="_blank" rel="external">Test Anything Protocol</a></p>
+<p>它是可靠性测试的一种（tried &amp; true）实现</p>
+<p>从1987就有了，有很多语言都实现了。</p>
+<p>它说白点就是用贼简单的方式来格式化测试结果，比如</p>
+<pre><code>TAP version <span class="number">13</span>
+<span class="preprocessor"># equivalence</span>
+ok <span class="number">1</span> these two numbers are equal
+
+<span class="number">1.</span><span class="number">.1</span>
+<span class="preprocessor"># tests <span class="number">1</span></span>
+<span class="preprocessor"># pass  <span class="number">1</span></span>
+
+<span class="preprocessor"># ok</span>
+</code></pre><p>比如node里的实现<a href="https://github.com/isaacs/node-tap" target="_blank" rel="external">https://github.com/isaacs/node-tap</a></p>
+<pre><code>var tap = <span class="built_in">require</span>(<span class="string">'tap'</span>)
+<span class="comment">
+// you can test stuff just using the top level object.</span><span class="comment">
+// no suites or subtests required.</span>
+
+tap.equal(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'check if numbers still work'</span>)
+tap.notEqual(<span class="number">1</span>, <span class="number">2</span>, <span class="string">'1 should not equal 2'</span>)
+<span class="comment">
+// also you can group things into sub-tests.</span><span class="comment">
+// Sub-tests will be run in sequential order always,</span><span class="comment">
+// so they're great for async things.</span>
+
+tap.test(<span class="string">'first stuff'</span>, <span class="function"><span class="keyword">function</span> (<span class="title">t</span>) {</span>
+  t.ok(<span class="constant">true</span>, <span class="string">'true is ok'</span>)
+  t.similar({<span class="operator">a</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]}, {<span class="operator">a</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]})
+ <span class="comment"> // call t.end() when you're done</span>
+  t.<span class="keyword">end</span>()
+})
+</code></pre><p>一定要区分tap和tape，不要弄混了</p>
+<h2 id="科普一下什么是CI">科普一下什么是CI</h2><p>科普一下，CI = Continuous integration 持续集成</p>
+<p>Martin Fowler对持续集成是这样定义的:</p>
+<p>持续集成是一种软件开发实践，即团队开发成员经常集成他们的工作，通常每个成员每天至少集成一次，也就意味着每天可能会发生多次集成。每次集成都通过自动化的构建（包括编译，发布，自动化测试)来验证，从而尽快地发现集成错误。许多团队发现这个过程可以大大减少集成的问题，让团队能够更快的开发内聚的软件。</p>
+<p>它可以</p>
+<ul>
+<li>减少风险</li>
+<li>减少重复过程</li>
+<li>任何时间、任何地点生成可部署的软件</li>
+<li>增强项目的可见性</li>
+<li>建立团队对开发产品的信心</li>
+</ul>
+<p>要素</p>
+<p>1.统一的代码库<br>2.自动构建<br>3.自动测试<br>4.每个人每天都要向代码库主干提交代码<br>5.每次代码递交后都会在持续集成服务器上触发一次构建<br>6.保证快速构建<br>7.模拟生产环境的自动测试<br>8.每个人都可以很容易的获取最新可执行的应用程序<br>9.每个人都清楚正在发生的状况<br>10.自动化的部署</p>
+<p>也就是说，测试不通过不能部署，只有提交到服务器上，就可以自动跑测试，测试通过后，就可以部署到服务器上了（注意是”staging”, 而非”production”）。</p>
+<p>一般最常的ci软件是jenkins</p>
+<p>举个大家熟悉的例子iojs开发中的持续集成就是用的jenkins</p>
+<p><a href="https://jenkins-iojs.nodesource.com/" target="_blank" rel="external">https://jenkins-iojs.nodesource.com/</a></p>
+<p><img src="/css/2015-06-26/4.png" alt=""></p>
+<p>jenkins是自建环境下用的比较多，如果是开源项目，推荐travis-ci</p>
+<p><a href="https://travis-ci.org/" target="_blank" rel="external">https://travis-ci.org/</a></p>
+<p>对开源项目做持续集成是免费的（非开源的好贵），所以在github集成的基本是最多的。</p>
+<p>对nodejs支持的也非常好。</p>
+<p>举2个例子</p>
+<ul>
+<li>express  <a href="https://travis-ci.org/strongloop/express" target="_blank" rel="external">https://travis-ci.org/strongloop/express</a></li>
+<li>koa      <a href="https://travis-ci.org/koajs/koa" target="_blank" rel="external">https://travis-ci.org/koajs/koa</a></li>
+</ul>
+<h2 id="测试报告">测试报告</h2><p>近年随着tdd/bdd，开源项目，和敏捷开发的火热，程序员们不再满足说，我贡献了一个开源项目</p>
+<p>要有高要求，我要加测试</p>
+<p>要有更高要求，我要把每一个函数都测试到，让别人相信我的代码没有任何问题</p>
+<p>上一小节讲的ci，实际上解决了反复测试的自动化问题。但是如何看我的程序里的每一个函数都测试了呢？</p>
+<p>答案是测试覆盖率</p>
+<p>在nodejs里，推荐<a href="https://github.com/gotwarlost/istanbul" target="_blank" rel="external">istanbul</a></p>
+<p>Istanbul - 官方介绍 a JS code coverage tool written in JS</p>
+<p>它可以通过3种途径生成覆盖报告</p>
+<ul>
+<li>cli</li>
+<li>代码</li>
+<li>gulp插件</li>
+</ul>
+<p>安装</p>
+<pre><code>$ npm <span class="operator"><span class="keyword">install</span> -<span class="keyword">g</span> istanbul</span>
+</code></pre><p>执行</p>
+<pre><code>$ istanbul cover <span class="keyword">my</span>-test-<span class="keyword">script</span>.js <span class="comment">-- my test args</span>
+</code></pre><p>它会生成<code>./coverage</code>目录，这里面就是测试报告</p>
+<p>比如我的项目里</p>
+<pre><code>./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha <span class="comment">--report lcovonly</span>
+    #MongooseDao()
+      ✓ should return ok when record <span class="operator"><span class="keyword">create</span>
+      ✓ should <span class="keyword">return</span> ok <span class="keyword">when</span> <span class="built_in">record</span> <span class="keyword">delete</span> fixture-<span class="keyword">user</span>
+      ✓ should <span class="keyword">return</span> ok <span class="keyword">when</span> <span class="built_in">record</span> deleteById
+      ✓ should <span class="keyword">return</span> ok <span class="keyword">when</span> <span class="built_in">record</span> removeById
+      ✓ should <span class="keyword">return</span> ok <span class="keyword">when</span> <span class="built_in">record</span> getById
+      ✓ should <span class="keyword">return</span> ok <span class="keyword">when</span> <span class="built_in">record</span> getAll
+      ✓ should <span class="keyword">return</span> ok <span class="keyword">when</span> <span class="built_in">record</span> all
+      ✓ should <span class="keyword">return</span> ok <span class="keyword">when</span> <span class="built_in">record</span> <span class="keyword">query</span>
+
+
+  <span class="number">8</span> <span class="keyword">passing</span> (<span class="number">50</span>ms)
+
+=============================================================================
+Writing coverage <span class="keyword">object</span> [/<span class="keyword">Users</span>/sang/workspace/moa/mongoosedao/coverage/coverage.<span class="keyword">json</span>]
+Writing coverage reports <span class="keyword">at</span> [/<span class="keyword">Users</span>/sang/workspace/moa/mongoosedao/coverage]
+=============================================================================
+
+=============================== Coverage summary ===============================
+Statements   : <span class="number">47.27</span>% ( <span class="number">26</span>/<span class="number">55</span> )
+Branches     : <span class="number">8.33</span>% ( <span class="number">1</span>/<span class="number">12</span> )
+Functions    : <span class="number">60</span>% ( <span class="number">9</span>/<span class="number">15</span> )
+<span class="keyword">Lines</span>        : <span class="number">47.27</span>% ( <span class="number">26</span>/<span class="number">55</span> )
+================================================================================</span>
+</code></pre><p>默认，它会生成coverage.json和Icov.info，如果你想生成html也可以的。</p>
+<p>比如说，上面的结果47.27%是我测试覆盖的占比，即55个函数，我的测试里只覆盖了26个。</p>
+<p>那么我需要有地方能够展示出来啊</p>
+<h2 id="实践">实践</h2><p>我们以<a href="https://github.com/moajs/mongoosedao" target="_blank" rel="external">mongoosedao</a>项目为例，介绍一下如何集成测试，ci和测试覆盖率</p>
+<p>最终效果如图</p>
+<p><img src="/css/2015-06-26/5.png" alt=""></p>
+<h3 id="npm_run">npm run</h3><p>package.json里定义自定义执行脚本</p>
+<pre><code>"scripts": {
+  "<span class="operator"><span class="keyword">start</span><span class="string">": "</span>npm publish .<span class="string">",
+  "</span><span class="keyword">test</span><span class="string">": "</span>./node_modules/.<span class="keyword">bin</span>/gulp<span class="string">",
+  "</span>mocha<span class="string">": "</span>./node_modules/.<span class="keyword">bin</span>/mocha -u bdd<span class="string">",
+  "</span>cov<span class="string">":"</span>./node_modules/.<span class="keyword">bin</span>/istanbul cover ./node_modules/mocha/<span class="keyword">bin</span>/_mocha <span class="comment">--report lcovonly -- -R spec &amp;&amp; cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js &amp;&amp; rm -rf ./coverage"</span>
+},</span>
+</code></pre><p>除了start和test外，都是自定义任务，其他都要加run命令</p>
+<pre><code>npm <span class="command">run</span> mocha
+npm <span class="command">run</span> cov
+</code></pre><p>更多见<a href="https://cnodejs.org/topic/54646c7f88b869cc33a97924" target="_blank" rel="external">npm-run-test教程</a></p>
+<h3 id="gulp_watch">gulp watch</h3><pre><code><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
+<span class="keyword">var</span> watch = <span class="built_in">require</span>(<span class="string">'gulp-watch'</span>);
+
+<span class="keyword">var</span> path = <span class="string">'test/**/*.js'</span>;
+
+gulp.task(<span class="string">'watch'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+  gulp.watch([<span class="string">'test/**/*.js'</span>, <span class="string">'lib/*.js'</span>], [<span class="string">'mocha'</span>]);
+});
+
+<span class="keyword">var</span> mocha = <span class="built_in">require</span>(<span class="string">'gulp-mocha'</span>);
+
+gulp.task(<span class="string">'mocha'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>{
+    <span class="keyword">return</span> gulp.src(path , {read: <span class="literal">false</span>})
+        <span class="comment">// gulp-mocha needs filepaths so you can't have any plugins before it </span>
+        .pipe(mocha({reporter: <span class="string">'spec'</span>}));
+});
+
+
+gulp.task(<span class="string">'default'</span>,[<span class="string">'mocha'</span>, <span class="string">'watch'</span>]);
+</code></pre><p>这样就可以执行gulp的时候，当文件变动，会自动触发mocha测试，简化每次都输入npm test这样的操作。</p>
+<p>当然你可以玩更多的gulp，如果不熟悉，参考</p>
+<ul>
+<li><a href="https://cnodejs.org/topic/5508f03d3135610a365b013d" target="_blank" rel="external">介绍gulp的一张不错的图</a></li>
+<li><a href="https://github.com/streakq/js-tools-best-practice/blob/master/doc/Gulp.md" target="_blank" rel="external">gulp实践</a></li>
+</ul>
+<h3 id="创建-travis-yml">创建<code>.travis.yml</code></h3><p>项目根目录下，和package.json平级</p>
+<pre><code>language: node_js
+repo_token: COVERALLS.IO_TOKEN
+services: mongodb
+node_js:
+  - <span class="string">"0.12"</span>
+  - <span class="string">"0.11"</span>
+  - <span class="string">"0.10"</span>
+script: npm run mocha
+after_script:
+  npm run cov
+</code></pre><p>说明</p>
+<ul>
+<li>如果依赖mongo等数据库，一定要写services</li>
+<li>把测试覆盖率放到执行测试之后，避免报402错误</li>
+</ul>
+<p>在travis-ci.org上，github授权，添加repo都比较简单</p>
+<p>添加之后，就可以看到，比如</p>
+<p><a href="https://travis-ci.org/moajs/mongoosedao" target="_blank" rel="external">https://travis-ci.org/moajs/mongoosedao</a></p>
+<p>travis-ci实际上根据github的代码变动进行自动持续构建,但是有的时候它不一定更新，或者说，你需要手动选一下：</p>
+<p><img src="/css/2015-06-26/1.png" alt=""></p>
+<p>点击<code># 10 passed</code>,这样就可以强制它手动集成了。</p>
+<p>其他都很简单，注意替换COVERALLS.IO_TOKEN即可。</p>
+<h3 id="创建_-coveralls-yml">创建 <code>.coveralls.yml</code></h3><p><a href="https://coveralls.io/是一个代码测试覆盖率的网站，" target="_blank" rel="external">https://coveralls.io/是一个代码测试覆盖率的网站，</a></p>
+<p>nodejs下面的代码测试覆盖率，原理是通过<a href="https://github.com/gotwarlost/istanbul" target="_blank" rel="external">istanbul</a>生成测试数据，上传到coveralls网站上，然后以badge的形式展示出来</p>
+<p>比如</p>
+<p><a href="https://coveralls.io/r/moajs/mongoosedao" target="_blank" rel="external"><img src="https://coveralls.io/repos/moajs/mongoosedao/badge.png" alt="Coverage Status"></a></p>
+<p>具体实践和travis-ci类似，用github账号登陆，然后添加repo，然后在项目根目录下，和package.json平级，增加<code>.coveralls.yml</code></p>
+<pre><code><span class="attribute">service_name</span>: <span class="string">travis-pro</span>
+<span class="attribute">repo_token</span>: <span class="string">99UNur6O7ksBqiwgg1NG1sSFhmu78A0t7</span>
+</code></pre><p>在上，第一次添加repo，显示的是“SET UP COVERALLS”，里面有token，需要放到<code>.coveralls.yml</code>里，</p>
+<p><img src="/css/2015-06-26/2.png" alt=""></p>
+<p>如果成功提交了，就可以看到数据了</p>
+<p><img src="/css/2015-06-26/3.png" alt=""></p>
+<h3 id="在readme-md里增加badge">在readme.md里增加badge</h3><pre><code>[<span class="link_label">![Build Status</span>](<span class="link_url">https://travis-ci.org/moajs/mongoosedao.png?branch=master</span>)](<span class="link_url">https://travis-ci.org/moajs/mongoosedao</span>)
+[<span class="link_label">![Coverage Status</span>](<span class="link_url">https://coveralls.io/repos/moajs/mongoosedao/badge.png</span>)](<span class="link_url">https://coveralls.io/r/moajs/mongoosedao</span>)
+</code></pre><p>它就会显示如下</p>
+<p><a href="https://travis-ci.org/moajs/mongoosedao" target="_blank" rel="external"><img src="https://travis-ci.org/moajs/mongoosedao.png?branch=master" alt="Build Status"></a><br><a href="https://coveralls.io/r/moajs/mongoosedao" target="_blank" rel="external"><img src="https://coveralls.io/repos/moajs/mongoosedao/badge.png" alt="Coverage Status"></a></p>
+<h2 id="另外一种用Makefile的玩法实践">另外一种用Makefile的玩法实践</h2><p>举例：<a href="https://github.com/node-webot/wechat-api/blob/master/Makefile" target="_blank" rel="external">https://github.com/node-webot/wechat-api/blob/master/Makefile</a></p>
+<pre><code><span class="constant">TESTS </span>= test/*.js
+<span class="constant">REPORTER </span>= spec
+<span class="constant">TIMEOUT </span>= <span class="number">20000</span>
+<span class="constant">ISTANBUL </span>= ./node_modules/.bin/istanbul
+<span class="constant">MOCHA </span>= ./node_modules/mocha/bin/<span class="constant">_mocha</span>
+<span class="constant">COVERALLS </span>= ./node_modules/coveralls/bin/coveralls.js
+
+<span class="symbol">test:</span>
+    <span class="variable">@NODE_ENV</span>=test <span class="variable">$(</span><span class="constant">MOCHA)</span> -<span class="constant">R </span><span class="variable">$(</span><span class="constant">REPORTER)</span> -t <span class="variable">$(</span><span class="constant">TIMEOUT)</span> \
+        <span class="variable">$(</span><span class="constant">MOCHA_OPTS)</span> \
+        <span class="variable">$(</span><span class="constant">TESTS)</span>
+
+test-<span class="symbol">cov:</span>
+    @<span class="variable">$(</span><span class="constant">ISTANBUL)</span> cover --report html <span class="variable">$(</span><span class="constant">MOCHA)</span> -- -t <span class="variable">$(</span><span class="constant">TIMEOUT)</span> -<span class="constant">R </span>spec <span class="variable">$(</span><span class="constant">TESTS)</span>
+
+test-<span class="symbol">coveralls:</span>
+    @<span class="variable">$(</span><span class="constant">ISTANBUL)</span> cover --report lcovonly <span class="variable">$(</span><span class="constant">MOCHA)</span> -- -t <span class="variable">$(</span><span class="constant">TIMEOUT)</span> -<span class="constant">R </span>spec <span class="variable">$(</span><span class="constant">TESTS)</span>
+    <span class="variable">@echo</span> <span class="constant">TRAVIS_JOB_ID </span><span class="variable">$(</span><span class="constant">TRAVIS_JOB_ID)</span>
+    <span class="variable">@cat</span> ./coverage/lcov.info | <span class="variable">$(</span><span class="constant">COVERALLS)</span> &amp;&amp; rm -rf ./coverage
+
+test-<span class="symbol">all:</span> test test-coveralls
+
+.<span class="constant">PHONY:</span> test
+</code></pre><p>我个人更喜欢npm+gulp的写法，总是有一种make是c里古老的东东。。。</p>
+<h2 id="总结">总结</h2><p>本文讲了</p>
+<ul>
+<li>nodejs里常用框架<ul>
+<li>mocha</li>
+<li>tape</li>
+<li>tap</li>
+<li>前沿技术：cucumber和vowsjs</li>
+</ul>
+</li>
+<li>科普一下CI</li>
+<li>测试报告<ul>
+<li>istanbul</li>
+</ul>
+</li>
+<li>实践<ul>
+<li>gulp + npm run</li>
+<li>mocha</li>
+<li>travis-ci</li>
+<li>coveralls</li>
+</ul>
+</li>
+<li>介绍了基于makefile的另一种玩法</li>
+</ul>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-06-28-think/" data-id="cid0wpbbp000aqm7fcoanl3r6" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-06-28-mongodb-repl-sets" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-06-28-mongodb-repl-sets/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-06-28-mongodb-repl-sets/">mongodb运维之副本集实践</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>忽然发现芋头好鸡贼</p>
+<pre><code>正式环境，<span class="number">4</span>台机器+一台定时任务的机器。
+服务器是阿里云的ECS，
+负载均衡用的是阿里云的SLB，
+mysql用阿里云的RDS，
+缓存用阿里云的OCS，
+运维基本上是都不需要担心了，
+现在的云服务已经非常完善了，
+其实我们用阿里云的服务非常多，
+大概有<span class="number">20</span>多个类型的服务，
+感谢阿里云。
+</code></pre><p>而我的技术栈是nodejs + mongodb，而阿里云有k-v兼容redis协议的nosql，无mongodb，所以就要悲剧的自己运维mongodb了。</p>
+<p>阿里的ots是非结构化存储，没有nodejs的sdk，就算有，不兼容mongodb，也没啥可玩的。</p>
+<h2 id="云服务">云服务</h2><p>MongoDB存储服务的云平台（MongoHQ, MongoLabs 和 Mongo Machine）</p>
+<p>国内的貌似只有 <a href="http://developer.baidu.com/wiki/index.php?title=docs/cplat/bae/mongodb" target="_blank" rel="external">http://developer.baidu.com/wiki/index.php?title=docs/cplat/bae/mongodb</a></p>
+<p>芋头推荐用pg，支持json格式存储</p>
+<p>还有就是parse和leancloud这类面向api的。</p>
+<p>京东和腾讯都有过，后来关闭了，不知何故</p>
+<h2 id="mongodb部署最佳实践">mongodb部署最佳实践</h2><p>常识： replset + shard</p>
+<p>replset是副本集，shard是分片</p>
+<p>mongoDB的主从模式其实就是一个单副本的应用，没有很好的扩展性和容错性。而副本集具有多个副本保证了容错性，就算一个副本挂掉了还有很多副本存在，并且解决了上面第一个问题“主节点挂掉了，整个集群内会自动切换”。</p>
+<p>比如游戏，开了某一个服，那么所有的数据都在一台服务器上，此时它要保证的是服务不挂就可以，不用考虑更多的并发上的压力，那么它首先是副本集。</p>
+<p><img src="http://www.lanceyan.com/wp-content/uploads/2013/12/mongorep2.png" alt=""></p>
+<p>如果有节点挂了，它会重新选举新的主节点</p>
+<p><img src="http://www.lanceyan.com/wp-content/uploads/2013/12/mongorep3.png" alt=""></p>
+<p>而更多的情况是，你要考虑并发，而且可能是千万，亿万并发，副本集是搞不定的。</p>
+<p>于是shard就登场了。</p>
+<p>分片并不是mongo独有的概念，很多数据库都有，mongodb里的分片是指通过mongos来当网关路由，分发请求到每个shard，然后每个shard会对应各自的副本集。</p>
+<p>既然是分发请求，就会有一定的性能损耗，但好处是你能处理更多请求。所以按照场景选择</p>
+<ul>
+<li>性能最佳，当然是一个副本集，如果能满足需求，优先</li>
+<li>如果副本集不足及支撑并发，那么就选shard</li>
+</ul>
+<h2 id="准备3台阿里云主机">准备3台阿里云主机</h2><ul>
+<li>10.51.83.118</li>
+<li>10.51.77.129</li>
+<li>10.44.204.241</li>
+</ul>
+<p>先各自ping一下，保证网络通畅。</p>
+<p>确定我的目标是1主，2从，奇数个</p>
+<p>这篇文字讲了Bully算法以及为啥是奇数个</p>
+<p><a href="http://www.lanceyan.com/tech/mongodb_repset2.html" target="_blank" rel="external">http://www.lanceyan.com/tech/mongodb_repset2.html</a></p>
+<h2 id="注意点">注意点</h2><ul>
+<li>服务器节点之前时间要同步</li>
+<li>开启防火墙的一定要允许通过</li>
+<li>开启selinux的也要进行设置</li>
+<li>建立双击互信模式最好不过</li>
+</ul>
+<h2 id="格式化阿里云的新增硬盘">格式化阿里云的新增硬盘</h2><p><a href="http://www.cnblogs.com/dudu/archive/2012/12/07/aliyun-linux-fdisk.html" target="_blank" rel="external">http://www.cnblogs.com/dudu/archive/2012/12/07/aliyun-linux-fdisk.html</a></p>
+<p>然后挂载到/data目录下</p>
+<h2 id="配置文件">配置文件</h2><p>~/config/r0.config</p>
+<pre><code><span class="setting">port=<span class="value"><span class="number">27000</span></span></span>
+<span class="setting">fork=<span class="value"><span class="keyword">true</span></span></span>
+<span class="setting">logpath=<span class="value">/data/replset/log/r0.log</span></span>
+<span class="setting">dbpath=<span class="value">/data/replset/r0</span></span>
+<span class="setting">logappend=<span class="value"><span class="keyword">true</span></span></span>
+<span class="setting">replSet=<span class="value">rs</span></span>
+<span class="comment">#keyFile=/data/replset/key/r0</span>
+</code></pre><p>~/config/r1.config</p>
+<pre><code><span class="setting">port=<span class="value"><span class="number">27001</span></span></span>
+<span class="setting">fork=<span class="value"><span class="keyword">true</span></span></span>
+<span class="setting">logpath=<span class="value">/data/replset/log/r1.log</span></span>
+<span class="setting">dbpath=<span class="value">/data/replset/r1</span></span>
+<span class="setting">logappend=<span class="value"><span class="keyword">true</span></span></span>
+<span class="setting">replSet=<span class="value">rs</span></span>
+<span class="comment">#keyFile=/data/replset/key/r1</span>
+</code></pre><p>~/config/r2.config</p>
+<pre><code><span class="setting">port=<span class="value"><span class="number">27002</span></span></span>
+<span class="setting">fork=<span class="value"><span class="keyword">true</span></span></span>
+<span class="setting">logpath=<span class="value">/data/replset/log/r2.log</span></span>
+<span class="setting">dbpath=<span class="value">/data/replset/r2</span></span>
+<span class="setting">logappend=<span class="value"><span class="keyword">true</span></span></span>
+<span class="setting">replSet=<span class="value">rs</span></span>
+<span class="comment">#keyFile=/data/replset/key/r2</span>
+</code></pre><h2 id="启动">启动</h2><p>确保目录为空，杀死所有mongod进程</p>
+<pre><code>rm -rf /data/replset/
+
+<span class="keyword">ps</span> -ef|<span class="keyword">grep</span> mongod | awk <span class="string">'{print $2}'</span> | xargs kill -<span class="number">9</span>
+<span class="keyword">ps</span> -ef|<span class="keyword">grep</span> mongod
+</code></pre><p>创建目录</p>
+<pre><code><span class="title">mkdir</span> -p /<span class="typedef"><span class="keyword">data</span>/replset/r0</span>
+<span class="title">mkdir</span> -p /<span class="typedef"><span class="keyword">data</span>/replset/r1</span>
+<span class="title">mkdir</span> -p /<span class="typedef"><span class="keyword">data</span>/replset/r2</span>
+<span class="title">mkdir</span> -p /<span class="typedef"><span class="keyword">data</span>/replset/key</span>
+<span class="title">mkdir</span> -p /<span class="typedef"><span class="keyword">data</span>/replset/log</span>
+</code></pre><p>准备key文件</p>
+<pre><code>echo <span class="string">"replset1 key"</span> &gt; <span class="regexp">/data/</span>replset<span class="regexp">/key/</span>r0
+echo <span class="string">"replset1 key"</span> &gt; <span class="regexp">/data/</span>replset<span class="regexp">/key/</span>r1
+echo <span class="string">"replset1 key"</span> &gt; <span class="regexp">/data/</span>replset<span class="regexp">/key/</span>r2
+chmod <span class="number">600</span> <span class="regexp">/data/</span>replset<span class="regexp">/key/</span>r*  
+</code></pre><p>注意第一次不能用keyFile</p>
+<pre><code>mongod -f ~/config/r0<span class="class">.config</span> &amp;
+mongod -f ~/config/r1<span class="class">.config</span> &amp;
+mongod -f ~/config/r2<span class="class">.config</span> &amp;
+</code></pre><p>配置文件里是fork=true，所以启动需要点时间</p>
+<h2 id="初始化">初始化</h2><pre><code>&gt; rs.initiate()  
+{
+    <span class="string">"info2"</span> : <span class="string">"no configuration explicitly specified -- making one"</span>,
+    <span class="string">"me"</span> : <span class="string">"iZ25xk7uei1Z:27001"</span>,
+    <span class="string">"ok"</span> : <span class="number">1</span>
+}
+</code></pre><p>擦，超级慢。。。。</p>
+<p>使用下面语句初始化</p>
+<pre><code>mongo --port <span class="number">27000</span>
+rs.initiate({ <span class="string">_id:</span><span class="string">'rs'</span>,<span class="string">members:</span>[{ <span class="string">_id:</span><span class="number">0</span>, <span class="string">host:</span><span class="string">'10.51.77.129:27000'</span> }]})
+</code></pre><p>这个其实也很慢。。。。</p>
+<p>待完成后，继续增加其他2个节点（一定要注意，在rs:PRIMARY即主节点上才能增加rs:SECONDARY和ARBITER。如果之前连的是其他端口，需要切换的。）</p>
+<pre><code><span class="tag">rs</span><span class="class">.add</span>("10<span class="class">.51</span><span class="class">.77</span><span class="class">.129</span><span class="pseudo">:27001")</span>
+<span class="tag">rs</span><span class="class">.addArb</span>("10<span class="class">.51</span><span class="class">.77</span><span class="class">.129</span><span class="pseudo">:27002")</span>
+</code></pre><p>查看状态</p>
+<pre><code><span class="tag">rs</span><span class="class">.status</span>();
+</code></pre><p>如果想移除某一个节点</p>
+<pre><code><span class="tag">rs</span><span class="class">.remove</span>("10<span class="class">.51</span><span class="class">.77</span><span class="class">.129</span><span class="pseudo">:27001")</span>
+<span class="tag">rs</span><span class="class">.remove</span>("10<span class="class">.51</span><span class="class">.77</span><span class="class">.129</span><span class="pseudo">:27000")</span>
+<span class="tag">rs</span><span class="class">.remove</span>("10<span class="class">.51</span><span class="class">.77</span><span class="class">.129</span><span class="pseudo">:27002")</span>
+</code></pre><h2 id="reconfig">reconfig</h2><p>如果想删除，重置用rs.reconfig(),这样做不一定会成功，有的时候无法切换到主节点，所以需要，删除/data/replset目录，然后重启所有mongo的进程。</p>
+<pre><code>rs.<span class="function"><span class="title">reconfig</span><span class="params">({ _id:<span class="string">'rs'</span>,members:[{ _id:<span class="number">1</span>, host:<span class="string">'10.51.77.129:27000'</span> }]})</span></span>
+rs.<span class="function"><span class="title">add</span><span class="params">(<span class="string">"10.51.77.129:27000"</span>)</span></span>
+rs.<span class="function"><span class="title">addArb</span><span class="params">(<span class="string">"10.51.77.129:27002"</span>)</span></span>
+</code></pre><h2 id="db-oplog-rs">db.oplog.rs</h2><pre><code>rs:PRIMARY&gt; use local
+switched to db local
+rs:PRIMARY&gt; show collections
+me
+oplog.rs
+startup_log
+system.indexes
+system.replset
+rs:PRIMARY&gt; 
+rs:PRIMARY&gt; 
+rs:PRIMARY&gt; db.oplog.rs.find()
+{ <span class="string">"ts"</span> : Timestamp(<span class="number">1435495192</span>, <span class="number">1</span>), <span class="string">"h"</span> : NumberLong(<span class="number">0</span>), <span class="string">"v"</span> : <span class="number">2</span>, <span class="string">"op"</span> : <span class="string">"n"</span>, <span class="string">"ns"</span> : <span class="string">""</span>, <span class="string">"o"</span> : { <span class="string">"msg"</span> : <span class="string">"initiating set"</span> } }
+{ <span class="string">"ts"</span> : Timestamp(<span class="number">1435495306</span>, <span class="number">1</span>), <span class="string">"h"</span> : NumberLong(<span class="number">0</span>), <span class="string">"v"</span> : <span class="number">2</span>, <span class="string">"op"</span> : <span class="string">"n"</span>, <span class="string">"ns"</span> : <span class="string">""</span>, <span class="string">"o"</span> : { <span class="string">"msg"</span> : <span class="string">"Reconfig set"</span>, <span class="string">"version"</span> : <span class="number">2</span> } }
+{ <span class="string">"ts"</span> : Timestamp(<span class="number">1435495323</span>, <span class="number">1</span>), <span class="string">"h"</span> : NumberLong(<span class="number">0</span>), <span class="string">"v"</span> : <span class="number">2</span>, <span class="string">"op"</span> : <span class="string">"n"</span>, <span class="string">"ns"</span> : <span class="string">""</span>, <span class="string">"o"</span> : { <span class="string">"msg"</span> : <span class="string">"Reconfig set"</span>, <span class="string">"version"</span> : <span class="number">3</span> } }
+</code></pre><h2 id="在SECONDARY节点无法show_dbs">在SECONDARY节点无法show dbs</h2><p>主从启动之后，连接slave可以成功连上，但是在slave中执行 show dbs 的时候就报错了:</p>
+<pre><code>QUERY    <span class="string">Error:</span> listDatabases <span class="string">failed:</span>{ <span class="string">"note"</span> : <span class="string">"from execCommand"</span>, <span class="string">"ok"</span> : <span class="number">0</span>, <span class="string">"errmsg"</span> : <span class="string">"not master"</span> }
+</code></pre><p>解决方法：</p>
+<p>在报错的slave机器上执行 rs.slaveOk()方法即可。</p>
+<p>解释一下具体slaveOk方法是什么意思？</p>
+<pre><code>Provides a shorthand <span class="keyword">for</span> the following operation:
+
+db.getMongo().setSlaveOk()
+This allows the current connection <span class="keyword">to</span> allow <span class="keyword">read</span> operations <span class="keyword">to</span> run <span class="keyword">on</span> secondary members. See the readPref() <span class="function"><span class="keyword">method</span> <span class="title">for</span> <span class="title">more</span> <span class="title">fine</span>-<span class="title">grained</span> <span class="title">control</span> <span class="title">over</span> <span class="title">read</span> <span class="title">preference</span> <span class="title">in</span> <span class="title">the</span> <span class="title">mongo</span> <span class="title">shell</span>.</span>
+</code></pre><p>see  </p>
+<ul>
+<li><a href="http://segmentfault.com/a/1190000002924522" target="_blank" rel="external">http://segmentfault.com/a/1190000002924522</a></li>
+<li><a href="http://www.it165.net/database/html/201402/5280.html" target="_blank" rel="external">http://www.it165.net/database/html/201402/5280.html</a></li>
+</ul>
+<h2 id="内存问题">内存问题</h2><p>查看内存情况最常用的是free命令：</p>
+<pre><code>[deploy@iZ25xk7uei1Z config]$ <span class="built_in">free</span> -m
+             total       used       <span class="built_in">free</span>     shared    buffers     cached
+Mem:          <span class="number">7567</span>       <span class="number">6821</span>        <span class="number">745</span>          <span class="number">8</span>        <span class="number">129</span>       <span class="number">6122</span>
+-/+ buffers/cache:        <span class="number">569</span>       <span class="number">6997</span>
+Swap:            <span class="number">0</span>          <span class="number">0</span>          <span class="number">0</span>
+</code></pre><p>限制内存</p>
+<p>所有连接消耗的内存加起来会相当惊人，推荐把Stack设置小一点，比如说1024：</p>
+<pre><code><span class="built_in">ulimit</span> <span class="operator">-s</span> <span class="number">1024</span>
+</code></pre><p>通过调整内核参数drop_caches也可以释放缓存：</p>
+<pre><code>sysctl vm.drop_caches=<span class="number">1</span>
+</code></pre><p>有时候，出于某些原因，你可能想释放掉MongoDB占用的内存，不过前面说了，内存管理工作是由虚拟内存管理器控制的，幸好可以使用MongoDB内置的closeAllDatabases命令达到目的：</p>
+<pre><code><span class="tag">mongo</span>&gt; <span class="tag">use</span> <span class="tag">admin</span>
+<span class="tag">mongo</span>&gt; <span class="tag">db</span><span class="class">.runCommand</span>({<span class="attribute">closeAllDatabases</span>:<span class="number">1</span>})
+</code></pre><p>平时可以通过mongo命令行来监控MongoDB的内存使用情况，如下所示：</p>
+<pre><code>mongo&gt; db.serverStatus().mem:
+{
+ <span class="string">"resident"</span> : <span class="number">22346</span>,
+ <span class="string">"virtual"</span> : <span class="number">1938524</span>,
+ <span class="string">"mapped"</span> : <span class="number">962283</span>
+}
+</code></pre><p>还可以通过mongostat命令来监控MongoDB的内存使用情况，如下所示：</p>
+<pre><code>shell&gt; mongostat
+mapped vsize res faults
+ <span class="number">940</span>g <span class="number">1893</span>g <span class="number">21.9</span>g <span class="number">0</span>
+</code></pre><p>其中内存相关字段的含义是：</p>
+<ul>
+<li>mapped：映射到内存的数据大小</li>
+<li>visze：占用的虚拟内存大小</li>
+<li>res：占用的物理内存大小</li>
+</ul>
+<p>注：如果操作不能在内存中完成，结果faults列的数值不会是0，视大小可能有性能问题。<br>在上面的结果中，vsize是mapped的两倍，而mapped等于数据文件的大小，所以说vsize是数据文件的两倍，之所以会这样，是因为本例中，MongoDB开启了journal，需要在内存里多映射一次数据文件，如果关闭journal，则vsize和mapped大致相当。</p>
+<p>see</p>
+<ul>
+<li><a href="http://www.oschina.net/question/16840_44521" target="_blank" rel="external">http://www.oschina.net/question/16840_44521</a></li>
+</ul>
+<p>更好的做法是使用docker，一劳永逸</p>
+<ul>
+<li>手把手教你用Docker部署一个MongoDB集群 <a href="http://dockone.io/article/181" target="_blank" rel="external">http://dockone.io/article/181</a></li>
+</ul>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-06-28-mongodb-repl-sets/" data-id="cid0wpbbq000bqm7fitc7ipol" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-2015-06-26-travis-ci-and-coveralls" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-06-26-travis-ci-and-coveralls/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/08/07/2015-06-26-travis-ci-and-coveralls/">有的时候我看的不是你一时的能力，而是你面对世界的态度</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>分享2小段创业里的感想</p>
+<h2 id="有的时候我看的不是你一时的能力，而是你面对世界的态度。">有的时候我看的不是你一时的能力，而是你面对世界的态度。</h2><pre><code>麻雀总是叽叽喳喳，乌鸦总是唉身叹气。只有鹰，一直高飞。
+</code></pre><p>这是一条微商发的动态，我当真了。原因很简单，它是心灵鸡汤类的，但在我的经验世界里它确确实实是这样的。</p>
+<p>有这样一些人，写写代码，遇到点问题，就唉声叹气，“草”。。。</p>
+<p>我对这种行为极其反感，这是无能的表现。而对于一个心智健全的人来说，遇到的问题是好事儿，有明确的解决方向的，随着经验的升级，遇到的问题越多，解决的越多，人就会愈加淡定。这样的结果是以后遇到未知问题，你都可以勇敢的面对。</p>
+<p>有的时候我看的不是你一时的能力，而是你面对世界的态度。</p>
+<p>我们回到这句话上，麻雀总是叽叽喳喳，它实际上一种目标不明确和从众的表现，人在没有目标的情况下，各种彷徨和迟疑，时间就是这样流逝的。看别人也这样，自己就更加相信这是对的，可是你可曾想过：“别人就一定是对的么？”？</p>
+<p>比如大学的时候，所有人都玩游戏，逃课，泡妞，我也想这样，可是毕业了我怎么办呢？人家要么有钱要么有权，我连个能帮我的人都没有，我从众的起么？知道自己几斤几两比什么都重要，坚持着去做，一定会有回报的。</p>
+<p>所以后面会说“只有鹰，一直高飞”</p>
+<p>做一个目标明确，胸怀远大的人吧，能造福世界就造福世界，造福不了更多人，至少让家人过得好一点。</p>
+<p>现在是一个非常好的时代，很多技术壁垒都已经不复存在，只要你努力去学，一万个小时真的可以成为专家，就算成为不了专家，就算是一个高级技工也可以活的很好。在大时代的变革中，一定会找到属于自己的位置的。</p>
+<h2 id="内裤穿反了，只有自己知道">内裤穿反了，只有自己知道</h2><p>有很多时候，人生很无奈，比如有一个月，你的产品没有任何大的进展，对于一个创业公司是很严重的事儿，而你作为一个负责人，你会有意无意的注意到你的小伙伴的懈怠或者不尽力、不给力，我想大部分人都会很郁闷的，想不小心眼都很难。</p>
+<p>第一，我不能去责怪他们，创业公司团队稳定是第一要务</p>
+<p>第二，我要反思，为啥会这样呢？是因为产品计划按部就班，安排的计划让他们闭门造车么？</p>
+<p>我心里也没有答案的，而我能做的就是先走下去，在变革求利好。团队里首先会有人沉不住气，各种消极悲观，在创业公司是一旦不成功就会失败，损失很大。而在大公司，大不了从头再来。大公司承担这点损失，和创业公司承担这些损失的差别真是天上地下。</p>
+<p>而我能做的只有乐观的陪着大家走下去。</p>
+<p>某天我观察到我们的用户不爱用我们的一个功能，他们宁可微信发给我，也不愿意用，这是一个很严重的问题，于是我们所有人开会 ，讨论这个问题，团队像炸了窝一样，各抒己见，异常活跃，最总给出了一个很好的解决方案，并且把0.8之后的发展思路也捋顺了。所有人都很激动，士气里面都上来了。</p>
+<p>人生真是很奇妙，创业对我做的改造最多的是心态，承受着巨大的压力，就好比“内裤穿反了，只有自己知道”一样，剩下的事儿就是遇到什么问题解决什么问题，只要尽力不后悔就可以了。</p>
+<p>作为一个技术负责人，一往无前的冲，把事情做好就可以给团队很大的勇气和动力，另外要做的就是和小伙伴们一起肩并肩互相扶持，创业不一定成功，坚持不下去是一定不会成功的。</p>
+<p>写点东西，鼓励自己继续努力下去，也希望大家周末愉快，事业顺利。</p>
+<p>好了，不扯了，干活了。。。。</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-06-26-travis-ci-and-coveralls/" data-id="cid0wpbbs000cqm7f24mum0js" class="article-share-link">Share</a>
       
       
     </footer>
@@ -107,11 +1797,22 @@
 
   
   
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
+  
 </section>
         
           <aside id="sidebar">
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/jekyll-update/">jekyll update</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-update/">node update</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
   
     
   
@@ -121,7 +1822,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">35</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -133,7 +1834,23 @@
       <ul>
         
           <li>
-            <a href="/2015/08/07/hello-world/">Hello World</a>
+            <a href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
           </li>
         
       </ul>
@@ -163,7 +1880,7 @@
 </nav>
     
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
 
 
   <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">

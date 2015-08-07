@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>如何选择nodejs和iojs？以及性能比较 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="如何选择nodejs和iojs？以及性能比较有朋友问我：
+初学nodejs，但是看到很多都转移去io.js，开源中国也有份测试说io性能更好，现在两者不知如何选择，望指教
+看看iojs的官网 https://iojs.org/en/index.html
+1.io.js is an npm compatible platform originally based on Node.js™.
+这句话的重">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何选择nodejs和iojs？以及性能比较">
+<meta property="og:url" content="http://yoursite.com/2015/08/07/2015-02-20-Performance Showdown- Node.js vs. io.js v2.0.0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="如何选择nodejs和iojs？以及性能比较有朋友问我：
+初学nodejs，但是看到很多都转移去io.js，开源中国也有份测试说io性能更好，现在两者不知如何选择，望指教
+看看iojs的官网 https://iojs.org/en/index.html
+1.io.js is an npm compatible platform originally based on Node.js™.
+这句话的重">
+<meta property="og:image" content="http://yoursite.com/css/2015-05-20/0.1.png">
+<meta property="og:image" content="http://yoursite.com/css/2015-05-20/0.2.png">
+<meta property="og:image" content="http://yoursite.com/css/2015-05-20/1.png">
+<meta property="og:image" content="http://yoursite.com/css/2015-05-20/2.png">
+<meta property="og:image" content="http://yoursite.com/css/2015-05-20/3-2.png">
+<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-05-19T23:39:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何选择nodejs和iojs？以及性能比较">
+<meta name="twitter:description" content="如何选择nodejs和iojs？以及性能比较有朋友问我：
+初学nodejs，但是看到很多都转移去io.js，开源中国也有份测试说io性能更好，现在两者不知如何选择，望指教
+看看iojs的官网 https://iojs.org/en/index.html
+1.io.js is an npm compatible platform originally based on Node.js™.
+这句话的重">
+  
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2015-02-20-Performance Showdown- Node.js vs. io.js v2.0.0" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-02-20-Performance Showdown- Node.js vs. io.js v2.0.0/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      如何选择nodejs和iojs？以及性能比较
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="如何选择nodejs和iojs？以及性能比较">如何选择nodejs和iojs？以及性能比较</h1><p>有朋友问我：</p>
+<p>初学nodejs，但是看到很多都转移去io.js，开源中国也有份测试说io性能更好，现在两者不知如何选择，望指教</p>
+<p>看看iojs的官网 <a href="https://iojs.org/en/index.html" target="_blank" rel="external">https://iojs.org/en/index.html</a></p>
+<p>1.io.js is an npm compatible platform originally based on Node.js™.</p>
+<p>这句话的重点在于基于nodejs，且兼容npm，所以它和node是一个根</p>
+<p>2.Weekly Update – May 15th: io.js decides to join the Node Foundation</p>
+<p>这句话说的是io.js绝对加入node基金会</p>
+<p>这条新闻很有意思 </p>
+<p><a href="https://medium.com/node-js-javascript/io-js-week-of-may-15th-9ada45bd8a28" target="_blank" rel="external">https://medium.com/node-js-javascript/io-js-week-of-may-15th-9ada45bd8a28</a></p>
+<pre><code>As <span class="operator">a</span> <span class="keyword">first</span> step, we will move <span class="built_in">from</span> iojs organization <span class="built_in">to</span> nodejs organization <span class="operator">and</span> will converge joyent/node gradually. We will continue <span class="built_in">to</span> release io.js <span class="keyword">until</span> <span class="operator">the</span> convergence have done.
+</code></pre><p>我们会持续发布io.js，直到收编完成。</p>
+<pre><code>We will <span class="keyword">continue</span> <span class="keyword">to</span> release io.js <span class="keyword">until</span> <span class="keyword">the</span> convergence have done.
+</code></pre><p>我们可以这样理解</p>
+<ul>
+<li>收编完成之后，还是要会回归node主分支的</li>
+<li>我们是斗气，joyent那边孙子如果不让步，我们就继续闹</li>
+</ul>
+<p>看完了这段，估计大家已经知道怎么选择了</p>
+<ul>
+<li>iojs早晚是要合并到nodejs里的，只是时间和形式的问题</li>
+<li>如果各位看看iojs的文档，它和nodejs的接口大部分是一样的，所以很少会有地雷</li>
+</ul>
+<p>下面给出一篇英文比较iojs和node的性能的文章，如果看不懂，看图就够了</p>
+<p>先给出node自己的0.10和0.12的比较</p>
+<p><img src="/css/2015-05-20/0.1.png" alt=""></p>
+<p><img src="/css/2015-05-20/0.2.png" alt=""></p>
+<h2 id="Performance_Showdown:_Node-js_vs-_io-js_v2-0-0">Performance Showdown: Node.js vs. io.js v2.0.0</h2><p>We noted with some interest the recent announcement of the io.js v2.0.0 release candidate. This community fork of node.js promises a supported version of the V8 engine, along with a greatly increased frequency of commits to master vs. the parent project.</p>
+<p>As we’ve mentioned before, we’re keen on these developments as Node.js powers the Raygun API nodes, and ensuring these can handle the highest loads with the lowest possible response times is crucial to providing a great service to our users. A previous blog post benchmarked Node.js vs. io.js, and with the advent of the V2 release of the latter, we’d like to revisit those benchmarks to see how it stacks up in various situations.</p>
+<h2 id="The_set_up">The set up</h2><p>Same as before, the following are synthetic micro-benchmarks, caveat emptor, huge grain of salt, etc. However, the charts do provide some interesting food for thought, and may provide a springboard for you to perform your own real-world tests, and potentially gain a significant speedup.</p>
+<p>The benchmarks were conducted with identical runs through ApacheBench on a 64-bit Ubuntu VM. The configuration was 20,000 requests with a concurrency level of 100, and the test results were averaged over five runs of this.</p>
+<p>We benchmarked two versions of node, and two versions of io.js. For node, v0.10.38 (the last release of the .10 branch) was compared against v0.12.2 (the absolute latest version of node.js).</p>
+<p>For io.js, we compared v1.8.1, the last release on the 1.x branch against the newest v2.0.0 release.</p>
+<h2 id="Raw_JSON_response">Raw JSON response</h2><p>This test involved created a simple server with the http module, and setting it to return a JSON payload on request. The results were:</p>
+<p><img src="/css/2015-05-20/1.png" alt=""></p>
+<p>What is interesting to note is the performance drop from node 0.10 to 0.12, which io.js corrects on the 1.x branch – but then dominates with v2.0.0.</p>
+<p>When sending a raw response, in this benchmark io.js v2.0.0 has a 14% speedup over node 0.12! They’ve even managed a 5% speedup over their own previous release. Not bad at all, but there’s more we can test.</p>
+<h2 id="Express-js">Express.js</h2><p>Express was and is still a very popular choice for quickly getting the backend of a web application up and running. Last time we documented some of the performance hit you take with it, but let’s see how it does under node 0.12 vs io.js v2.0.0:</p>
+<p><img src="/css/2015-05-20/2.png" alt=""></p>
+<p>There’s a 4.5% speedup when running this test on io.js v2.0.0 – pretty good for an older framework (considering how fast the JS ecosystem is moving)!</p>
+<h2 id="Koa-js_on_Node_vs_io-js">Koa.js on Node vs io.js</h2><p>Many newer frameworks are competing for mindshare in the JS micro web framework space, however – we benchmarked some popular ones previously. One which we missed was Koa.js, which was in fact made by the authors of Express.js.</p>
+<p>One of the huge benefits with Koa is that you can build code using ES6 features – including generators and the yield syntax which enable asynchronous code (no more callback hell). This benchmark was written using generators and run with the node –harmony flag enabled. The logic involved a simple bit of routing, and set the response to be an HTML fragment.</p>
+<p>Let’s see how Koa does running on Node vs. io.js:</p>
+<p><img src="/css/2015-05-20/3-2.png" alt=""></p>
+<p>A 14.8% speedup from Node to the latest version of io.js – certainly worthy of note. If you’re looking at one of the latest generation of JS backend frameworks, it certainly pays to give io.js a look as out-of-the-box you get some rather impressive perf improvements. When running a cluster of VMs using the Node stack, depending on scale, that speedup may result in several fewer boxes needed and correspondingly less infrastructure costs – all for free.</p>
+<h2 id="总结">总结</h2><p>一句话，iojs性能比较nodejs好，看好nodejs的发展。</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-02-20-Performance Showdown- Node.js vs. io.js v2.0.0/" data-id="cid0wpbd6000yqm7fxapbgxc1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/08/07/2015-05-21-to-brother/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          关于学习
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/08/07/2014-12-05-pre-commit-yong-fa/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">pre commit用法</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/jekyll-update/">jekyll update</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-update/">node update</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">35</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Nodejs RESTFul架构实践之api | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="why token based auth?此段摘自 
+
+http://zhuanlan.zhihu.com/FrontendMagazine/19920223
+
+英文原文
+
+http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
+
+在讨论了关于基于 token 认证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nodejs RESTFul架构实践之api">
+<meta property="og:url" content="http://yoursite.com/2015/08/07/2015-06-14-node-restful-api/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="why token based auth?此段摘自 
+
+http://zhuanlan.zhihu.com/FrontendMagazine/19920223
+
+英文原文
+
+http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
+
+在讨论了关于基于 token 认证">
+<meta property="og:image" content="http://yoursite.com/css/2015-06-14/1.jpg">
+<meta property="og:image" content="http://yoursite.com/css/2015-06-14/2.jpg">
+<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-06-14T09:36:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nodejs RESTFul架构实践之api">
+<meta name="twitter:description" content="why token based auth?此段摘自 
+
+http://zhuanlan.zhihu.com/FrontendMagazine/19920223
+
+英文原文
+
+http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543
+
+在讨论了关于基于 token 认证">
+  
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2015-06-14-node-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-06-14-node-restful-api/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Nodejs RESTFul架构实践之api
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="why_token_based_auth?">why token based auth?</h2><p>此段摘自 </p>
+<ul>
+<li><a href="http://zhuanlan.zhihu.com/FrontendMagazine/19920223" target="_blank" rel="external">http://zhuanlan.zhihu.com/FrontendMagazine/19920223</a></li>
+</ul>
+<p>英文原文</p>
+<ul>
+<li><a href="http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543" target="_blank" rel="external">http://code.tutsplus.com/tutorials/token-based-authentication-with-angularjs-nodejs--cms-22543</a></li>
+</ul>
+<p>在讨论了关于基于 token 认证的一些基础知识后，我们接下来看一个实例。看一下下面的几点，然后我们会仔细的分析它：</p>
+<p><img src="/css/2015-06-14/1.jpg" alt=""></p>
+<ol>
+<li>多个终端，比如一个 web 应用，一个移动端等向 API 发送特定的请求。</li>
+<li>类似 <a href="https://api.yourexampleapp.com" target="_blank" rel="external">https://api.yourexampleapp.com</a> 这样的请求发送到服务层。如果很多人使用了这个应用，需要多个服务器来响应这些请求操作。</li>
+<li>这时，负载均衡被用于平衡请求，目的是达到最优化的后端应用服务。当你向 <a href="https://api.yourexampleapp.com" target="_blank" rel="external">https://api.yourexampleapp.com</a> 发送请求，最外层的负载均衡会处理这个请求，然后重定向到指定的服务器。</li>
+<li>一个应用可能会被部署到多个服务器上（server-1, server-2, …, server-n）。当有请求发送到<a href="https://api.yourexampleapp.com" target="_blank" rel="external">https://api.yourexampleapp.com</a> 时，后端的应用会拦截这个请求头部并且从认证头部中提取到 token 信息。使用这个 token 查询数据库。如果这个 token 有效并且有请求终端数据所必须的许可时，请求会继续。如果无效，会返回 403 状态码（表明一个拒绝的状态）。</li>
+</ol>
+<p>基于 token 的认证在解决棘手的问题时有几个优势：</p>
+<ul>
+<li>Client Independent Services 。在基于 token 的认证，token 通过请求头传输，而不是把认证信息存储在 session 或者 cookie 中。这意味着无状态。你可以从任意一种可以发送 HTTP 请求的终端向服务器发送请求。</li>
+<li>CDN 。在绝大多数现在的应用中，view 在后端渲染，HTML 内容被返回给浏览器。前端逻辑依赖后端代码。这中依赖真的没必要。而且，带来了几个问题。比如，你和一个设计机构合作，设计师帮你完成了前端的 HTML，CSS 和 JavaScript，你需要拿到前端代码并且把它移植到你的后端代码中，目的当然是为了渲染。修改几次后，你渲染的 HTML 内容可能和设计师完成的代码有了很大的不同。在基于 token 的认证中，你可以开发完全独立于后端代码的前端项目。后端代码会返回一个 JSON 而不是渲染 HTML，并且你可以把最小化，压缩过的代码放到 CDN 上。当你访问 web 页面，HTML 内容由 CDN 提供服务，并且页面内容是通过使用认证头部的 token 的 API 服务所填充。</li>
+<li>No Cookie-Session (or No CSRF) 。CSRF 是当代 web 安全中一处痛点，因为它不会去检查一个请求来源是否可信。为了解决这个问题，一个 token 池被用在每次表单请求时发送相关的 token。在基于 token 的认证中，已经有一个 token 应用在认证头部，并且 CSRF 不包含那个信息。</li>
+<li>Persistent Token Store 。当在应用中进行 session 的读，写或者删除操作时，会有一个文件操作发生在操作系统的temp 文件夹下，至少在第一次时。假设有多台服务器并且 session 在第一台服务上创建。当你再次发送请求并且这个请求落在另一台服务器上，session 信息并不存在并且会获得一个“未认证”的响应。我知道，你可以通过一个粘性 session 解决这个问题。然而，在基于 token 的认证中，这个问题很自然就被解决了。没有粘性 session 的问题，因为在每个发送到服务器的请求中这个请求的 token 都会被拦截。</li>
+</ul>
+<p>这些就是基于 token 的认证和通信中最明显的优势。基于 token 认证的理论和架构就说到这里。下面上实例。</p>
+<p>这段本来想自己写，不过自己写也这些内容，节省点时间</p>
+<h2 id="jwt加密和解密">jwt加密和解密</h2><p>JWT 代表 JSON Web Token ，它是一种用于认证头部的 token 格式。这个 token 帮你实现了在两个系统之间以一种安全的方式传递信息。出于教学目的，我们暂且把 JWT 作为“不记名 token”。一个不记名 token 包含了三部分：header，payload，signature。</p>
+<p>header 是 token 的一部分，用来存放 token 的类型和编码方式，通常是使用 base-64 编码。</p>
+<p>payload 包含了信息。你可以存放任一种信息，比如用户信息，产品信息等。它们都是使用 base-64 编码方式进行存储。<br>signature 包括了 header，payload 和密钥的混合体。密钥必须安全地保存储在服务端。</p>
+<p><img src="/css/2015-06-14/2.jpg" alt=""></p>
+<p>nodejs实现的jwt代码</p>
+<p><a href="http://github.com/auth0/node-jsonwebtoken" target="_blank" rel="external">http://github.com/auth0/node-jsonwebtoken</a></p>
+<p>主要3个方法</p>
+<ul>
+<li>jwt.sign</li>
+<li>jwt.verify</li>
+<li>jwt.decode</li>
+</ul>
+<p>需要小心的密钥在多线程或集群下的处理。</p>
+<p>加解密一个对象的时间，远远比查询数据库的代价小，唯一可能有的是token有效期的校验，代价极其小。</p>
+<h2 id="优雅之写法">优雅之写法</h2><h3 id="授权获取token">授权获取token</h3><p>在app/routes/api/index.js里</p>
+<pre><code><span class="comment">// auth</span>
+router.post(<span class="string">'/auth'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>{
+  User.one({username: req.body.username},<span class="function"><span class="keyword">function</span>(<span class="params">err, user</span>)</span>{
+    <span class="keyword">if</span> (err) <span class="keyword">throw</span> err;
+    <span class="built_in">console</span>.log(user);
+
+    <span class="keyword">if</span> (!user) {
+        res.json({ success: <span class="literal">false</span>, message: <span class="string">'认证失败，用户名找不到'</span> });
+    } <span class="keyword">else</span> <span class="keyword">if</span> (user) {
+
+      <span class="comment">// 检查密码</span>
+      <span class="keyword">if</span> (user.password != req.body.password) {
+          res.json({ success: <span class="literal">false</span>, message: <span class="string">'认证失败，密码错误'</span> });
+      } <span class="keyword">else</span> {
+        <span class="comment">// 创建token</span>
+        <span class="keyword">var</span> token = jwt.sign(user, <span class="string">'app.get(superSecret)'</span>, {
+            <span class="string">'expiresInMinutes'</span>: <span class="number">1440</span> <span class="comment">// 设置过期时间</span>
+        });
+
+        <span class="comment">// json格式返回token</span>
+        res.json({
+            success: <span class="literal">true</span>,
+            message: <span class="string">'Enjoy your token!'</span>,
+            token: token
+        });
+      }
+    }
+  });
+});
+</code></pre><ul>
+<li>post请求</li>
+<li>地址<a href="http://127.0.0.1:3019/api/auth" target="_blank" rel="external">http://127.0.0.1:3019/api/auth</a></li>
+<li>参数”username=sang&amp;password=000000”</li>
+</ul>
+<p>测试</p>
+<pre><code>curl -d <span class="string">"username=sang&amp;password=000000"</span> <span class="string">http:</span><span class="comment">//127.0.0.1:3019/api/auth</span>
+</code></pre><p>返回</p>
+<pre><code>{<span class="string">"success"</span>:<span class="literal">true</span>,<span class="string">"message"</span>:<span class="string">"Enjoy your token!"</span>,<span class="string">"token"</span>:<span class="string">"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NTc4MzJkZjk0ZTFjN2YyMDJmYTVlNGUiLCJ1c2VybmFtZSI6InNhbmciLCJwYXNzd29yZCI6IjAwMDAwMCIsImF2YXRhciI6IiIsInBob25lX251bWJlciI6IiIsImFkZHJlc3MiOiIiLCJfX3YiOjB9.Wv5za6GpJSMi346o625_8FxfoM4dJ1cWNuezG10zQG4"</span>}%
+</code></pre><h3 id="路由处理">路由处理</h3><p>在<code>app/routes/api/groups.js</code>里</p>
+<pre><code><span class="built_in">var</span> express = <span class="keyword">require</span>(<span class="string">'express'</span>);
+<span class="built_in">var</span> router = express<span class="built_in">.</span>Router();
+
+<span class="built_in">var</span> $ = <span class="keyword">require</span>(<span class="string">'../../controllers/groups_controller'</span>);
+<span class="built_in">var</span> <span class="variable">$middlewares</span> = <span class="keyword">require</span>(<span class="string">'mount-middlewares'</span>);
+
+router<span class="built_in">.</span>get(<span class="string">'/list'</span>, <span class="variable">$middlewares.check_api_token</span>, $<span class="built_in">.</span>api<span class="built_in">.</span><span class="built_in">list</span>);
+
+module<span class="built_in">.</span>exports = router;
+</code></pre><p>核心代码</p>
+<pre><code>router.get(<span class="string">'/list'</span>, <span class="variable">$middlewares</span>.check_api_token, $.api.list);
+</code></pre><p>说明</p>
+<ul>
+<li>使用了$middlewares.check_api_token中间件</li>
+<li>核心业务逻辑在$.api.list</li>
+<li>和其他的express路由用法一样，无他</li>
+</ul>
+<h3 id="中间件$middlewares-check_api_token">中间件$middlewares.check_api_token</h3><pre><code><span class="comment">/*!
+ * Moajs Middle
+ * Copyright(c) 2015-2019 Alfred Sang &lt;shiren1118@126.com&gt;
+ * MIT Licensed
+ */</span>
+
+<span class="keyword">var</span> jwt = <span class="built_in">require</span>(<span class="string">'jsonwebtoken'</span>);<span class="comment">//用来创建和确认用户信息摘要</span>
+<span class="comment">// 检查用户会话</span>
+<span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>{
+  <span class="built_in">console</span>.log(<span class="string">'检查post的信息或者url查询参数或者头信息'</span>);
+  <span class="comment">//检查post的信息或者url查询参数或者头信息</span>
+  <span class="keyword">var</span> token = req.body.token || req.query.token || req.headers[<span class="string">'x-access-token'</span>];
+  <span class="comment">// 解析 token</span>
+  <span class="keyword">if</span> (token) {
+    <span class="comment">// 确认token</span>
+    jwt.verify(token, <span class="string">'app.get(superSecret)'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, decoded</span>) </span>{
+      <span class="keyword">if</span> (err) {
+        <span class="keyword">return</span> res.json({ success: <span class="literal">false</span>, message: <span class="string">'token信息错误.'</span> });
+      } <span class="keyword">else</span> {
+        <span class="comment">// 如果没问题就把解码后的信息保存到请求中，供后面的路由使用</span>
+        req.api_user = decoded;
+        <span class="built_in">console</span>.dir(req.api_user);
+        next();
+      }
+    });
+  } <span class="keyword">else</span> {
+    <span class="comment">// 如果没有token，则返回错误</span>
+    <span class="keyword">return</span> res.status(<span class="number">403</span>).send({
+        success: <span class="literal">false</span>,
+        message: <span class="string">'没有提供token！'</span>
+    });
+  }
+};
+</code></pre><p>这个很容易解释，只要参数有token或者头信息里有x-access-token，我们就认定它是一个api接口，</p>
+<p>校验通过了，就把token的decode对象，也就是之前加密的用户对象返回来，保存为<code>req.api_user</code></p>
+<h3 id="业务代码">业务代码</h3><p>在<code>app/controllers/groups_controller.js</code>里</p>
+<pre><code>exports.api = {
+  list: <span class="function"><span class="keyword">function</span> (<span class="params">req, res, next</span>) </span>{
+    <span class="built_in">console</span>.log(req.method + <span class="string">' /groups =&gt; list, query: '</span> + <span class="built_in">JSON</span>.stringify(req.query));
+
+    <span class="keyword">var</span> user_id = req.api_user._id;
+
+    Group.query({ower_id: user_id}, <span class="function"><span class="keyword">function</span>(<span class="params">err, groups</span>)</span>{
+      <span class="built_in">console</span>.log(groups);
+      res.json({
+        data:{
+          groups : groups
+        },
+        status:{
+          code  : <span class="number">0</span>,
+          msg   : <span class="string">'success'</span>
+        }
+      })
+    });
+  }
+}
+</code></pre><p>让scaffold生成代码和api共存，清晰明了</p>
+<p>说明一下</p>
+<ul>
+<li>req.api_user是$middlewares.check_api_token里赋值的</li>
+<li>写一个下查询接口，返回json即可</li>
+</ul>
+<h3 id="测试接口">测试接口</h3><p>然后让我们来测试一下</p>
+<ul>
+<li>get请求</li>
+<li>url = <a href="http://127.0.0.1:3019/api/groups/list" target="_blank" rel="external">http://127.0.0.1:3019/api/groups/list</a></li>
+<li>参数token</li>
+</ul>
+<pre><code>curl http://<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">3019</span>/api/groups/list\?token\=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NTc4MzJkZjk0ZTFjN2YyMDJmYTVlNGUiLCJ1c2VybmFtZSI6InNhbmciLCJwYXNzd29yZCI6IjAwMDAwMCIsImF2YXRhciI6IiIsInBob25lX251bWJlciI6IiIsImFkZHJlc3MiOiIiLCJfX3YiOjB9.Wv5za6GpJSMi346o625_8FxfoM4dJ1cWNuezG10zQG4
+
+
+  {<span class="string">"data"</span>:{<span class="string">"groups"</span>:[{<span class="string">"_id"</span>:<span class="string">"557d32a282f9ddcc76a540e8"</span>,<span class="string">"name"</span>:<span class="string">"sjkljkl"</span>,<span class="string">"desc"</span>:<span class="string">"2323"</span>,<span class="string">"ower_id"</span>:<span class="string">"557832df94e1c7f202fa5e4e"</span>,<span class="string">"users"</span>:<span class="string">""</span>,<span class="string">"is_public"</span>:<span class="string">""</span>,<span class="string">"__v"</span>:<span class="number">0</span>},{<span class="string">"_id"</span>:<span class="string">"557d32b082f9ddcc76a540e9"</span>,<span class="string">"name"</span>:<span class="string">"sjkljkl"</span>,<span class="string">"desc"</span>:<span class="string">"2323"</span>,<span class="string">"ower_id"</span>:<span class="string">"557832df94e1c7f202fa5e4e"</span>,<span class="string">"users"</span>:<span class="string">""</span>,<span class="string">"is_public"</span>:<span class="string">""</span>,<span class="string">"__v"</span>:<span class="number">0</span>},{<span class="string">"_id"</span>:<span class="string">"557d32f082f9ddcc76a540ea"</span>,<span class="string">"name"</span>:<span class="string">"sjkljkl"</span>,<span class="string">"desc"</span>:<span class="string">"2323"</span>,<span class="string">"ower_id"</span>:<span class="string">"557832df94e1c7f202fa5e4e"</span>,<span class="string">"users"</span>:<span class="string">""</span>,<span class="string">"is_public"</span>:<span class="string">""</span>,<span class="string">"__v"</span>:<span class="number">0</span>},{<span class="string">"_id"</span>:<span class="string">"557d33804f5905de78e1c25a"</span>,<span class="string">"name"</span>:<span class="string">"sjkljkl"</span>,<span class="string">"desc"</span>:<span class="string">"2323"</span>,<span class="string">"ower_id"</span>:<span class="string">"557832df94e1c7f202fa5e4e"</span>,<span class="string">"users"</span>:<span class="string">""</span>,<span class="string">"is_public"</span>:<span class="string">""</span>,<span class="string">"__v"</span>:<span class="number">0</span>},{<span class="string">"_id"</span>:<span class="string">"557d33984f5905de78e1c25b"</span>,<span class="string">"name"</span>:<span class="string">"anan"</span>,<span class="string">"desc"</span>:<span class="string">"2323"</span>,<span class="string">"ower_id"</span>:<span class="string">"557832df94e1c7f202fa5e4e"</span>,<span class="string">"users"</span>:<span class="string">"2323"</span>,<span class="string">"is_public"</span>:<span class="string">"232"</span>,<span class="string">"__v"</span>:<span class="number">0</span>}]},<span class="string">"status"</span>:{<span class="string">"code"</span>:<span class="number">0</span>,<span class="string">"msg"</span>:<span class="string">"success"</span>}}  
+</code></pre><h3 id="模型，查询以及其他">模型，查询以及其他</h3><p>模型，查询以及其他，沿用之前的东西，仍然以mongoosedao为主</p>
+<ul>
+<li>one</li>
+<li>all</li>
+<li>query</li>
+</ul>
+<p>基本上够用了</p>
+<p>如果还想玩的更high一点，可以增加一个service层，把多个model的操作放到里面。</p>
+<h2 id="总结">总结</h2><p>以后写api，可以这样玩</p>
+<p>1) 在<code>app/routes/api/</code>目录下建立对应的api文件，比如groups.js，topics.js，users.js等</p>
+<p>2) 然后在对应的controller里，增加</p>
+<pre><code>exports.api = {
+  aa:<span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span></span>{
+    <span class="keyword">var</span> user_id = req.api_user._id;
+  },
+  bb:<span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span></span>{
+    <span class="keyword">var</span> user_id = req.api_user._id;
+  }
+}
+</code></pre><p>3) 简单写点模型的查询方法就可以了</p>
+<p>是不是很简单？</p>
+<ul>
+<li>使用mount-routes自动挂载routes</li>
+<li>使用mongoosedao更简单的接口</li>
+</ul>
+<p>如果以后再提供生成器呢？</p>
+<p>想想就很美好，美好就继续美好吧~</p>
+<p>补一下</p>
+<ul>
+<li>Nodejs RESTFul架构实践 <a href="http://nodeonly.com/2015/06/09/expressjs-rest.html" target="_blank" rel="external">http://nodeonly.com/2015/06/09/expressjs-rest.html</a></li>
+</ul>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-06-14-node-restful-api/" data-id="cid0wpbc2000jqm7ffqfmkyxk" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/08/07/2015-06-15-sysstat/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Sysstat
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/08/07/2015-07-12-to-us/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">良苦用心几人懂</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/jekyll-update/">jekyll update</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-update/">node update</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">35</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

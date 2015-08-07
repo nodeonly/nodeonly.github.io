@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Nodejs ueditor | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="ueditor是一个所见即所得的编辑器，baidu那些人写的，还不错
+http://ueditor.baidu.com/website/
+node版本后台可以在这里找到，http://ueditor.baidu.com/website/thirdproject.html
+Node.js:ueditor
+可你让您的UEditor 兼容nodejs。Node.js:ueditor@0.0.4以及更高版">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nodejs ueditor">
+<meta property="og:url" content="http://yoursite.com/2015/08/07/2015-06-05-node-ueditor/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="ueditor是一个所见即所得的编辑器，baidu那些人写的，还不错
+http://ueditor.baidu.com/website/
+node版本后台可以在这里找到，http://ueditor.baidu.com/website/thirdproject.html
+Node.js:ueditor
+可你让您的UEditor 兼容nodejs。Node.js:ueditor@0.0.4以及更高版">
+<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-06-09T01:44:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nodejs ueditor">
+<meta name="twitter:description" content="ueditor是一个所见即所得的编辑器，baidu那些人写的，还不错
+http://ueditor.baidu.com/website/
+node版本后台可以在这里找到，http://ueditor.baidu.com/website/thirdproject.html
+Node.js:ueditor
+可你让您的UEditor 兼容nodejs。Node.js:ueditor@0.0.4以及更高版">
+  
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2015-06-05-node-ueditor" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-06-05-node-ueditor/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Nodejs ueditor
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>ueditor是一个所见即所得的编辑器，baidu那些人写的，还不错</p>
+<p><a href="http://ueditor.baidu.com/website/" target="_blank" rel="external">http://ueditor.baidu.com/website/</a></p>
+<h2 id="node版本后台">node版本后台</h2><p>可以在这里找到，<a href="http://ueditor.baidu.com/website/thirdproject.html" target="_blank" rel="external">http://ueditor.baidu.com/website/thirdproject.html</a></p>
+<p><strong>Node.js:ueditor</strong></p>
+<p>可你让您的UEditor 兼容nodejs。Node.js:ueditor@0.0.4以及更高版本,支持图片上传，图片批量管理等。您可以通过npm install ueditor 直接安装此插件。项目代码已经发放到github上，欢迎关注此项目。</p>
+<p>源码地址： <a href="https://github.com/netpi/ueditor" target="_blank" rel="external">https://github.com/netpi/ueditor</a></p>
+<h2 id="服务器端用法">服务器端用法</h2><pre><code><span class="keyword">var</span> bodyParser = <span class="keyword">require</span>(<span class="string">'body-parser'</span>)
+<span class="keyword">var</span> ueditor = <span class="keyword">require</span>(<span class="string">"ueditor"</span>)
+app.<span class="keyword">use</span>(bodyParser.urlencoded({
+  extended: <span class="keyword">true</span>
+}))
+app.<span class="keyword">use</span>(bodyParser.json());
+
+app.<span class="keyword">use</span>(<span class="string">"/ueditor/ue"</span>, ueditor(path.join(__dirname, <span class="string">'public'</span>), <span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span> </span>{
+  <span class="comment">// ueditor 客户发起上传图片请求</span>
+  <span class="keyword">if</span>(req.query.action === <span class="string">'uploadimage'</span>){
+    <span class="keyword">var</span> foo = req.ueditor;
+    <span class="keyword">var</span> date = <span class="keyword">new</span> Date();
+    <span class="keyword">var</span> imgname = req.ueditor.filename;
+
+    <span class="keyword">var</span> img_url = <span class="string">'/images/ueditor/'</span>;
+    res.ue_up(img_url); <span class="comment">//你只要输入要保存的地址 。保存操作交给ueditor来做</span>
+  }
+  <span class="comment">//  客户端发起图片列表请求</span>
+  <span class="keyword">else</span> <span class="keyword">if</span> (req.query.action === <span class="string">'listimage'</span>){
+    <span class="keyword">var</span> dir_url = <span class="string">'/images/ueditor/'</span>;
+    res.ue_list(dir_url);  <span class="comment">// 客户端会列出 dir_url 目录下的所有图片</span>
+  }
+  <span class="comment">// 客户端发起其它请求</span>
+  <span class="keyword">else</span> {
+
+    res.setHeader(<span class="string">'Content-Type'</span>, <span class="string">'application/json'</span>);
+    res.redirect(<span class="string">'/ueditor/ueditor.config.json'</span>)
+}}));
+</code></pre><p>注意包得引用和配置项即可。再有就是提前创建好目录，防止报错。</p>
+<h2 id="客户端用法">客户端用法</h2><p>步骤1： 下载ueditor解压到public，</p>
+<p>步骤2： 修改<code>/ueditor/ueditor.config.js</code></p>
+<pre><code>window.UEDITOR_CONFIG = {
+
+   <span class="comment"> //为编辑器实例添加一个路径，这个不能被注释</span>
+    UEDITOR_HOME_URL: <span class="built_in">URL</span>
+
+   <span class="comment"> // 服务器统一请求接口路径</span>
+    , serverUrl: <span class="built_in">URL</span> + <span class="string">'ue'</span>
+</code></pre><p>serverUrl必须和上面的服务器端配置的一样</p>
+<p>步骤3：修改<code>/ueditor/ueditor.config.json</code></p>
+<p>主要是修改路径</p>
+<p>更多用法，<a href="http://ueditor.baidu.com/doc" target="_blank" rel="external">http://ueditor.baidu.com/doc</a></p>
+<h2 id="谨慎multer">谨慎multer</h2><p>如果你的项目使用了multer作为上传组件，那么你要小心了</p>
+<p>一定要在multer之前加载ueditor，不然请求会被multer拦截，这是connect中间件的弊病</p>
+<p>如果各位有兴趣，可以fork一笑ueditor，改成和multer兼容的，必然会有很多star</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-06-05-node-ueditor/" data-id="cid0wpbc9000nqm7f3mmaxrlu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/08/07/2015-06-09-expressjs-rest/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Nodejs RESTFul架构实践
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/08/07/2015-06-05-node-excel-practice/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Nodejs 里Excel开发实践</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/jekyll-update/">jekyll update</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-update/">node update</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">35</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>架构小而美的实践 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="架构小而美的实践
+架构演进
+原始阶段，狂狂堆代码，后来有人骂娘了
+于是开始分层，mvc，甚至dao，service，还有rails里比较比较好的Concerns等
+然后模块化，按功能拆分
+服务化，当功能太多的时候，大家开始探索SOA，把服务挂到ESB上以期一统江湖
+提高资源利用率，虚拟化，云计算的特点之一
+到目前后端基本已经很成熟了，于是开始前端分层，mvc，mvvm等…
+
+我们来审视一下这个演进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="架构小而美的实践">
+<meta property="og:url" content="http://yoursite.com/2015/08/07/2015-07-01-small-is-beauty/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="架构小而美的实践
+架构演进
+原始阶段，狂狂堆代码，后来有人骂娘了
+于是开始分层，mvc，甚至dao，service，还有rails里比较比较好的Concerns等
+然后模块化，按功能拆分
+服务化，当功能太多的时候，大家开始探索SOA，把服务挂到ESB上以期一统江湖
+提高资源利用率，虚拟化，云计算的特点之一
+到目前后端基本已经很成熟了，于是开始前端分层，mvc，mvvm等…
+
+我们来审视一下这个演进">
+<meta property="og:image" content="http://yoursite.com/css/node全栈-公众号.png">
+<meta property="og:updated_time" content="2015-07-04T01:48:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="架构小而美的实践">
+<meta name="twitter:description" content="架构小而美的实践
+架构演进
+原始阶段，狂狂堆代码，后来有人骂娘了
+于是开始分层，mvc，甚至dao，service，还有rails里比较比较好的Concerns等
+然后模块化，按功能拆分
+服务化，当功能太多的时候，大家开始探索SOA，把服务挂到ESB上以期一统江湖
+提高资源利用率，虚拟化，云计算的特点之一
+到目前后端基本已经很成熟了，于是开始前端分层，mvc，mvvm等…
+
+我们来审视一下这个演进">
+  
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2015-07-01-small-is-beauty" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/07/2015-07-01-small-is-beauty/" class="article-date">
+  <time datetime="2015-08-07T00:40:16.000Z" itemprop="datePublished">2015-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      架构小而美的实践
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>架构小而美的实践</p>
+<h2 id="架构演进">架构演进</h2><ol>
+<li>原始阶段，狂狂堆代码，后来有人骂娘了</li>
+<li>于是开始分层，mvc，甚至dao，service，还有rails里比较比较好的Concerns等</li>
+<li>然后模块化，按功能拆分</li>
+<li>服务化，当功能太多的时候，大家开始探索SOA，把服务挂到ESB上以期一统江湖</li>
+<li>提高资源利用率，虚拟化，云计算的特点之一</li>
+<li>到目前后端基本已经很成熟了，于是开始前端分层，mvc，mvvm等…</li>
+</ol>
+<p>我们来审视一下这个演进过程，从刚开始到一个复杂的系统，是每个团队都有经历，甚至复杂到一定程度，连开发都不是知道改怎样去改，太庞大，太复杂了。所以大伙又开始拆分，模块也好，服务也好，都是让它变小，可控，当然这样得益于云计算（后面会讲为什么）。</p>
+<p>这里面最重要的变动是从模块化到多个应用并行。避免大而全，而是小而美，如果需要可以建ESB,然后一个门户就可以很好整合这些服务了。</p>
+<p>小而美的架构是当下的主流</p>
+<ul>
+<li>拆分成多个应用，可以组装，也可以横向扩展</li>
+<li>选择简单的技术，将一件事儿做到极致，开发，测试，运维都非常简单，相对而言增加了运维的复杂程度，但有了docker，让我们轻松了许多</li>
+<li>避免单点以及其他运维故障，比如数据库锁升级致使瘫痪的解决方法是尽可能分库，降低锁风险，如果每个应用使用自己的库就非常简单了</li>
+<li>集成容易</li>
+<li>数据方面，分应用，分库，会导致数据分散，难处理。现在以后有比较成熟的技术，比如使用ETL或消息队列MQ延时同步到hadoop平台，数据仓库或者搜索引擎库，利用SQL、MR或者其他技术进行数据处理，如果是实时业务，也问题不大，共享hbase等都可以解决</li>
+</ul>
+<p>我们为什么要选择这样的架构？</p>
+<ul>
+<li>招聘难</li>
+</ul>
+<p>目前为止所有人的反馈都是招聘难，bat无耻的把握了大部分精英资源，中小公司又想以低成本招人，另外还有一点是现在的程序员素质良莠不齐，好像谁找不着工作，去培训3个月就能干了一样。</p>
+<p>既然现实已经这样了，那么我们能做啥呢？</p>
+<ol>
+<li>降低开发难度，【哲学：一次只做一件事儿】，会比较简单，也比较容易做好，而且集成、维护成本等都比较低</li>
+<li>增加团队技术的多样性，【哲学：做一件事儿不只有一种方法】，不管是java也好，php也好，ror，node，python，go都好，只要稳定，易于上手的都可以考虑用。比如ruby的sinatra，比如scala的scalatra，比如node的express和koa，比如go的Martini，都非常简单，性能都不错的</li>
+</ol>
+<p>我们的最终目标是快速交付，快速上线，以期在商业博弈中占点先手优势，而已。</p>
+<ul>
+<li>运维难</li>
+</ul>
+<p>既然拆了这么多应用，实际上部署运维的难度是增大的，但是好处也是很明显</p>
+<ol>
+<li>云服务越来越多，降低我们很多的运维成本，比如mysql，cdn，redis等都有现成可用的服务</li>
+<li>利用docker，可以快速部署上万台服务器，甚至更多，另外docker还有一个好处是预置了某种开发环境，只要准备一次配置文件，以后只管创建镜像即可。比如我的scalatra和express运行环境不一样，我只要建2个配置，根据我的业务需求，哪个服务需要加到支持，我就多建一些镜像即可。如果是传统的服务器，想想就想去天台</li>
+</ol>
+<ul>
+<li>小步快跑难</li>
+</ul>
+<p>技术部门很难的2点：</p>
+<ul>
+<li>开发速度</li>
+<li>执行速度</li>
+</ul>
+<p>假定我们认可agile，无论什么样sprint迭代，我们都要快速交付</p>
+<h2 id="核心业务">核心业务</h2><p>其实对于多个系统而言，model是最业务核心</p>
+<h2 id="多模块">多模块</h2><p>express的好处是可以把app当成子模块，路由可以挂载到当前app上</p>
+<h2 id="拆与合">拆与合</h2><p>拆的好处</p>
+<ul>
+<li>模块化和复用</li>
+</ul>
+<p>言必称复用，就好像不谈oo和dp都不好意思说是开发一样。</p>
+<ul>
+<li>更多利好</li>
+</ul>
+<p>比如</p>
+<h2 id="面向服务">面向服务</h2><h2 id="语言的意义">语言的意义</h2><p>这让我想到2个编程语言的哲学</p>
+<ul>
+<li>There’s More Than One Way To Do It 做一件事儿不只有一种方法</li>
+<li>Do one thing at a time, and do it well 一次只做一件事，并做到最好！</li>
+</ul>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/08/07/2015-07-01-small-is-beauty/" data-id="cid0wpbbl0008qm7f0pq0gpif" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/08/07/2015-07-04-mongo-paging/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          mongodb分页优化
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/08/07/2015-06-30-slb-vs-haproxy/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Nodejs负载均衡：haproxy，slb以及node-slb</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/jekyll-update/">jekyll update</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/node-update/">node update</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">August 2015</a><span class="archive-list-count">35</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/08/07/2015-06-13-pm2-issue/">Nodejs部署再思考</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2014-10-13-ce-shi-yi-ge-wen-zhang/">测试MongoDB</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-npm-postinstall/">从npm tips到express插件机制设计</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-07-gulp-in-action/">gulp结构化</a>
+          </li>
+        
+          <li>
+            <a href="/2015/08/07/2015-07-04-mongo-paging/">mongodb分页优化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdn.bootcss.com/jquery/2.1.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
