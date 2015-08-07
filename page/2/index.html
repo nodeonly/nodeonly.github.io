@@ -61,6 +61,249 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-test" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/25/test/" class="article-date">
+  <time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished">2015-06-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/25/test/">TAP &amp; Tape, the awesome way to test JavaScript</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>TAP &amp; Tape, the awesome way to test JavaScript</p>
+<p><a href="http://www.macwright.org/2014/03/11/tape-is-cool.html" target="_blank" rel="external">原文</a>,如果有时间可以翻译一下，很不错的一篇介绍node测试相关的文章</p>
+<p><img src="/css/2015-06-25/1.jpg" alt=""></p>
+<p><a href="https://github.com/isaacs/node-tap" target="_blank" rel="external">node-tap</a> &amp; <a href="https://github.com/substack/tape" target="_blank" rel="external">tape</a> are simple, awesome testing tools for JavaScript. The JavaScript community has grown up with testing culture, and the vast majority of projects use larger tools like <a href="http://visionmedia.github.io/mocha/" target="_blank" rel="external">Mocha</a> and <a href="http://jasmine.github.io/" target="_blank" rel="external">Jasmine</a>. Recently I’ve been switching lots of projects over to tap &amp; tape, and want to share why.</p>
+<p><a href="http://substack.net/" target="_blank" rel="external">substack</a>, the creator of tape, has already written a bit about <a href="http://substack.net/how_I_write_tests_for_node_and_the_browser" target="_blank" rel="external">his process</a> and thinking - here’s just a little more, written from the perspective of a former mocha user.</p>
+<p>What it sorts down into is roughly three parts: the protocol, browserify, and magic.</p>
+<h2 id="The_Test_Anything_Protocol">The Test Anything Protocol</h2><p>TAP, or the <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol" target="_blank" rel="external">Test Anything Protocol</a> is the definition of ‘tried &amp; true’: it’s been around since 1987 and has been implemented in <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol#List_of_TAP_producers" target="_blank" rel="external">a ton of languages</a>. It’s just a dead-simple way to format test results, like</p>
+<pre><code>TAP version <span class="number">13</span>
+<span class="preprocessor"># equivalence</span>
+ok <span class="number">1</span> these two numbers are equal
+
+<span class="number">1.</span><span class="number">.1</span>
+<span class="preprocessor"># tests <span class="number">1</span></span>
+<span class="preprocessor"># pass  <span class="number">1</span></span>
+
+<span class="preprocessor"># ok</span>
+</code></pre><p>Having this format be super simple means that you can combine tools that have common expectations. For instance, <a href="https://github.com/substack/faucet" target="_blank" rel="external">faucet</a> is a node module that gives pretty, summarized results for your tests, but it doesn’t directly plug into tape or node-tap - all it cares about is the TAP protocol, so you can pipe results into it. You could even pipe a <a href="http://testanything.org/producers.html" target="_blank" rel="external">TAP producer in a different language</a> into it, and it’ll work just the same.</p>
+<h2 id="Browserify">Browserify</h2><p><a href="http://browserify.org/" target="_blank" rel="external">browserify</a> is another awesome tool written by <a href="http://substack.net/" target="_blank" rel="external">substack</a>. With it, you can use node-style require() calls in code you’re going to run in browsers, and then use the browserify command to stitch them all together and make something you can throw in a script tag.</p>
+<p>Browserify has been huge for writing cross-platform libraries, and it’s been huge for building things. <a href="http://mapbox.com/" target="_blank" rel="external">Mapbox.com</a> and <a href="https://www.mapbox.com/mapbox.js/api/v1.6.1/" target="_blank" rel="external">Mapbox.js</a> are both constructed this way - individual libraries on npm, package.json just like nodejs code, and then browserify to bring it to the web.</p>
+<p>Long story short, browserify ‘just works’ with tape. While mocha has something of an unusual browser story - it’s hard to get at the files you’d want to run tests in a browser, and then when you do, if you want to run tests in both browsers and node, it’s not straightforward to conditionally require things sometimes.</p>
+<p>So, to run browserify tests in a browser, you can just run</p>
+<pre><code>$ npm <span class="operator"><span class="keyword">install</span> -<span class="keyword">g</span> browserify testling
+$ browserify <span class="keyword">test</span>/<span class="keyword">test</span>.js | testling</span>
+</code></pre><p>Simple as that. Since tape is just a node module and browserify turns the whole thing into just JavaScript, it’s easy to run it anywhere you want - embedded in a webpage, in a browser, or wherever. tape uses console.log to write its results, which is super easy to pull out of a headless browser.</p>
+<h2 id="Concepts">Concepts</h2><p>A quick review: TAP is a standard for test output. node-tap and tape are two node modules that let you write tests that output results in the TAP protocol.</p>
+<p>So, we’ve discussed TAP a little bit, and you might notice that mocha <a href="http://visionmedia.github.io/mocha/#tap-reporter" target="_blank" rel="external">supports TAP too</a>. So why not just use mocha to write tests? Let’s talk about that.</p>
+<p>Magic</p>
+<p><img src="/css/2015-06-25/2.jpg" alt=""></p>
+<p>Mocha does a little magic. With only few exceptions, nodejs has the assumption that any variables on a page will come from obvious places:</p>
+<pre><code><span class="comment">// this comes from a module</span>
+<span class="keyword">var</span> <span class="built_in">module</span> = <span class="built_in">require</span>(<span class="string">'module'</span>);
+</code></pre><p>In the interest of simplicity, mocha doesn’t follow this rule. Your mocha test files have assumptions:</p>
+<pre><code>var <span class="built_in">assert</span> = <span class="built_in">require</span>(<span class="string">"assert"</span>)
+describe(<span class="string">'truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  it(<span class="string">'should find the truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+    <span class="built_in">assert</span>.equal(<span class="number">1</span>, <span class="number">1</span>);
+  })
+})
+</code></pre><p>Keen eyes will notice that assert entered the stage by a require() call, but describe and it didn’t - they appear magically.</p>
+<p>On the other hand, a basic tape test:</p>
+<pre><code><span class="keyword">var</span> test = <span class="built_in">require</span>(<span class="string">'tape'</span>).test;
+test(<span class="string">'equivalence'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">t</span>) </span>{
+    t.equal(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'these two numbers are equal'</span>);
+    t.end();
+});
+</code></pre><p>test comes from require(), and t comes from the closure. Simple enough. This lack of abstraction has two awesome advantages:</p>
+<p>1.It’s easier to form a mental model of what’s going on, so it’s easier to hack with it and know what’ll happen. What if I call a function with t and then call functions off of t? It’ll work.<br>2.Tests are code. So, you can run tests as modules with node, just like you’d run other code: node test/test.js, and it works. As opposed to needing a ‘test runner’ binary that contains some of the code the test really needs.</p>
+<h2 id="Testling_&amp;_Travis-CI">Testling &amp; Travis-CI</h2><p><a href="http://en.wikipedia.org/wiki/Continuous_integration" target="_blank" rel="external">Continuous Integration</a>, where every commit to <a href="https://github.com/" target="_blank" rel="external">GitHub</a> is automatically tested, has become a necessity. Setting the green ‘this works’ badge on projects means something, and we’ve found that running tests on remote hosts can give a better sanity check than just running them locally - the environment is constructed from scratch, there aren’t any stray files that make things work.</p>
+<p>tape works with testling just like mocha - the same <a href="https://github.com/mapbox/wellknown/blob/master/.travis.yml" target="_blank" rel="external">minimal .travis.yml</a> file ‘just works’ as long as npm install and npm test do their things. But on top of that, you can use <a href="https://ci.testling.com/" target="_blank" rel="external">Testling-CI</a> and <a href="https://github.com/substack/testling" target="_blank" rel="external">testling</a>, and test commits in browsers. Testling-CI works the same as Travis: set a webhook, <a href="https://ci.testling.com/guide/quick_start" target="_blank" rel="external">tweak a few package.json properties</a>, and you’ll get a <a href="https://ci.testling.com/mapbox/wellknown" target="_blank" rel="external">page of your own with results</a>. testling, on the other hand, runs headless tests locally, with your real browsers, not with <a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a> or another custom abstraction. In combination, this means that you can easily cross-browser test code. And if the abstractions break, it’s easy to just browserify the code and run the tests manually.</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/06/25/test/" data-id="cid0yc8dt000aii7f4x1xddu6" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-centos-7" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/25/centos-7/" class="article-date">
+  <time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished">2015-06-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/25/centos-7/">centos7作为web服务器优化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>centos7作为web服务器优化 </p>
+<p>1、关闭firewalld： </p>
+<pre><code>systemctl stop firewalld<span class="class">.service</span> #停止firewall
+systemctl disable firewalld<span class="class">.service</span> #禁止firewall开机启动
+</code></pre><p>2、安装iptables防火墙 </p>
+<pre><code>yum <span class="keyword">install</span> iptables-services <span class="comment">#安装</span>
+  iptables -nvL   <span class="comment">#查看信息</span>
+</code></pre><p>3、加大打开文件数的限制（open files） </p>
+<p>查看 </p>
+<pre><code><span class="built_in">ulimit</span> -n
+  <span class="built_in">ulimit</span> <span class="operator">-a</span>
+
+  vi /etc/security/limits.conf
+</code></pre><p>最后添加 </p>
+<pre><code>* soft nofile <span class="number">1024000</span> 
+* hard nofile <span class="number">1024000</span> 
+hive   - nofile <span class="number">1024000</span> 
+hive   - nproc  <span class="number">1024000</span> 
+</code></pre><p>用户进程限制 </p>
+<pre><code>vi /etc/security/limits.d/<span class="number">20</span>-nproc.conf
+
+  <span class="preprocessor">#加大普通用户限制  也可以改为unlimited</span>
+  *          soft    nproc     <span class="number">40960</span>
+  root       soft    nproc     unlimited
+</code></pre><p>此步骤需要重启机器生效，可以设置完后再重启 </p>
+<p>4、网络线程优化 </p>
+<pre><code><span class="keyword">vi</span> /etc/sysctl.<span class="keyword">conf</span>
+</code></pre><p>加入下面几行 </p>
+<pre><code><span class="preprocessor"># Disable IPv6</span>
+net.ipv6.conf.all.disable_ipv6 = <span class="number">1</span>
+net.ipv6.conf.<span class="keyword">default</span>.disable_ipv6 = <span class="number">1</span>
+
+<span class="preprocessor"># Determines how often to check for stale neighbor entries.</span>
+net.ipv4.neigh.<span class="keyword">default</span>.gc_stale_time=<span class="number">120</span>
+
+<span class="preprocessor"># Using arp_announce/arp_ignore to solve the ARP Problem</span>
+net.ipv4.conf.<span class="keyword">default</span>.arp_announce = <span class="number">2</span>
+net.ipv4.conf.all.arp_announce=<span class="number">2</span>
+vm.swappiness = <span class="number">0</span>
+net.ipv4.tcp_max_tw_buckets = <span class="number">5000</span>
+net.ipv4.tcp_max_syn_backlog = <span class="number">1024</span>
+net.ipv4.tcp_synack_retries = <span class="number">2</span>
+net.ipv4.conf.lo.arp_announce=<span class="number">2</span>
+
+
+net.ipv4.tcp_keepalive_time = <span class="number">1800</span>
+net.ipv4.tcp_keepalive_probes = <span class="number">3</span>
+net.ipv4.tcp_keepalive_intvl = <span class="number">15</span>
+
+net.ipv4.tcp_syncookies = <span class="number">1</span>
+net.ipv4.tcp_tw_reuse = <span class="number">1</span>
+net.ipv4.tcp_tw_recycle = <span class="number">1</span>
+net.ipv4.tcp_fin_timeout = <span class="number">30</span>
+
+
+执行下面命令生效
+/sbin/sysctl -p
+</code></pre><p>5.时间校对 </p>
+<pre><code>cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+  ntpdate us.pool.ntp.org
+
+
+  crontab -e
+  0-59/10 <span class="keyword">*</span> <span class="keyword">*</span> <span class="keyword">*</span> <span class="keyword">*</span> /usr/sbin/ntpdate us.pool.ntp.org |<span class="string"> logger -t NTP
+
+  service crond restart</span>
+</code></pre><p>6.关闭root登录并修改ssh端口 </p>
+<p><a href="http://linuxg.net/5-useradd-command-examples/" target="_blank" rel="external">http://linuxg.net/5-useradd-command-examples/</a></p>
+<p>最常用的</p>
+<pre><code>sudo useradd -<span class="keyword">m</span> -<span class="keyword">d</span> /home/mike1 -s /bin/bash -c <span class="string">"the mike1 user"</span> -<span class="keyword">U</span> mike1
+</code></pre><p>添加普通用户 </p>
+<pre><code>groupadd <span class="built_in">test</span>
+  useradd <span class="operator">-d</span> /home/www/ -g <span class="built_in">test</span> <span class="built_in">test</span>1
+  passwd <span class="built_in">test</span>1
+</code></pre><p>iptables 开启6666端口  此步骤须先于下面步骤，否则会造成ssh连不上的 </p>
+<pre><code>vi <span class="regexp">/etc/</span>sysconfig<span class="regexp">/iptables </span>
+</code></pre><p>添加 </p>
+<pre><code>-A INPUT -p tcp -m <span class="keyword">state</span> --state NEW -m tcp --dport <span class="number">6666</span> -j ACCEPT
+</code></pre><p>修改ssh端口 </p>
+<pre><code>vi <span class="regexp">/etc/</span>ssh<span class="regexp">/sshd_config </span>
+</code></pre><p>找到#Port 22一段，这里是标识默认使用22端口，修改为如下： </p>
+<pre><code><span class="preprocessor">#Port <span class="number">22</span> </span>
+Port <span class="number">6666</span> 
+</code></pre><p>关闭root登录权限<br>把</p>
+<pre><code><span class="title">PermitRootLogin</span> <span class="built_in">yes</span>
+</code></pre><p>改为</p>
+<pre><code><span class="title">PermitRootLogin</span> <span class="built_in">no</span>
+</code></pre><p>保存退出 </p>
+<p>测试新用户能正常登录后方可以在iptables 禁用22端口了 </p>
+<p>7.禁止开启ping </p>
+<p>禁止</p>
+<pre><code>echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/icmp_echo_ignore_all
+</code></pre><p>开启</p>
+<pre><code>echo <span class="number">0</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/icmp_echo_ignore_all
+</code></pre><p>永久保存</p>
+<pre><code>vi /etc/rc.d/rc.local
+echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/icmp_echo_ignore_all
+</code></pre><p>8.网络命令ifconfig </p>
+<pre><code><span class="string">bash:</span> <span class="string">ifconfig:</span> 未找到命令
+  yum -y install net-tools
+</code></pre><p>9.nginx转发请求</p>
+<pre><code>location / {
+    proxy_set_header X-Real-IP <span class="variable">$remote</span>_addr;
+    proxy_set_header X-Forwarded-For <span class="variable">$proxy</span>_add_x_forwarded_for;
+    proxy_set_header Host <span class="variable">$http</span>_host;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">3002</span>;
+    proxy_redirect off;
+}
+</code></pre><p>10.资源</p>
+<ul>
+<li><a href="http://wiki.mikejung.biz/CentOS_7" target="_blank" rel="external">http://wiki.mikejung.biz/CentOS_7</a></li>
+<li><a href="http://wiki.mikejung.biz/OS_Tuning" target="_blank" rel="external">http://wiki.mikejung.biz/OS_Tuning</a></li>
+<li><a href="http://itgeeker.net/centos-7-minimal-optimization-10-ways-after-new-installation-by-itgeeker/" target="_blank" rel="external">http://itgeeker.net/centos-7-minimal-optimization-10-ways-after-new-installation-by-itgeeker/</a></li>
+</ul>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/06/25/centos-7/" data-id="cid0yc8dw000cii7fxx1qf061" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-sails-vs-meteor-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/06/25/sails-vs-meteor-1/" class="article-date">
@@ -425,250 +668,7 @@ Waiting...
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/25/sails-vs-meteor-1/" data-id="cid0y2n3g000e8o7fz462gbr2" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-centos-7" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/06/25/centos-7/" class="article-date">
-  <time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished">2015-06-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/25/centos-7/">centos7作为web服务器优化</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>centos7作为web服务器优化 </p>
-<p>1、关闭firewalld： </p>
-<pre><code>systemctl stop firewalld<span class="class">.service</span> #停止firewall
-systemctl disable firewalld<span class="class">.service</span> #禁止firewall开机启动
-</code></pre><p>2、安装iptables防火墙 </p>
-<pre><code>yum <span class="keyword">install</span> iptables-services <span class="comment">#安装</span>
-  iptables -nvL   <span class="comment">#查看信息</span>
-</code></pre><p>3、加大打开文件数的限制（open files） </p>
-<p>查看 </p>
-<pre><code><span class="built_in">ulimit</span> -n
-  <span class="built_in">ulimit</span> <span class="operator">-a</span>
-
-  vi /etc/security/limits.conf
-</code></pre><p>最后添加 </p>
-<pre><code>* soft nofile <span class="number">1024000</span> 
-* hard nofile <span class="number">1024000</span> 
-hive   - nofile <span class="number">1024000</span> 
-hive   - nproc  <span class="number">1024000</span> 
-</code></pre><p>用户进程限制 </p>
-<pre><code>vi /etc/security/limits.d/<span class="number">20</span>-nproc.conf
-
-  <span class="preprocessor">#加大普通用户限制  也可以改为unlimited</span>
-  *          soft    nproc     <span class="number">40960</span>
-  root       soft    nproc     unlimited
-</code></pre><p>此步骤需要重启机器生效，可以设置完后再重启 </p>
-<p>4、网络线程优化 </p>
-<pre><code><span class="keyword">vi</span> /etc/sysctl.<span class="keyword">conf</span>
-</code></pre><p>加入下面几行 </p>
-<pre><code><span class="preprocessor"># Disable IPv6</span>
-net.ipv6.conf.all.disable_ipv6 = <span class="number">1</span>
-net.ipv6.conf.<span class="keyword">default</span>.disable_ipv6 = <span class="number">1</span>
-
-<span class="preprocessor"># Determines how often to check for stale neighbor entries.</span>
-net.ipv4.neigh.<span class="keyword">default</span>.gc_stale_time=<span class="number">120</span>
-
-<span class="preprocessor"># Using arp_announce/arp_ignore to solve the ARP Problem</span>
-net.ipv4.conf.<span class="keyword">default</span>.arp_announce = <span class="number">2</span>
-net.ipv4.conf.all.arp_announce=<span class="number">2</span>
-vm.swappiness = <span class="number">0</span>
-net.ipv4.tcp_max_tw_buckets = <span class="number">5000</span>
-net.ipv4.tcp_max_syn_backlog = <span class="number">1024</span>
-net.ipv4.tcp_synack_retries = <span class="number">2</span>
-net.ipv4.conf.lo.arp_announce=<span class="number">2</span>
-
-
-net.ipv4.tcp_keepalive_time = <span class="number">1800</span>
-net.ipv4.tcp_keepalive_probes = <span class="number">3</span>
-net.ipv4.tcp_keepalive_intvl = <span class="number">15</span>
-
-net.ipv4.tcp_syncookies = <span class="number">1</span>
-net.ipv4.tcp_tw_reuse = <span class="number">1</span>
-net.ipv4.tcp_tw_recycle = <span class="number">1</span>
-net.ipv4.tcp_fin_timeout = <span class="number">30</span>
-
-
-执行下面命令生效
-/sbin/sysctl -p
-</code></pre><p>5.时间校对 </p>
-<pre><code>cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-
-  ntpdate us.pool.ntp.org
-
-
-  crontab -e
-  0-59/10 <span class="keyword">*</span> <span class="keyword">*</span> <span class="keyword">*</span> <span class="keyword">*</span> /usr/sbin/ntpdate us.pool.ntp.org |<span class="string"> logger -t NTP
-
-  service crond restart</span>
-</code></pre><p>6.关闭root登录并修改ssh端口 </p>
-<p><a href="http://linuxg.net/5-useradd-command-examples/" target="_blank" rel="external">http://linuxg.net/5-useradd-command-examples/</a></p>
-<p>最常用的</p>
-<pre><code>sudo useradd -<span class="keyword">m</span> -<span class="keyword">d</span> /home/mike1 -s /bin/bash -c <span class="string">"the mike1 user"</span> -<span class="keyword">U</span> mike1
-</code></pre><p>添加普通用户 </p>
-<pre><code>groupadd <span class="built_in">test</span>
-  useradd <span class="operator">-d</span> /home/www/ -g <span class="built_in">test</span> <span class="built_in">test</span>1
-  passwd <span class="built_in">test</span>1
-</code></pre><p>iptables 开启6666端口  此步骤须先于下面步骤，否则会造成ssh连不上的 </p>
-<pre><code>vi <span class="regexp">/etc/</span>sysconfig<span class="regexp">/iptables </span>
-</code></pre><p>添加 </p>
-<pre><code>-A INPUT -p tcp -m <span class="keyword">state</span> --state NEW -m tcp --dport <span class="number">6666</span> -j ACCEPT
-</code></pre><p>修改ssh端口 </p>
-<pre><code>vi <span class="regexp">/etc/</span>ssh<span class="regexp">/sshd_config </span>
-</code></pre><p>找到#Port 22一段，这里是标识默认使用22端口，修改为如下： </p>
-<pre><code><span class="preprocessor">#Port <span class="number">22</span> </span>
-Port <span class="number">6666</span> 
-</code></pre><p>关闭root登录权限<br>把</p>
-<pre><code><span class="title">PermitRootLogin</span> <span class="built_in">yes</span>
-</code></pre><p>改为</p>
-<pre><code><span class="title">PermitRootLogin</span> <span class="built_in">no</span>
-</code></pre><p>保存退出 </p>
-<p>测试新用户能正常登录后方可以在iptables 禁用22端口了 </p>
-<p>7.禁止开启ping </p>
-<p>禁止</p>
-<pre><code>echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/icmp_echo_ignore_all
-</code></pre><p>开启</p>
-<pre><code>echo <span class="number">0</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/icmp_echo_ignore_all
-</code></pre><p>永久保存</p>
-<pre><code>vi /etc/rc.d/rc.local
-echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/icmp_echo_ignore_all
-</code></pre><p>8.网络命令ifconfig </p>
-<pre><code><span class="string">bash:</span> <span class="string">ifconfig:</span> 未找到命令
-  yum -y install net-tools
-</code></pre><p>9.nginx转发请求</p>
-<pre><code>location / {
-    proxy_set_header X-Real-IP <span class="variable">$remote</span>_addr;
-    proxy_set_header X-Forwarded-For <span class="variable">$proxy</span>_add_x_forwarded_for;
-    proxy_set_header Host <span class="variable">$http</span>_host;
-    proxy_set_header X-NginX-Proxy true;
-    proxy_pass http://<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">3002</span>;
-    proxy_redirect off;
-}
-</code></pre><p>10.资源</p>
-<ul>
-<li><a href="http://wiki.mikejung.biz/CentOS_7" target="_blank" rel="external">http://wiki.mikejung.biz/CentOS_7</a></li>
-<li><a href="http://wiki.mikejung.biz/OS_Tuning" target="_blank" rel="external">http://wiki.mikejung.biz/OS_Tuning</a></li>
-<li><a href="http://itgeeker.net/centos-7-minimal-optimization-10-ways-after-new-installation-by-itgeeker/" target="_blank" rel="external">http://itgeeker.net/centos-7-minimal-optimization-10-ways-after-new-installation-by-itgeeker/</a></li>
-</ul>
-<p>全文完</p>
-<p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/25/centos-7/" data-id="cid0y2n3h000f8o7f6fybm4yg" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-test" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/06/25/test/" class="article-date">
-  <time datetime="2015-06-24T16:00:00.000Z" itemprop="datePublished">2015-06-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/25/test/">TAP &amp; Tape, the awesome way to test JavaScript</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>TAP &amp; Tape, the awesome way to test JavaScript</p>
-<p><a href="http://www.macwright.org/2014/03/11/tape-is-cool.html" target="_blank" rel="external">原文</a>,如果有时间可以翻译一下，很不错的一篇介绍node测试相关的文章</p>
-<p><img src="/css/2015-06-25/1.jpg" alt=""></p>
-<p><a href="https://github.com/isaacs/node-tap" target="_blank" rel="external">node-tap</a> &amp; <a href="https://github.com/substack/tape" target="_blank" rel="external">tape</a> are simple, awesome testing tools for JavaScript. The JavaScript community has grown up with testing culture, and the vast majority of projects use larger tools like <a href="http://visionmedia.github.io/mocha/" target="_blank" rel="external">Mocha</a> and <a href="http://jasmine.github.io/" target="_blank" rel="external">Jasmine</a>. Recently I’ve been switching lots of projects over to tap &amp; tape, and want to share why.</p>
-<p><a href="http://substack.net/" target="_blank" rel="external">substack</a>, the creator of tape, has already written a bit about <a href="http://substack.net/how_I_write_tests_for_node_and_the_browser" target="_blank" rel="external">his process</a> and thinking - here’s just a little more, written from the perspective of a former mocha user.</p>
-<p>What it sorts down into is roughly three parts: the protocol, browserify, and magic.</p>
-<h2 id="The_Test_Anything_Protocol">The Test Anything Protocol</h2><p>TAP, or the <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol" target="_blank" rel="external">Test Anything Protocol</a> is the definition of ‘tried &amp; true’: it’s been around since 1987 and has been implemented in <a href="https://en.wikipedia.org/wiki/Test_Anything_Protocol#List_of_TAP_producers" target="_blank" rel="external">a ton of languages</a>. It’s just a dead-simple way to format test results, like</p>
-<pre><code>TAP version <span class="number">13</span>
-<span class="preprocessor"># equivalence</span>
-ok <span class="number">1</span> these two numbers are equal
-
-<span class="number">1.</span><span class="number">.1</span>
-<span class="preprocessor"># tests <span class="number">1</span></span>
-<span class="preprocessor"># pass  <span class="number">1</span></span>
-
-<span class="preprocessor"># ok</span>
-</code></pre><p>Having this format be super simple means that you can combine tools that have common expectations. For instance, <a href="https://github.com/substack/faucet" target="_blank" rel="external">faucet</a> is a node module that gives pretty, summarized results for your tests, but it doesn’t directly plug into tape or node-tap - all it cares about is the TAP protocol, so you can pipe results into it. You could even pipe a <a href="http://testanything.org/producers.html" target="_blank" rel="external">TAP producer in a different language</a> into it, and it’ll work just the same.</p>
-<h2 id="Browserify">Browserify</h2><p><a href="http://browserify.org/" target="_blank" rel="external">browserify</a> is another awesome tool written by <a href="http://substack.net/" target="_blank" rel="external">substack</a>. With it, you can use node-style require() calls in code you’re going to run in browsers, and then use the browserify command to stitch them all together and make something you can throw in a script tag.</p>
-<p>Browserify has been huge for writing cross-platform libraries, and it’s been huge for building things. <a href="http://mapbox.com/" target="_blank" rel="external">Mapbox.com</a> and <a href="https://www.mapbox.com/mapbox.js/api/v1.6.1/" target="_blank" rel="external">Mapbox.js</a> are both constructed this way - individual libraries on npm, package.json just like nodejs code, and then browserify to bring it to the web.</p>
-<p>Long story short, browserify ‘just works’ with tape. While mocha has something of an unusual browser story - it’s hard to get at the files you’d want to run tests in a browser, and then when you do, if you want to run tests in both browsers and node, it’s not straightforward to conditionally require things sometimes.</p>
-<p>So, to run browserify tests in a browser, you can just run</p>
-<pre><code>$ npm <span class="operator"><span class="keyword">install</span> -<span class="keyword">g</span> browserify testling
-$ browserify <span class="keyword">test</span>/<span class="keyword">test</span>.js | testling</span>
-</code></pre><p>Simple as that. Since tape is just a node module and browserify turns the whole thing into just JavaScript, it’s easy to run it anywhere you want - embedded in a webpage, in a browser, or wherever. tape uses console.log to write its results, which is super easy to pull out of a headless browser.</p>
-<h2 id="Concepts">Concepts</h2><p>A quick review: TAP is a standard for test output. node-tap and tape are two node modules that let you write tests that output results in the TAP protocol.</p>
-<p>So, we’ve discussed TAP a little bit, and you might notice that mocha <a href="http://visionmedia.github.io/mocha/#tap-reporter" target="_blank" rel="external">supports TAP too</a>. So why not just use mocha to write tests? Let’s talk about that.</p>
-<p>Magic</p>
-<p><img src="/css/2015-06-25/2.jpg" alt=""></p>
-<p>Mocha does a little magic. With only few exceptions, nodejs has the assumption that any variables on a page will come from obvious places:</p>
-<pre><code><span class="comment">// this comes from a module</span>
-<span class="keyword">var</span> <span class="built_in">module</span> = <span class="built_in">require</span>(<span class="string">'module'</span>);
-</code></pre><p>In the interest of simplicity, mocha doesn’t follow this rule. Your mocha test files have assumptions:</p>
-<pre><code>var <span class="built_in">assert</span> = <span class="built_in">require</span>(<span class="string">"assert"</span>)
-describe(<span class="string">'truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  it(<span class="string">'should find the truth'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-    <span class="built_in">assert</span>.equal(<span class="number">1</span>, <span class="number">1</span>);
-  })
-})
-</code></pre><p>Keen eyes will notice that assert entered the stage by a require() call, but describe and it didn’t - they appear magically.</p>
-<p>On the other hand, a basic tape test:</p>
-<pre><code><span class="keyword">var</span> test = <span class="built_in">require</span>(<span class="string">'tape'</span>).test;
-test(<span class="string">'equivalence'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">t</span>) </span>{
-    t.equal(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'these two numbers are equal'</span>);
-    t.end();
-});
-</code></pre><p>test comes from require(), and t comes from the closure. Simple enough. This lack of abstraction has two awesome advantages:</p>
-<p>1.It’s easier to form a mental model of what’s going on, so it’s easier to hack with it and know what’ll happen. What if I call a function with t and then call functions off of t? It’ll work.<br>2.Tests are code. So, you can run tests as modules with node, just like you’d run other code: node test/test.js, and it works. As opposed to needing a ‘test runner’ binary that contains some of the code the test really needs.</p>
-<h2 id="Testling_&amp;_Travis-CI">Testling &amp; Travis-CI</h2><p><a href="http://en.wikipedia.org/wiki/Continuous_integration" target="_blank" rel="external">Continuous Integration</a>, where every commit to <a href="https://github.com/" target="_blank" rel="external">GitHub</a> is automatically tested, has become a necessity. Setting the green ‘this works’ badge on projects means something, and we’ve found that running tests on remote hosts can give a better sanity check than just running them locally - the environment is constructed from scratch, there aren’t any stray files that make things work.</p>
-<p>tape works with testling just like mocha - the same <a href="https://github.com/mapbox/wellknown/blob/master/.travis.yml" target="_blank" rel="external">minimal .travis.yml</a> file ‘just works’ as long as npm install and npm test do their things. But on top of that, you can use <a href="https://ci.testling.com/" target="_blank" rel="external">Testling-CI</a> and <a href="https://github.com/substack/testling" target="_blank" rel="external">testling</a>, and test commits in browsers. Testling-CI works the same as Travis: set a webhook, <a href="https://ci.testling.com/guide/quick_start" target="_blank" rel="external">tweak a few package.json properties</a>, and you’ll get a <a href="https://ci.testling.com/mapbox/wellknown" target="_blank" rel="external">page of your own with results</a>. testling, on the other hand, runs headless tests locally, with your real browsers, not with <a href="http://phantomjs.org/" target="_blank" rel="external">phantomjs</a> or another custom abstraction. In combination, this means that you can easily cross-browser test code. And if the abstractions break, it’s easy to just browserify the code and run the tests manually.</p>
-<p>全文完</p>
-<p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/25/test/" data-id="cid0y2n3e000d8o7feec3e6ra" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/25/sails-vs-meteor-1/" data-id="cid0yc8dv000bii7f6wooc5ps" class="article-share-link">Share</a>
       
       
     </footer>
@@ -772,7 +772,7 @@ test(<span class="string">'equivalence'</span>, <span class="function"><span cla
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/19/mongodb-ttl/" data-id="cid0y2n3j000g8o7f7yasnpt9" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/19/mongodb-ttl/" data-id="cid0yc8dy000dii7f8zqgk19q" class="article-share-link">Share</a>
       
       
     </footer>
@@ -972,7 +972,7 @@ app.listen(<span class="number">3000</span>);
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/17/koa-or-express/" data-id="cid0y2n3l000h8o7ffl23tfzc" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/17/koa-or-express/" data-id="cid0yc8dy000eii7f9x3uml9k" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1092,7 +1092,7 @@ gulp.task(<span class="string">'default'</span>, [<span class="string">'clean'</
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/15/sysstat/" data-id="cid0y2n3n000i8o7fuabrge1p" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/15/sysstat/" data-id="cid0yc8e0000fii7f8cja41vr" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1330,7 +1330,7 @@ module<span class="built_in">.</span>exports = router;
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/14/node-restful-api/" data-id="cid0y2n3o000j8o7fri1x4vl0" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/14/node-restful-api/" data-id="cid0yc8e1000gii7fwhvkwawk" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1452,7 +1452,7 @@ module<span class="built_in">.</span>exports = router;
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/13/pm2-issue/" data-id="cid0y2n3q000k8o7feh2n8lb3" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/13/pm2-issue/" data-id="cid0yc8e2000hii7foxsusmwo" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1689,7 +1689,7 @@ app.<span class="keyword">use</span>(request-time);
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/10/expressjs-rest/" data-id="cid0y2n3s000l8o7fmza0oa5m" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/10/expressjs-rest/" data-id="cid0yc8e3000iii7f6k0knrfh" class="article-share-link">Share</a>
       
       
     </footer>
@@ -2126,7 +2126,7 @@ block content
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/09/expressjs-rest/" data-id="cid0y2n3v000m8o7f1gviex8m" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/09/expressjs-rest/" data-id="cid0yc8e5000jii7fmtw1boln" class="article-share-link">Share</a>
       
       
     </footer>

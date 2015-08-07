@@ -61,96 +61,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-node-ueditor" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/06/05/node-ueditor/" class="article-date">
-  <time datetime="2015-06-04T16:00:00.000Z" itemprop="datePublished">2015-06-05</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/05/node-ueditor/">Nodejs ueditor</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>ueditor是一个所见即所得的编辑器，baidu那些人写的，还不错</p>
-<p><a href="http://ueditor.baidu.com/website/" target="_blank" rel="external">http://ueditor.baidu.com/website/</a></p>
-<h2 id="node版本后台">node版本后台</h2><p>可以在这里找到，<a href="http://ueditor.baidu.com/website/thirdproject.html" target="_blank" rel="external">http://ueditor.baidu.com/website/thirdproject.html</a></p>
-<p><strong>Node.js:ueditor</strong></p>
-<p>可你让您的UEditor 兼容nodejs。Node.js:ueditor@0.0.4以及更高版本,支持图片上传，图片批量管理等。您可以通过npm install ueditor 直接安装此插件。项目代码已经发放到github上，欢迎关注此项目。</p>
-<p>源码地址： <a href="https://github.com/netpi/ueditor" target="_blank" rel="external">https://github.com/netpi/ueditor</a></p>
-<h2 id="服务器端用法">服务器端用法</h2><pre><code><span class="keyword">var</span> bodyParser = <span class="keyword">require</span>(<span class="string">'body-parser'</span>)
-<span class="keyword">var</span> ueditor = <span class="keyword">require</span>(<span class="string">"ueditor"</span>)
-app.<span class="keyword">use</span>(bodyParser.urlencoded({
-  extended: <span class="keyword">true</span>
-}))
-app.<span class="keyword">use</span>(bodyParser.json());
-
-app.<span class="keyword">use</span>(<span class="string">"/ueditor/ue"</span>, ueditor(path.join(__dirname, <span class="string">'public'</span>), <span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span> </span>{
-  <span class="comment">// ueditor 客户发起上传图片请求</span>
-  <span class="keyword">if</span>(req.query.action === <span class="string">'uploadimage'</span>){
-    <span class="keyword">var</span> foo = req.ueditor;
-    <span class="keyword">var</span> date = <span class="keyword">new</span> Date();
-    <span class="keyword">var</span> imgname = req.ueditor.filename;
-
-    <span class="keyword">var</span> img_url = <span class="string">'/images/ueditor/'</span>;
-    res.ue_up(img_url); <span class="comment">//你只要输入要保存的地址 。保存操作交给ueditor来做</span>
-  }
-  <span class="comment">//  客户端发起图片列表请求</span>
-  <span class="keyword">else</span> <span class="keyword">if</span> (req.query.action === <span class="string">'listimage'</span>){
-    <span class="keyword">var</span> dir_url = <span class="string">'/images/ueditor/'</span>;
-    res.ue_list(dir_url);  <span class="comment">// 客户端会列出 dir_url 目录下的所有图片</span>
-  }
-  <span class="comment">// 客户端发起其它请求</span>
-  <span class="keyword">else</span> {
-
-    res.setHeader(<span class="string">'Content-Type'</span>, <span class="string">'application/json'</span>);
-    res.redirect(<span class="string">'/ueditor/ueditor.config.json'</span>)
-}}));
-</code></pre><p>注意包得引用和配置项即可。再有就是提前创建好目录，防止报错。</p>
-<h2 id="客户端用法">客户端用法</h2><p>步骤1： 下载ueditor解压到public，</p>
-<p>步骤2： 修改<code>/ueditor/ueditor.config.js</code></p>
-<pre><code>window.UEDITOR_CONFIG = {
-
-   <span class="comment"> //为编辑器实例添加一个路径，这个不能被注释</span>
-    UEDITOR_HOME_URL: <span class="built_in">URL</span>
-
-   <span class="comment"> // 服务器统一请求接口路径</span>
-    , serverUrl: <span class="built_in">URL</span> + <span class="string">'ue'</span>
-</code></pre><p>serverUrl必须和上面的服务器端配置的一样</p>
-<p>步骤3：修改<code>/ueditor/ueditor.config.json</code></p>
-<p>主要是修改路径</p>
-<p>更多用法，<a href="http://ueditor.baidu.com/doc" target="_blank" rel="external">http://ueditor.baidu.com/doc</a></p>
-<h2 id="谨慎multer">谨慎multer</h2><p>如果你的项目使用了multer作为上传组件，那么你要小心了</p>
-<p>一定要在multer之前加载ueditor，不然请求会被multer拦截，这是connect中间件的弊病</p>
-<p>如果各位有兴趣，可以fork一笑ueditor，改成和multer兼容的，必然会有很多star</p>
-<p>全文完</p>
-<p>欢迎关注我的公众号【node全栈】</p>
-<p><img src="/css/node全栈-公众号.png" alt=""></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/05/node-ueditor/" data-id="cid0y2n3w000n8o7f2x1sqmyx" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-node-excel-practice" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/06/05/node-excel-practice/" class="article-date">
@@ -406,7 +316,97 @@ public <span class="class"><span class="keyword">class</span> <span class="title
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/05/node-excel-practice/" data-id="cid0y2n3y000o8o7fdz7rhmth" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/05/node-excel-practice/" data-id="cid0yc8e8000lii7fhjy2am9e" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-node-ueditor" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/05/node-ueditor/" class="article-date">
+  <time datetime="2015-06-04T16:00:00.000Z" itemprop="datePublished">2015-06-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/05/node-ueditor/">Nodejs ueditor</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>ueditor是一个所见即所得的编辑器，baidu那些人写的，还不错</p>
+<p><a href="http://ueditor.baidu.com/website/" target="_blank" rel="external">http://ueditor.baidu.com/website/</a></p>
+<h2 id="node版本后台">node版本后台</h2><p>可以在这里找到，<a href="http://ueditor.baidu.com/website/thirdproject.html" target="_blank" rel="external">http://ueditor.baidu.com/website/thirdproject.html</a></p>
+<p><strong>Node.js:ueditor</strong></p>
+<p>可你让您的UEditor 兼容nodejs。Node.js:ueditor@0.0.4以及更高版本,支持图片上传，图片批量管理等。您可以通过npm install ueditor 直接安装此插件。项目代码已经发放到github上，欢迎关注此项目。</p>
+<p>源码地址： <a href="https://github.com/netpi/ueditor" target="_blank" rel="external">https://github.com/netpi/ueditor</a></p>
+<h2 id="服务器端用法">服务器端用法</h2><pre><code><span class="keyword">var</span> bodyParser = <span class="keyword">require</span>(<span class="string">'body-parser'</span>)
+<span class="keyword">var</span> ueditor = <span class="keyword">require</span>(<span class="string">"ueditor"</span>)
+app.<span class="keyword">use</span>(bodyParser.urlencoded({
+  extended: <span class="keyword">true</span>
+}))
+app.<span class="keyword">use</span>(bodyParser.json());
+
+app.<span class="keyword">use</span>(<span class="string">"/ueditor/ue"</span>, ueditor(path.join(__dirname, <span class="string">'public'</span>), <span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span> </span>{
+  <span class="comment">// ueditor 客户发起上传图片请求</span>
+  <span class="keyword">if</span>(req.query.action === <span class="string">'uploadimage'</span>){
+    <span class="keyword">var</span> foo = req.ueditor;
+    <span class="keyword">var</span> date = <span class="keyword">new</span> Date();
+    <span class="keyword">var</span> imgname = req.ueditor.filename;
+
+    <span class="keyword">var</span> img_url = <span class="string">'/images/ueditor/'</span>;
+    res.ue_up(img_url); <span class="comment">//你只要输入要保存的地址 。保存操作交给ueditor来做</span>
+  }
+  <span class="comment">//  客户端发起图片列表请求</span>
+  <span class="keyword">else</span> <span class="keyword">if</span> (req.query.action === <span class="string">'listimage'</span>){
+    <span class="keyword">var</span> dir_url = <span class="string">'/images/ueditor/'</span>;
+    res.ue_list(dir_url);  <span class="comment">// 客户端会列出 dir_url 目录下的所有图片</span>
+  }
+  <span class="comment">// 客户端发起其它请求</span>
+  <span class="keyword">else</span> {
+
+    res.setHeader(<span class="string">'Content-Type'</span>, <span class="string">'application/json'</span>);
+    res.redirect(<span class="string">'/ueditor/ueditor.config.json'</span>)
+}}));
+</code></pre><p>注意包得引用和配置项即可。再有就是提前创建好目录，防止报错。</p>
+<h2 id="客户端用法">客户端用法</h2><p>步骤1： 下载ueditor解压到public，</p>
+<p>步骤2： 修改<code>/ueditor/ueditor.config.js</code></p>
+<pre><code>window.UEDITOR_CONFIG = {
+
+   <span class="comment"> //为编辑器实例添加一个路径，这个不能被注释</span>
+    UEDITOR_HOME_URL: <span class="built_in">URL</span>
+
+   <span class="comment"> // 服务器统一请求接口路径</span>
+    , serverUrl: <span class="built_in">URL</span> + <span class="string">'ue'</span>
+</code></pre><p>serverUrl必须和上面的服务器端配置的一样</p>
+<p>步骤3：修改<code>/ueditor/ueditor.config.json</code></p>
+<p>主要是修改路径</p>
+<p>更多用法，<a href="http://ueditor.baidu.com/doc" target="_blank" rel="external">http://ueditor.baidu.com/doc</a></p>
+<h2 id="谨慎multer">谨慎multer</h2><p>如果你的项目使用了multer作为上传组件，那么你要小心了</p>
+<p>一定要在multer之前加载ueditor，不然请求会被multer拦截，这是connect中间件的弊病</p>
+<p>如果各位有兴趣，可以fork一笑ueditor，改成和multer兼容的，必然会有很多star</p>
+<p>全文完</p>
+<p>欢迎关注我的公众号【node全栈】</p>
+<p><img src="/css/node全栈-公众号.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/06/05/node-ueditor/" data-id="cid0yc8e7000kii7ft9tt0z63" class="article-share-link">Share</a>
       
       
     </footer>
@@ -519,7 +519,7 @@ public <span class="class"><span class="keyword">class</span> <span class="title
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/03/pinming/" data-id="cid0y2n40000p8o7fds1hp0pk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/03/pinming/" data-id="cid0yc8ea000mii7f9suak85b" class="article-share-link">Share</a>
       
       
     </footer>
@@ -592,7 +592,7 @@ nrm <span class="keyword">use</span> taobao
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/02/study/" data-id="cid0y2n42000q8o7fs0z2oryr" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/02/study/" data-id="cid0yc8eb000nii7fqb276kg2" class="article-share-link">Share</a>
       
       
     </footer>
@@ -856,7 +856,7 @@ $ pm2 <span class="keyword">start</span> app.js -<span class="keyword">i</span> 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/02/deploy/" data-id="cid0y2n43000r8o7f0rq9zjzj" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/02/deploy/" data-id="cid0yc8el000oii7fc0l603vh" class="article-share-link">Share</a>
       
       
     </footer>
@@ -955,7 +955,7 @@ mount<span class="list">(<span class="keyword">app</span>,<span class="quoted">'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/06/01/kp-and-mount-routes/" data-id="cid0y2n45000s8o7f9oxn6b28" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/06/01/kp-and-mount-routes/" data-id="cid0yc8em000pii7fk2m8g1is" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1042,7 +1042,7 @@ mount<span class="list">(<span class="keyword">app</span>,<span class="quoted">'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/05/27/rethink/" data-id="cid0y2n47000t8o7fbkmh30ro" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/05/27/rethink/" data-id="cid0yc8en000qii7fk8bg0cl1" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1143,7 +1143,7 @@ mount<span class="list">(<span class="keyword">app</span>,<span class="quoted">'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/05/27/how-to-study/" data-id="cid0y2n49000u8o7fx983x5jm" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/05/27/how-to-study/" data-id="cid0yc8ep000rii7fkyyf45gp" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1227,7 +1227,7 @@ mount<span class="list">(<span class="keyword">app</span>,<span class="quoted">'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/05/26/how-to-process-retina-h5-image/" data-id="cid0y2n4a000v8o7fqi48r3um" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/05/26/how-to-process-retina-h5-image/" data-id="cid0yc8er000sii7faxy15uhv" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1277,7 +1277,7 @@ mount<span class="list">(<span class="keyword">app</span>,<span class="quoted">'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/05/22/express_basic/" data-id="cid0y2n4e000w8o7ft4obv0j9" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2015/05/22/express_basic/" data-id="cid0yc8es000tii7ftdrfgue7" class="article-share-link">Share</a>
       
       
     </footer>
